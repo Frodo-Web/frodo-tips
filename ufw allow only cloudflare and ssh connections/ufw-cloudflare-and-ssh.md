@@ -13,7 +13,7 @@ $ sudo ufw enable // Enable firewall
 $ sudo ufw status verbose // To see the rules applied
 $ sudo ./cloudflare-ufw.sh // Run the script to add cloudflare ips
 $ sudo crontab -e // Open crontab
-$ 0 0 * * 1 /full/path/cloudflare-ufw.sh > /dev/null 2>&1 // Run the script every Monday at 00:00 to check for and update cloudflare ips
+$ 0 12 * * 1 /full/path/cloudflare-ufw.sh > /dev/null 2>&1 // Run the script every Monday at 12:00 UTC to check for and update cloudflare ips
 ````
 ### Delete a single UFW rule
 ````
