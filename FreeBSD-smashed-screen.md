@@ -20,6 +20,7 @@ cd ./myDir
 ee ./boot/loader.conf  // Make sure you are opening the file from installation, not your USB stick one!
 ````
 ### 5. Switch to text mode console. Add the following line and save it:
+Since FreeBSD is using pixel mode console as default, we want to try to switch to more old, more stable and more basic one, text mode console:
 ````
 screen.textmode="0"
 ````
