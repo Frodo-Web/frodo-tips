@@ -46,7 +46,8 @@ Package: *
 Pin: release a=unstable
 Pin-Priority: 650
 ````
-## 4. Now install a package from unstable repo:
+### Testing repo will be used as default
+## 4. To install a package from unstable repo use -t unstable:
 ````
 sudo apt -t unstable install firefox
 ````
