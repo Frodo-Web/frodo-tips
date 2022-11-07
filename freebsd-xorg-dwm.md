@@ -41,6 +41,10 @@ Find out dwm location:
 Move to that directory and build dwm:
 ````
 # cd /usr/local/bin/dwm
+# make extract  // Extract source files
+# cd ./work/dwm-6.3/
+# ee ./config.def.h  // Your custom edits for dwm
+# cd ../..
 # make install clean
 ````
 ## 6. Create .xinitrc
