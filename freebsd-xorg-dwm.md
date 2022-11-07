@@ -48,7 +48,7 @@ Switch back to user!
 ````
 $ ee ~/.xinitrc
 ````
-Add the following line:
+Add the following lines:
 ````
 #!/bin/sh
 exec dwm
