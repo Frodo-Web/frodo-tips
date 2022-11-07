@@ -50,6 +50,7 @@ $ ee ~/.xinitrc
 ````
 Add the following line:
 ````
+#!/bin/sh
 exec dwm
 ````
 ## 7. Reboot and try it out!
@@ -59,7 +60,7 @@ Reboot:
 ````
 Log-in as user, and type this:
 ````
-startx
+$ startx
 ````
 xorg with dwm should run without issues
 
