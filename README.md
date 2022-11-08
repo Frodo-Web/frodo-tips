@@ -8,3 +8,6 @@ Useful commands, combinations, advices, etc...
 [Windows tips by Frodo](https://github.com/Frodo-Web/frodo-tips/blob/main/Windows.md) <br>
 [Install Debian with flexible testing+unstable repo configuration](https://github.com/Frodo-Web/frodo-tips/blob/main/debian-to-flexible-testing%2Bunstable.md) <br>
 
+# FreeBSD tips by Frodo
+[FreeBSD tips by Frodo](https://github.com/Frodo-Web/frodo-tips/blob/main/FreeBSD-tips-by-Frodo/FreeBSD-tips-by-Frodo.md)
+
