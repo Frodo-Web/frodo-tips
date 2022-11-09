@@ -24,7 +24,7 @@ And add the following line, **replace the driver (i915kms)** with yours:
 ````
 kld_list="i915kms"
 ````
-## 5. Build dwm
+## 5. Edit config.h and build DWM
 Download and extract ports collection:
 ````
 # portsnap fetch extract
@@ -38,14 +38,23 @@ Find out dwm location:
 # whereis dwm
 >>> dwm: /usr/local/bin/dwm
 ````
-Move to that directory and build dwm:
+Move to that directory and extract source files:
 ````
 # cd /usr/local/bin/dwm
-# make extract  // Extract source files
-# cd ./work/dwm-6.3/
-# ee ./config.def.h  // Your custom edits for dwm
-# cd ../..
-# make install clean
+# make extract
+````
+Switch to user and save the config in your directory for future edits:
+````
+$ mkdir ~/dwm
+$ cp ./work/dwm-6.3/config.def.h ~/dwm/config.h
+````
+Customize dwm:
+````
+$ ee ~/dwm/config.h
+````
+Now specify the config path and build dwm:
+````
+# make DWM_CONF=/home/{Your_username}/dwm/config.h install clean.
 ````
 ## 6. Create .xinitrc
 Switch back to user!
