@@ -24,6 +24,10 @@ And add the following line, **replace the driver (i915kms)** with yours:
 ````
 kld_list="i915kms"
 ````
+Possible choices:
+- amdgpu
+- radeonkms
+- i915kms
 ## 5. Edit config.h and build DWM
 Download and extract ports collection:
 ````
