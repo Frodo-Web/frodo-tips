@@ -1,18 +1,19 @@
-# Reduce disk usage in firefox
+# Reduce disk, memory and CPU usage in Firefox
 ## Type about:config in your address bar
 Set the following options:
 ````
 browser.cache.disk.enable to false  // Disable disk cache.
-                                       Media, like youtube videos, will not be downloaded directly on your hard disk
+                            // Media, like youtube videos, will not be downloaded directly on your hard disk
 browser.sessionstore.interval to 1800000  // Store the session every 30 min, recovers it if browser crash happens
-                                          // Default is 15 sec, which uses I/O ALOT!
+                            // Default is 15 sec, which uses I/O ALOT!
 OR
 browser.sessionstore.resume_from_crash to false  // If you want to disable this feature completely!
 
 extensions.pocket.enabled to false  // If you don't use built-in Pocket service
 
-browser.sessionhistory.max_entries to 5  // Storages the list of sites that you have visited recently
-                                         // The maximum number of URLs you can traverse purely through the Back/Forward buttons.
+browser.sessionhistory.max_entries to 5
+browser.sessionhistory.max_total_viewers to 5  // Storages the list of sites that you have visited recently
+                            // The maximum number of URLs you can traverse purely through the Back/Forward buttons.
 ````
 
 ## Type about:preferences in your address bar
