@@ -1,4 +1,29 @@
 # Git tips by Frodo<br>
+## Setup Git
+List the settings
+````
+git config --list  // Showing system, global, and (if inside a repository) local configs
+git config --list --system
+git config --list --global
+git config --list --local  // Specific to that single repository
+````
+Direct way
+````
+git config user.email
+git config --global user.email
+git config --local user.email
+````
+Configure Git
+````
+git config --global user.name "Your Name"
+git config --global user.email "123456789+example@users.noreply.github.com"  # Remember to use your own private GitHub email here
+git config --global init.defaultBranch main  // Change the default branch to main
+git config --global color.ui auto  // Enable colorful output
+git config --global pull.rebase false  // pull --rebase:  Update your local working branch with commits from the remote, but rewrite history so any local commits occur after all new commits coming from the remote, avoiding a merge commit.
+ssh-keygen -t ed25519 -C <youremail>
+***Copy your public SSH key to Github***
+ssh -T git@github.com  // Testing your SSH connection
+````
 ## Fix remote URLs from HTTPS to SSH for Project
 ````
 git remote set-url origin git@github.com:username/repo.git
