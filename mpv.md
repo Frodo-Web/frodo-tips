@@ -7,8 +7,11 @@ $ mpv link_to_youtube_vid --no-video
   Failed to open https://rr15---sn-axq7sn76.googlevideo.com/videoplayback?expire=...
   ...
 ````
-Update youtube-dl to the recent version to make it work:
+Figure out youtube-dl location and update it to the recent version to make it work:
 ````
-$ sudo wget https://yt-dl.org/downloads/latest/youtube-dl -O /usr/local/bin/youtube-dl
+$ whereis youtube-dl
+> youtube-dl: /usr/local/bin/youtube-dl
+
+$ sudo wget https://yt-dl.org/downloads/latest/youtube-dl -O /usr/local/bin/youtube-dl  // Use your own path here
 $ sudo chmod a+rx /usr/local/bin/youtube-dl
 ````
