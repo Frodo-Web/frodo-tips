@@ -8,7 +8,8 @@ Useful commands, combinations, advices, etc...
 [Windows tips by Frodo](https://github.com/Frodo-Web/frodo-tips/blob/main/Windows.md) <br>
 [Install Debian with flexible testing+unstable repo configuration](https://github.com/Frodo-Web/frodo-tips/blob/main/debian-to-flexible-testing%2Bunstable.md) <br>
 [Reduce disk, memory and CPU usage in Firefox](https://github.com/Frodo-Web/frodo-tips/blob/main/reduce-disk-memory-cpu-usage-in-firefox.md) <br>
-[MPV tips](https://github.com/Frodo-Web/frodo-tips/blob/main/mpv.md)
+[MPV tips](https://github.com/Frodo-Web/frodo-tips/blob/main/mpv.md) <br>
+[Node.js tips](https://github.com/Frodo-Web/frodo-tips/blob/main/nodejs.md)
 # FreeBSD tips by Frodo
 [FreeBSD tips by Frodo](https://github.com/Frodo-Web/frodo-tips/blob/main/FreeBSD-tips-by-Frodo/FreeBSD-tips-by-Frodo.md)
 
