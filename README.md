@@ -10,6 +10,7 @@ Useful commands, combinations, advices, etc...
 [Reduce disk, memory and CPU usage in Firefox](https://github.com/Frodo-Web/frodo-tips/blob/main/reduce-disk-memory-cpu-usage-in-firefox.md) <br>
 [MPV tips](https://github.com/Frodo-Web/frodo-tips/blob/main/mpv.md) <br>
 [Node.js tips](https://github.com/Frodo-Web/frodo-tips/blob/main/nodejs.md) <br>
+[Load newest missing firmware on Debian testing net install](https://github.com/Frodo-Web/frodo-tips/blob/main/missing-firmware-debian.md) <br>
 ## SSH
 [OpenSSH Server connection drops out after few minutes of inactivity](https://github.com/Frodo-Web/frodo-tips/blob/main/ssh-connection-drops-out-on-inactivity.md) <br>
 [Configure SSH Key-Based Authentication & Disable Password-Based Authentication](https://github.com/Frodo-Web/frodo-tips/blob/main/ssh-key-based-authentication.md) <br>
