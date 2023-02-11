@@ -46,7 +46,7 @@ sudo update-grub
 Found Windows Boot Manager on /dev/nvme0n1p1@/EFI/Microsoft/Boot/bootmgfw.efi
 Found Ubuntu 22.10 (22.10) on /dev/nvme0n1p4
 ````
-I got this message when boot with Ubuntu
+I got this message on boot with Ubuntu
 ````
 bad shim signature 
 you need to load the kernel first
