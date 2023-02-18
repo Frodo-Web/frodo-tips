@@ -24,3 +24,27 @@ If your container is running a webserver, for example, docker attach will probab
 ````
 docker exec -it <mycontainer> sh
 ````
+### Docker Compose to Run Multiple Instances of a Service
+```
+docker-compose up --scale app=2
+```
+docker-compose.yml example:
+````
+version: "3"
+
+services:
+
+  app:
+    build: app/
+    command: node app.js
+    expose:
+      - "3000"
+  nginx"
+    build: nginx/
+    command: nginx -g 'daemon off;'
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+````
+This will create network with the default driver (bridge). So, nginx will round robin to each instance inside network and can be accessible by port 80 on the host.
