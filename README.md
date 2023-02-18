@@ -17,7 +17,9 @@ Useful commands, combinations, advices, etc...
 [OpenSSH Server connection drops out after few minutes of inactivity](https://github.com/Frodo-Web/frodo-tips/blob/main/ssh-connection-drops-out-on-inactivity.md) <br>
 [Configure SSH Key-Based Authentication & Disable Password-Based Authentication](https://github.com/Frodo-Web/frodo-tips/blob/main/ssh-key-based-authentication.md) <br>
 # Docker tips
-[Docker tips](https://github.com/Frodo-Web/frodo-tips/blob/main/docker.md)
+[Docker tips](https://github.com/Frodo-Web/frodo-tips/blob/main/docker.md) <br>
+# Nginx tips
+[Nginx tips](https://github.com/Frodo-Web/frodo-tips/blob/main/nginx-tips/nginx.md) <br>
 # FreeBSD tips by Frodo
 [FreeBSD tips by Frodo](https://github.com/Frodo-Web/frodo-tips/blob/main/FreeBSD-tips-by-Frodo/FreeBSD-tips-by-Frodo.md)
 
