@@ -47,4 +47,4 @@ services:
     depends_on:
       - app
 ````
-This will create network with the default driver (bridge). So, nginx will round robin to each instance inside network and can be accessible by port 80 on the host.
+This will create network with the default driver (bridge). So, nginx will round robin to each instance inside network and can be accessible by port 80 on the host. Nginx round robin configuration can be found here https://github.com/Frodo-Web/frodo-tips/blob/main/nginx-tips/nginx.md
