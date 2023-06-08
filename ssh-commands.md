@@ -44,7 +44,7 @@ Then you will see there is only one identity which you listed in the commandline
 debug1: Will attempt key: keys/docker RSA SHA256:8wy2O... explicit
 ````
 ### Ignore ~/.ssh/known/hosts (Disable SSH Host Key Checking)
-To hide messages like this:
+To hide and ignore messages like this:
 ````
 The authenticity of host ***** can't be established.
 RSA key fingerprint is *****.
