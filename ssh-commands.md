@@ -43,3 +43,32 @@ Then you will see there is only one identity which you listed in the commandline
 ````
 debug1: Will attempt key: keys/docker RSA SHA256:8wy2O... explicit
 ````
+### Ignore ~/.ssh/known/hosts (Disable SSH Host Key Checking)
+To hide messages like this:
+````
+The authenticity of host ***** can't be established.
+RSA key fingerprint is *****.
+Are you sure you want to continue connecting (yes/no)?
+````
+Or this:
+````
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+It is also possible that a host key has just been changed.
+The fingerprint for the ED25519 key sent by the remote host is
+SHA256:ER4HhZ2GQv3aotG5d3zUbr2Snpc/oZ0vnDm75PtaZoE.
+Please contact your system administrator.
+Add correct host key in /home/dev/.ssh/known_hosts to get rid of this message.
+Offending ED25519 key in /home/dev/.ssh/known_hosts:223
+  remove with:
+  ssh-keygen -f "/home/dev/.ssh/known_hosts" -R "localhost"
+Host key for localhost has changed and you have requested strict checking.
+Host key verification failed.
+````
+Simply add StrictHostKeyChecking=no to your command line arguments and ssh config, like this:
+````
+ssh -v -i keys/docker -o IdentitiesOnly=yes -o PubkeyAuthentication=yes -o PreferredAuthentications=publickey -o StrictHostKeyChecking=no frodo@8.8.8.8
+````
