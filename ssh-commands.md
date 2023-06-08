@@ -39,3 +39,7 @@ To ignore these identities, you need to use -i option together with -o Identitie
 ````
 ssh -v -i keys/docker -o IdentitiesOnly=yes -o PubkeyAuthentication=yes -o PreferredAuthentications=publickey frodo@8.8.8.8
 ````
+Then you will see there is only one identity which you listed in the commandline:
+````
+debug1: Will attempt key: keys/docker RSA SHA256:8wy2O... explicit
+````
