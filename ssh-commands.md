@@ -20,7 +20,7 @@ PreferredAuthentications
 ### SSH pubkey auth order
 If you will try to run SSH in a higher loglevel mode:
 ````
-ssh -vvv ...
+ssh -vvv -i keys/docker ...
 ````
 You will see the order in which ssh client will try to offer the keys to the server:
 ````
