@@ -17,6 +17,11 @@ PreferredAuthentications
                    gssapi-with-mic,hostbased,publickey,
                    keyboard-interactive,password
 ````
+### Force specific key algorithm
+You can use HostkeyAlgorithms and PubkeyAcceptedAlgorithms options for that:
+````
+ssh -i build/keys/docker -o HostkeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa ...
+````
 ### SSH pubkey auth order
 If you will try to run SSH in a higher loglevel mode:
 ````
@@ -71,4 +76,9 @@ Host key verification failed.
 Simply add StrictHostKeyChecking=no to your command line arguments and ssh config, like this:
 ````
 ssh -v -i keys/docker -o IdentitiesOnly=yes -o PubkeyAuthentication=yes -o PreferredAuthentications=publickey -o StrictHostKeyChecking=no frodo@8.8.8.8
+````
+
+### Final command:
+````
+ssh -i build/keys/docker -o HostkeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa -o IdentitiesOnly=yes -o PubkeyAuthentication=yes -o PreferredAuthentications=publickey -o StrictHostKeyChecking=no frodo@8.8.8.8
 ````
