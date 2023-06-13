@@ -1,4 +1,9 @@
 # SSH commands and options
+## Working with sshd
+### Reload ssh-server configuration
+````
+# kill -SIGHUP $(pgrep -f "sshd -D") 
+````
 ## Working with keys
 ### Supress warning messages
 ````
