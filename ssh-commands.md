@@ -1,5 +1,9 @@
 # SSH commands
 ## Working with keys
+### Supress warning messages
+````
+ssh -o LogLevel=quiet ...
+````
 ### Force password authentication
 ````
 ssh -vvv -o PubkeyAuthentication=no -o PreferredAuthentications=password frodo@8.8.8.8
@@ -80,5 +84,5 @@ ssh -v -i keys/docker -o IdentitiesOnly=yes -o PubkeyAuthentication=yes -o Prefe
 
 ### Final command:
 ````
-ssh -i build/keys/docker -o HostkeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa -o IdentitiesOnly=yes -o PubkeyAuthentication=yes -o PreferredAuthentications=publickey -o StrictHostKeyChecking=no frodo@8.8.8.8
+ssh -i build/keys/docker -o HostkeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa -o IdentitiesOnly=yes -o PubkeyAuthentication=yes -o PreferredAuthentications=publickey -o StrictHostKeyChecking=no -o LogLevel=quiet frodo@8.8.8.8
 ````
