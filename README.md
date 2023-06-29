@@ -21,6 +21,8 @@ Useful commands, combinations, advices, etc...
 [Docker tips](https://github.com/Frodo-Web/frodo-tips/blob/main/docker.md) <br>
 # Nginx tips
 [Nginx tips](https://github.com/Frodo-Web/frodo-tips/blob/main/nginx-tips/nginx.md) <br>
+# Java
+[JDB (The Java Debugger)](https://github.com/Frodo-Web/frodo-tips/blob/main/java/jdb.md) <br>
 # FreeBSD tips by Frodo
 [FreeBSD tips by Frodo](https://github.com/Frodo-Web/frodo-tips/blob/main/FreeBSD-tips-by-Frodo/FreeBSD-tips-by-Frodo.md)
 
