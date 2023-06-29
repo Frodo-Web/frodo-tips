@@ -1,4 +1,14 @@
 # JDB (The Java Debugger)
+This is the additional options needed to enable remote debugger server:
+````
+java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000 Test
+````
+Was actual for me on Java 8. You can find more in the docummentation for each version <br>
+
+In Catalina, to enable jdpa you need to change your init script command to jdpa start
+````
+catalina jdpa start
+````
 Connect to jvm with jdpa enabled:
 ````
 jdb -attach 127.0.0.1:8000
