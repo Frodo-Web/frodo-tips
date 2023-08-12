@@ -17,6 +17,8 @@ Useful commands, combinations, advices, etc...
 [LVM demonstration](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/lvm.md) <br>
 [Tmux, Screen](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/tmux-screen.md) <br>
 [Shell](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/shell.md) <br>
+[Dig](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/dig.md) <br>
+
 
 ## SSH
 [SSH commands and options](https://github.com/Frodo-Web/frodo-tips/blob/main/ssh-commands.md) <br>
