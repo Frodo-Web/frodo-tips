@@ -14,7 +14,7 @@ Useful commands, combinations, advices, etc...
 [Multiboot. Enable os-prober to add more systems to the boot menu on update-grub](https://github.com/Frodo-Web/frodo-tips/blob/main/enable-os-prober-to-detect-more-systems-on-update-grub.md) <br>
 [Mount: NTFS signature is missing when mounting Windows 11 partition](https://github.com/Frodo-Web/frodo-tips/blob/main/mount-NTFS-signature-is-missing-windows-11.md) <br>
 ## Linux Admin
-[LVM demonstration]([https://github.com/Frodo-Web/frodo-tips/blob/main/mount-NTFS-signature-is-missing-windows-11.md](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/lvm.md)) <br>
+[LVM demonstration](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/lvm.md) <br>
 ## SSH
 [SSH commands and options](https://github.com/Frodo-Web/frodo-tips/blob/main/ssh-commands.md) <br>
 [OpenSSH Server connection drops out after few minutes of inactivity](https://github.com/Frodo-Web/frodo-tips/blob/main/ssh-connection-drops-out-on-inactivity.md) <br>
