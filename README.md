@@ -18,7 +18,7 @@ Useful commands, combinations, advices, etc...
 [Tmux, Screen](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/tmux-screen.md) <br>
 [Shell](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/shell.md) <br>
 [Dig](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/dig.md) <br>
-
+[ufw, firewall-cmd](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/ufw-firewall-cmd.md) <br>
 
 ## SSH
 [SSH commands and options](https://github.com/Frodo-Web/frodo-tips/blob/main/ssh-commands.md) <br>
