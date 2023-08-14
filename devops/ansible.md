@@ -5,7 +5,6 @@
     - name: Debug
       debug:
         msg: 
-          -  "Playbook will quit from here"
           -  "{{ some_variable_you_need_to_debug_before_playing_further }}"
     - name: Quit immediately
       meta: end_play
