@@ -68,6 +68,7 @@ git log --pretty=oneline  // Хеш + сообщение коммита
 git log --pretty=format:"%h - %an, %ar : %s"  // автор + когда + сообщение
 git log --since=2.weeks
 git log -S function_name
+git log -p -- filename  // История изменения файла
 git log -- path/to/file
 git commit --amend
 
