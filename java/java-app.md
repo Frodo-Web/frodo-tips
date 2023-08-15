@@ -1,6 +1,6 @@
 # Working with Java Applications (JVM, jboss, wildfly)
 
-#### Print JVM arguments, without using ps, grep
+#### Java Process Status (jps) Tool. Print JVM arguments, without using ps, grep
 ````
 $ sudo /opt/jdk/last/bin/jps -v   // !!! sudo
 ..
