@@ -110,8 +110,7 @@ pipeline {
         stage('Stage One') {
             steps {
                 sh '''
-                    echo "Line 1"
-                    echo "Line 2"
+                    python --version
                 '''
             }
         }
