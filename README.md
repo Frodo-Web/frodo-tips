@@ -23,6 +23,7 @@ Useful commands, combinations, advices, etc...
 [Working with Java Applications (JVM, jboss, wildfly)](https://github.com/Frodo-Web/frodo-tips/blob/main/java/java-app.md) <br>
 # DevOps
 [Ansible](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/ansible.md) <br>
+[Jenkins](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/jenkins.md) <br>
 ## SSH
 [SSH commands and options](https://github.com/Frodo-Web/frodo-tips/blob/main/ssh-commands.md) <br>
 [OpenSSH Server connection drops out after few minutes of inactivity](https://github.com/Frodo-Web/frodo-tips/blob/main/ssh-connection-drops-out-on-inactivity.md) <br>
