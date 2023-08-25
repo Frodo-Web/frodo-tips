@@ -1,5 +1,13 @@
 # Docker tips
 - Guide to install Docker on Raspbian - https://docs.docker.com/engine/install/debian/
+### DNS resolve problem && Connections hang on multi-thread
+Edit /etc/docker/daemon.json:
+````
+{
+        "dns": ["1.1.1.1", "8.8.8.8"],
+        "max-concurrent-uploads" : 1
+}
+````
 ### Clean up space used by Docker
 WARNING! This will remove:                                                                                                          
 - all stopped containers
