@@ -24,6 +24,7 @@ Useful commands, combinations, advices, etc...
 # DevOps
 [Ansible](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/ansible.md) <br>
 [Jenkins](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/jenkins.md) <br>
+[Maven](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/maven.md) <br>
 ## SSH
 [SSH commands and options](https://github.com/Frodo-Web/frodo-tips/blob/main/ssh-commands.md) <br>
 [OpenSSH Server connection drops out after few minutes of inactivity](https://github.com/Frodo-Web/frodo-tips/blob/main/ssh-connection-drops-out-on-inactivity.md) <br>
