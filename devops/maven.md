@@ -2,7 +2,14 @@
 ### An example of deployment to nexus via maven-deploy-plugin
 #### Method 1
 ```console
-foo@bar:~$ mvn deploy:deploy-file -Durl=http://172.20.17.14:8081/repository/maven-snapshots/ -Dfile=target/helloworld.war -DgroupId=org.jboss.as.quickstarts.helloworld -DartifactId=helloworld -Dpackaging=war -Dversion=1.15-SNAPSHOT -DrepositoryId=maven-snapshots
+foo@bar:~$ mvn deploy:deploy-file \
+               -Durl=http://172.20.17.14:8081/repository/maven-snapshots/ \
+               -Dfile=target/helloworld.war \
+               -DgroupId=org.jboss.as.quickstarts.helloworld \
+               -DartifactId=helloworld \
+               -Dpackaging=war \
+               -Dversion=1.15-SNAPSHOT \
+               -DrepositoryId=maven-snapshots
 ```
 NEEDED: $HOME/.m2/settings.xml:
 ```xml
@@ -60,7 +67,11 @@ $HOME/.m2/settings.xml
 ```
 #### Method 4
 ```console
-foo@bar:~$ mvn -Drepo.login=admin -Drepo.pwd=test -Drepo.release.url=http://172.20.17.14:8081/repository/releases/ deploy -Drepo.release.id=maven-releases deploy deploy
+foo@bar:~$ mvn -Drepo.login=admin \
+               -Drepo.pwd=test \
+               -Drepo.release.url=http://172.20.17.14:8081/repository/releases/ \
+               -Drepo.release.id=maven-releases \
+               deploy
 ```
 $HOME/.m2/settings.xml
 ```xml
