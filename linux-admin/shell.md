@@ -14,3 +14,7 @@ Archive all files with maximum compression into zip
 ````
 zip -9 -r /tmp/example.zip ./*
 ````
+Generate random SECRET KEY of specific length, exclude special characters
+````
+tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo ''
+````
