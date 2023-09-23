@@ -63,13 +63,13 @@ docker pull 192.168.0.122:8100/something-service:9.0.0.0-base-2345-shsdg245
 ```
 You get this error:
 ```
-Error response from daemon: Get "https://xx.xxx.xxx.xx:8100/v2/": http: server gave HTTP response to HTTPS client
+Error response from daemon: Get "https://192.168.0.122:8100/v2/": http: server gave HTTP response to HTTPS client
 ```
 Add insecure-registries to /etc/docker/daemon.json:
 ```
 {
         ...
-        "insecure-registries": ["172.16.50.74:8100"],
+        "insecure-registries": ["192.168.0.122:8100"],
         ```
 }
 ```
