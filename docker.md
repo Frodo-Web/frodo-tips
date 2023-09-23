@@ -56,3 +56,15 @@ services:
       - app
 ````
 This will create network with the default driver (bridge). So, nginx will round robin to each instance inside network and can be accessible by port 80 on the host. Nginx round robin configuration can be found here https://github.com/Frodo-Web/frodo-tips/blob/main/nginx-tips/nginx.md
+### Error http: server gave HTTP response to HTTPS client
+```
+Error response from daemon: Get "https://xx.xxx.xxx.xx:8100/v2/": http: server gave HTTP response to HTTPS client
+```
+Add insecure-registries to /etc/docker/daemon.json:
+```
+{
+        ...
+        "insecure-registries": ["172.16.50.74:8100"],
+        ```
+}
+```
