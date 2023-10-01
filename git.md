@@ -384,4 +384,38 @@ git push origin -d branch-name
 // Rename branch
 git branch -m new-name
 git branch -m old-name new-name
+
+// Revert changed made in working copy
+git restore .
+
+// Remove untracked files/directories
+git clean -f
+git clean -f -d
+// Remove untracked .gitignore files
+git clean -f -x
+// Git clean dry run
+git clean -n
+
+// See the difference between local file and commit
+git diff <commit hash> <filename>
+// Restore specific files to specific commit hash
+git checkout c5f567 -- file1/to/restore file2/to/restore
+
+// Merge local branch with main
+git checkout main
+git pull
+git checkout feature
+git merge main
+
+// Resolve conflicts
+git config merge.tool vimdiff
+git config merge.conflictstyle diff3
+git config mergetool.prompt false
+git mergetool
+:diffg {BA,RE,LO} // Choose one of them
+git commit -m "message"
+git clean ..
+
+// Abort the merge after git mergetool
+git merge --abort
 ````
