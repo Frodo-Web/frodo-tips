@@ -57,3 +57,11 @@ Additionally, explore color schemes:
 ````
 https://terminalsplash.com/
 ````
+## Windows 11 disk performance test (Built-in utility)
+````
+winsat disk -drive c
+````
+By default it doesn't test Random Write speed though, so you could check random 16.0 write with:
+````
+winsat disk -write -ran -drive c
+````
