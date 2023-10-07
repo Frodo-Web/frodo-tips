@@ -1,6 +1,12 @@
 # Systemd usage
+## Journalctl
+Read logs from the end for specific service since last boot
 ````
-SystemD конфигурация состоит из юнитов
+journalctl -u logstash -b -e
+````
+## Systemd
+````
+Systemd конфигурация состоит из юнитов
 /usr/lib/systemd/system/ - юниты из rpm пакетов
 /run/systemd/system/ - юниты созданные в рантайме
 /etc/systemd/system/ - юниты созданные сис админом
