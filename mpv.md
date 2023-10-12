@@ -1,5 +1,5 @@
 # MPV tips
-### Add custom hotkey to MPV
+### Add custom keyboard shortcut to MPV
 Create input.conf in mpv config directory, with binds you like:
 ````
 alt+i playlist-shuffle
