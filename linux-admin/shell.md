@@ -14,6 +14,12 @@ Archive all files with maximum compression into zip
 ````
 zip -9 -r /tmp/example.zip ./*
 ````
+Compress logs into the same file with extension .gz
+````
+gzip -9 messages-20230917
+..
+Creates messages-20230917.gz
+````
 Generate random SECRET KEY of specific length (BASE64 or HEX string)
 ````
 openssl rand -base64 40
