@@ -1,5 +1,11 @@
 # MPV tips
-### Update youtube-dl on stable distro to keep MPV functional
+### Add custom hotkey to MPV
+Create input.conf in mpv config directory, with binds you like:
+````
+alt+i playlist-shuffle
+````
+Now you can shuffle playlist while playing it.
+### Update youtube-dl / yt-dlp on stable distro to keep MPV functional
 If you are using MPV + youtube-dl to play video/audio from a website and getting this error:
 ````
 $ mpv link_to_youtube_vid --no-video
