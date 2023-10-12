@@ -25,3 +25,8 @@ Generate random SECRET KEY of specific length (BASE64 or HEX string)
 openssl rand -base64 40
 openssl rand -hex 40
 ````
+Create sha512 hash of a password:
+`````
+mkpasswd -m sha-512 --stdin
+mkpasswd -m sha-512 'password'
+`````
