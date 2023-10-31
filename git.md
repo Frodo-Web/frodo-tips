@@ -345,6 +345,15 @@ git stash show -p stash@{0}     // Show the changes of specific stash (the diff)
 git stash show -p -u stash@{0}  // With files created too
 git stash drop stash@{0}        // Delete specific stash
 
+# Resolve stash conflicts
+$ git stash pop
+$ git status // See unmerged
+
+# ...resolve conflict(s)
+
+$ git restore --staged .
+
+$ git stash drop
 
 # You can remove unwanted commits with git rebase. Say you included some commits from a coworker's topic branch into your topic branch, but later decide you don't want those commits.
 
