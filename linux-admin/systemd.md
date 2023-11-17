@@ -4,6 +4,30 @@ Read logs from the end for specific service since last boot
 ````
 journalctl -u logstash -b -e
 ````
+Check the amount of space that the journal is currently occupying on your disk
+````
+journalctl --disk-usage
+````
+Keep journalctl file size down
+````
+sudo journalctl --vacuum-size=200M
+...
+..
+Vacuuming done, freed 136.0M of archived journals on disk.
+
+````
+Journalctl configuration files location
+````
+/etc/systemd/journald.conf
+/etc/systemd/journald.conf.d/*.conf
+/run/systemd/journald.conf.d/*.conf
+/usr/lib/systemd/journald.conf.d/*.conf
+````
+Journalctl logs location
+````
+/var/log/journal
+/run/log/journal
+````
 ## Systemd
 ````
 Systemd конфигурация состоит из юнитов
