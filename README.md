@@ -21,7 +21,7 @@ Useful commands, combinations, advices, etc...
 [ufw, firewall-cmd](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/ufw-firewall-cmd.md) <br>
 [Systemd](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/systemd.md) <br>
 [Working with Java Applications (JVM, jboss, wildfly)](https://github.com/Frodo-Web/frodo-tips/blob/main/java/java-app.md) <br>
-[Python, pip tips)](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/python-pip.md) <br>
+[Python, pip tips](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/python-pip.md) <br>
 # DevOps
 [Ansible](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/ansible.md) <br>
 [Jenkins](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/jenkins.md) <br>
