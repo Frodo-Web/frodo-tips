@@ -175,7 +175,11 @@ virtual size: 2 GiB (2147483648 bytes)
 
 # qemu-img resize ./Debian-12-Bookworm01-root-disk.qcow2 7G
 
-In case there is no LVM, and /dev/vda as disk, /dev/vda1 as / parition are being used...
+In case there is no LVM, and /dev/vda as a disk, /dev/vda1 as / parition are being used...
+You can use EITHER fdisk OR parted..
+fdisk:
+# fdisk /dev/vda -> There will be a warning "GPT will be corrected by write" -> Press w and quit
+The same thing using parted:
 # parted -> select /dev/vda -> Promp will ask to fix the disk to its full resized size -> quit
 
 We see our /dev/vda has increased its size, but ext4 partition /dev/vda1 is still the same size
