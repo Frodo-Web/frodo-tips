@@ -175,6 +175,8 @@ virtual size: 2 GiB (2147483648 bytes)
 
 # qemu-img resize ./Debian-12-Bookworm01-root-disk.qcow2 7G
 
+NOW IT'S MUCH SAFER TO DO THE NEXT COMMANDS WHEN on LiveCD, with filesystems unmounted!!
+
 In case there is no LVM, and /dev/vda as a disk, /dev/vda1 as / parition are being used...
 You can use EITHER fdisk OR parted..
 fdisk:
@@ -193,6 +195,9 @@ We see our partition space has increased, but the space of filesystem still the 
 
 Resize ext4 filesystem, TA-DAM!!
 # resize2fs /dev/vda1
+
+Check that you on the safe side (when on LiveCD, or unmounted)
+# e2fsck /dev/vda1
 
 virt-install --memory 1024 --vcpus 1 --name Debian-12-Bookworm-01 --disk /var/lib/libvirt/images/Debian-12-Bookworm-01-root-disk.qcow2,device=disk,format=qcow2 --os-variant debian12 --network network=default --virt-type kvm --graphics none --import
 
