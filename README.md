@@ -13,6 +13,7 @@ Useful commands, combinations, advices, etc...
 [Load newest missing firmware on Debian testing net install](https://github.com/Frodo-Web/frodo-tips/blob/main/missing-firmware-debian.md) <br>
 [Multiboot. Enable os-prober to add more systems to the boot menu on update-grub](https://github.com/Frodo-Web/frodo-tips/blob/main/enable-os-prober-to-detect-more-systems-on-update-grub.md) <br>
 [Mount: NTFS signature is missing when mounting Windows 11 partition](https://github.com/Frodo-Web/frodo-tips/blob/main/mount-NTFS-signature-is-missing-windows-11.md) <br>
+[Jira queries](https://github.com/Frodo-Web/frodo-tips/blob/main/All/Jira.md) <br>
 ## Linux Admin
 [LVM demonstration](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/lvm.md) <br>
 [KVM, QEMU commands](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/KVM-QEMU.md) <br>
