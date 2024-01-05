@@ -21,23 +21,27 @@
 ````
 curl -sfL https://get.k3s.io |  INSTALL_K3S_EXEC="server --disable=traefik --write-kubeconfig-mode=644" sh -
 ````
-
+#### Get server token
+````
+cat /var/lib/rancher/k3s/server/node-token
+..
+K10bee7230b21ba8d0b83d0bf8175a699b7764051c9b60dc3804519aee4b8e91a64::server:82abb84fed35c7c37db4ad97caef5e51
+````
+#### Install agent node
+````
+curl -sfL https://get.k3s.io | K3S_URL=https://192.168.122.205:6443 K3S_TOKEN=K10bee7230b21ba8d0b83d0bf8175a699b7764051c9b60dc3804519aee4b8e91a64::server:82abb84fed35c7c37db4ad97caef5e51 sh -
+````
 ### Command examples
 
 ````
 kubectl get pods --all-namespaces
+OR
+k3s kubectl get pods -n kube-system 
 ..
 NAMESPACE     NAME                                      READY   STATUS    RESTARTS        AGE
 kube-system   local-path-provisioner-84db5d44d9-npr7c   1/1     Running   0               9m26s
 kube-system   coredns-6799fbcd5-g4wch                   1/1     Running   0               9m26s
 kube-system   metrics-server-67c658944b-9cc5h           1/1     Running   0               9m26s
-kube-system   helm-install-traefik-hl7t6                0/1     Error     0               9m27s
-kube-system   helm-install-traefik-crd-sd9vw            0/1     Error     1 (8m45s ago)   9m27s
-kube-system   helm-install-traefik-s8nbg                0/1     Error     0               8m35s
-kube-system   helm-install-traefik-crd-5rr4l            0/1     Error     1 (64s ago)     8m34s
-kube-system   helm-install-traefik-xzqvv                0/1     Pending   0               44s
-kube-system   helm-install-traefik-crd-h2n8c            0/1     Pending   0               43s
-
 
 k3s kubectl get node
 ..
@@ -47,7 +51,8 @@ debian12-k3s-server01   Ready    control-plane,master   9m45s   v1.28.5+k3s1
 kubectl get no -o wide
 ..
 NAME                    STATUS   ROLES                  AGE   VERSION        INTERNAL-IP       EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION   CONTAINER-RUNTIME
-debian12-k3s-server01   Ready    control-plane,master   18m   v1.28.5+k3s1   192.168.122.205   <none>        Debian GNU/Linux 12 (bookworm)   6.1.0-12-amd64   containerd://1.7.11-k3s2
+debian12-k3s-server01   Ready    control-plane,master   50m   v1.28.5+k3s1   192.168.122.205   <none>        Debian GNU/Linux 12 (bookworm)   6.1.0-12-amd64   containerd://1.7.11-k3s2
+debian12-k3s-agent01    Ready    <none>                 50s   v1.28.5+k3s1   192.168.122.204   <none>        Debian GNU/Linux 12 (bookworm)   6.1.0-12-amd64   containerd://1.7.11-k3s2
 
 kubectl get namespaces
 ..
@@ -62,6 +67,20 @@ kubectl -n kube-system get svc
 NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                  AGE
 kube-dns         ClusterIP   10.43.0.10      <none>        53/UDP,53/TCP,9153/TCP   23m
 metrics-server   ClusterIP   10.43.164.147   <none>        443/TCP                  23m
+
+k3s kubectl get endpoints -n kube-system
+..
+NAME             ENDPOINTS                                  AGE
+kube-dns         10.42.0.4:53,10.42.0.4:53,10.42.0.4:9153   28m
+metrics-server   10.42.0.2:10250                            28m
+
+k3s kubectl cluster-info
+..
+Kubernetes control plane is running at https://127.0.0.1:6443
+CoreDNS is running at https://127.0.0.1:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+Metrics-server is running at https://127.0.0.1:6443/api/v1/namespaces/kube-system/services/https:metrics-server:https/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
 
 kubectl config view
 ..
