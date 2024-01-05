@@ -20,7 +20,6 @@ Useful commands, combinations, advices, etc...
 [Dig](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/dig.md) <br>
 [ufw, firewall-cmd](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/ufw-firewall-cmd.md) <br>
 [Systemd](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/systemd.md) <br>
-[Working with Java Applications (JVM, jboss, wildfly)](https://github.com/Frodo-Web/frodo-tips/blob/main/java/java-app.md) <br>
 [Python, pip tips](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/python-pip.md) <br>
 # DevOps
 [Ansible](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/ansible.md) <br>
@@ -36,6 +35,7 @@ Useful commands, combinations, advices, etc...
 [Nginx tips](https://github.com/Frodo-Web/frodo-tips/blob/main/nginx-tips/nginx.md) <br>
 # Java
 [JDB (The Java Debugger)](https://github.com/Frodo-Web/frodo-tips/blob/main/java/jdb.md) <br>
+[Working with Java Applications (JVM, jboss, wildfly)](https://github.com/Frodo-Web/frodo-tips/blob/main/java/java-app.md) <br>
 [Java decompilation](https://github.com/Frodo-Web/frodo-tips/blob/main/java/java-decompile.md) <br>
 # FreeBSD tips by Frodo
 [FreeBSD tips by Frodo](https://github.com/Frodo-Web/frodo-tips/blob/main/FreeBSD-tips-by-Frodo/FreeBSD-tips-by-Frodo.md)
