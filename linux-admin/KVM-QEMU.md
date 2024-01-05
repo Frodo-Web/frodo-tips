@@ -173,7 +173,7 @@ virtual size: 2 GiB (2147483648 bytes)
 
 !!!!!  EXTENDING DISK, PARTITION AND FILESYSTEM TO FILL AVAILABLE SPACE WITHOUT LVM, WITH EXT4 FILESYSTEM !!!!!!!
 
-root@:/var/lib/libvirt/images# qemu-img resize ./Debian-12-Bookworm01-root-disk.qcow2 7G
+# qemu-img resize ./Debian-12-Bookworm01-root-disk.qcow2 7G
 
 In case there is no LVM, and /dev/vda as disk, /dev/vda1 as / parition are being used...
 # parted -> select /dev/vda -> Promp will ask to fix the disk to its full resized size -> quit
