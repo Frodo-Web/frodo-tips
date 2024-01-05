@@ -34,6 +34,29 @@ curl -sfL https://get.k3s.io | K3S_URL=https://192.168.122.205:6443 K3S_TOKEN=K1
 ### Command examples
 
 ````
+Check health status:
+{ echo -e "\n==== Kubernetes Status ====\n" && \
+  kubectl get --raw '/healthz?verbose' && \
+  kubectl version && \
+  kubectl get nodes && \
+  kubectl cluster-info;
+} | grep -z 'Ready\| ok\|passed\|running'
+
+kubectl get events
+..
+LAST SEEN   TYPE      REASON                    OBJECT                       MESSAGE
+39m         Normal    Starting                  node/debian12-k3s-agent01    Starting kubelet.
+39m         Warning   InvalidDiskCapacity       node/debian12-k3s-agent01    invalid capacity 0 on image filesystem
+39m         Normal    NodeAllocatableEnforced   node/debian12-k3s-agent01    Updated Node Allocatable limit across pods
+39m         Normal    NodeHasSufficientMemory   node/debian12-k3s-agent01    Node debian12-k3s-agent01 status is now: NodeHasSufficientMemory
+39m         Normal    Starting                  node/debian12-k3s-agent01    
+39m         Normal    NodeHasNoDiskPressure     node/debian12-k3s-agent01    Node debian12-k3s-agent01 status is now: NodeHasNoDiskPressure
+39m         Normal    NodeHasSufficientPID      node/debian12-k3s-agent01    Node debian12-k3s-agent01 status is now: NodeHasSufficientPID
+39m         Normal    NodeReady                 node/debian12-k3s-agent01    Node debian12-k3s-agent01 status is now: NodeReady
+39m         Normal    Synced                    node/debian12-k3s-agent01    Node synced successfully
+39m         Normal    RegisteredNode            node/debian12-k3s-agent01    Node debian12-k3s-agent01 event: Registered Node debian12-k3s-agent01 in Controller
+3m52s       Warning   FreeDiskSpaceFailed       node/debian12-k3s-server01   Failed to garbage collect required amount of images. Attempted to free 388231987 bytes, but only found 0 bytes eligible to free.
+
 kubectl get pods --all-namespaces
 OR
 k3s kubectl get pods -n kube-system 
@@ -68,6 +91,8 @@ NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)              
 kube-dns         ClusterIP   10.43.0.10      <none>        53/UDP,53/TCP,9153/TCP   23m
 metrics-server   ClusterIP   10.43.164.147   <none>        443/TCP                  23m
 
+kubectl get pods,services --all-namespaces
+
 k3s kubectl get endpoints -n kube-system
 ..
 NAME             ENDPOINTS                                  AGE
@@ -81,6 +106,34 @@ CoreDNS is running at https://127.0.0.1:6443/api/v1/namespaces/kube-system/servi
 Metrics-server is running at https://127.0.0.1:6443/api/v1/namespaces/kube-system/services/https:metrics-server:https/proxy
 
 To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+
+kubectl top nodes
+..
+NAME                    CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%   
+debian12-k3s-agent01    15m          1%     303Mi           31%       
+debian12-k3s-server01   83m          8%     602Mi           62%
+
+kubectl top pods -n kube-system
+..
+NAME                                      CPU(cores)   MEMORY(bytes)   
+coredns-6799fbcd5-2xrlx                   4m           23Mi            
+local-path-provisioner-84db5d44d9-47ms7   1m           15Mi            
+metrics-server-67c658944b-5kqvt           7m           30Mi
+
+top -o %MEM -b -n1 | head -n 24
+..
+top - 16:23:54 up  4:25,  2 users,  load average: 0.17, 0.11, 0.09
+Tasks: 111 total,   1 running, 110 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  0.0 us,  0.0 sy,  0.0 ni,100.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+MiB Mem :    960.6 total,     90.4 free,    766.1 used,    244.2 buff/cache     
+MiB Swap:      0.0 total,      0.0 free,      0.0 used.    194.5 avail Mem 
+
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+  16754 root      20   0 5535804 371128  64420 S   0.0  37.7   8:50.79 k3s-ser+
+  17214 root      20   0 5060100  62276  18952 S   0.0   6.3   0:28.64 contain+
+  17879 frodo     20   0  758772  36176  14920 S   0.0   3.7   0:38.99 metrics+
+  17806 root      20   0  764400  30292  10100 S   0.0   3.1   0:19.22 coredns
+  17944 root      20   0  733140  20480   7304 S   0.0   2.1   0:02.82 local-p+
 
 kubectl config view
 ..
