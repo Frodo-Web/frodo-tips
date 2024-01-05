@@ -201,6 +201,24 @@ virt-clone --original {Domain-Vm-Name-Here} --auto-clone
 Переименовать виртуалку
 virsh domrename Debian-12-Bookworm-01 debian12-k8s-master-01
 
+Change IP on Debian 12, if vm was clonned with static interface
+sudo chmod 600 /etc/netplan/90-default.yaml
+sudo vim /etc/netplan/90-default.yaml
+..
+network:
+    version: 2
+    ethernets:
+        enp1s0:
+            addresses:
+                - 192.168.122.204/24
+            nameservers:
+                addresses: [8.8.8.8, 8.8.4.4]
+            routes:
+                - to: default
+                  via: 192.168.122.1
+
+sudo netplan apply
+
 
 Change IP on CentOS7, if vm was clonned with static interface
 uuidgen eth0                                        // Generate new uuid
@@ -219,7 +237,7 @@ network
   ethernets:
      enp1s0:
        dhcp4: no
-       dhcp6: np
+       dhcp6: no
        addresses: [192.168.122.200/24, ]
        gateway4: 192.168.122.1
        nameservers:
