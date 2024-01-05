@@ -30,7 +30,4 @@ Create sha512 hash of a password:
 mkpasswd -m sha-512 --stdin
 mkpasswd -m sha-512 'password'
 `````
-View opened files by pid using /proc
-````
-ls -l /proc/8039/fd/
-````
+
