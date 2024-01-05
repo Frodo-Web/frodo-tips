@@ -57,8 +57,11 @@ Convert TID to HEX
  0x2c4c
 ````
 Then find in jstack.threads.$PID that thread and its method which causes the problem
+
+More in the article - https://habr.com/ru/companies/otus/articles/427513/
 #### Watch JVM using ps
 ````
 watch -n 0.5 'ps -u wildfly -o pid,uname,pcpu,pmem,comm --sort=-pmem,-pcpu'
 watch -n 1 'ps --no-headings -p 6995 -Lo pid,tid,%cpu,%mem,stat,start_time,time,ucmd | sort -nrk 3 | head -30'
 ````
+
