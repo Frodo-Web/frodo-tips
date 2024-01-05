@@ -23,3 +23,42 @@ num     #instances         #bytes  class name
    6:      13452534      464758655  java.lang.String
 ...
 ````
+#### Java Heap Dump
+Make heap dump then run <b> jhat </b> utility, which opens a web-interface on port 7000
+````
+su - wildfly -c "/opt/jdk/last/bin/jmap -dump:format=b,file=/mnt/wildfly/heapdump.hprof $PID"
+````
+It's better to use OQL (Object Query Language):
+````
+select s from java.lang.String s where s.count >= 50
+````
+You can use internal constructor referrers() to find all objects which refer to objects of specific type.
+For example, this query will find all objects refer to files:
+````
+select referrers(f) from java.io.File f
+````
+#### Working with threads and jstack
+Find out JVM $PID and list the threads after
+````
+ps -ef | less
+ps -T -p 6995
+````
+or by using top -H, you can detect threads with high cpu usage interactively
+````
+top -H
+````
+You can make stack trace:
+````
+/opt/jdk/java-19/bin/jstack -l $PID > /tmp/jstack.threads.$PID
+````
+Convert TID to HEX
+````
+ $ printf 0x%x 11340
+ 0x2c4c
+````
+Then find in jstack.threads.$PID that thread and its method which causes the problem
+#### Watch JVM using ps
+````
+watch -n 0.5 'ps -u wildfly -o pid,uname,pcpu,pmem,comm --sort=-pmem,-pcpu'
+watch -n 1 'ps --no-headings -p 6995 -Lo pid,tid,%cpu,%mem,stat,start_time,time,ucmd | sort -nrk 3 | head -30'
+````
