@@ -209,7 +209,7 @@ Run a program in a new session setting the current terminal as the controlling t
 # setsid --ctty program
 ````
 ## Jobs
-Must have:
+Must have: <br>
 https://biriukov.dev/docs/fd-pipe-session-terminal/3-process-groups-jobs-and-sessions/  <br>
 https://www.win.tue.nl/~aeb/linux/lk/lk-10.html <br>
 
