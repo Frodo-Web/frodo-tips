@@ -184,6 +184,24 @@ S      995   995 ?           -1 28325 28325 28326 29135  0.0  \_ python3
 S      995   995 ?           -1 28325 28325 28326 29137  4.7  \_ python3
 S      995   995 ?           -1 28325 28325 28326 29140  9.7  \_ python3
 S      995   995 ?           -1 28325 28325 28326 29148  4.8  \_ python3
+
+ps faxo stat,lstart,sess,pgrp,ppid,pid,pcpu,comm | grep python3
+..
+Sl   Sat Jan  6 00:00:01 2024 28251 28251     1 28252  0.1 python3
+S    Sat Jan  6 00:00:02 2024 28251 28251 28252 28468  4.9  \_ python3
+R    Sat Jan  6 00:00:02 2024 28251 28251 28252 28469 13.4  \_ python3
+S    Sat Jan  6 00:00:02 2024 28251 28251 28252 28470  4.7  \_ python3
+S    Sat Jan  6 00:00:02 2024 28251 28251 28252 28471  4.6  \_ python3
+S    Sat Jan  6 00:00:02 2024 28251 28251 28252 28472  5.2  \_ python3
+
+ps faxo stat,lstart,sess,pgrp,ppid,pid,pcpu,comm | grep start_backup
+..
+Zs   Sat Jan  6 00:00:00 2024 28182 28182 28176 28182  0.0      \_ start_backup.sh <defunct>
+
+ps faxo stat,lstart,sess,pgrp,ppid,pid,pcpu,comm | grep '28176'
+..
+S    Sat Jan  6 00:00:00 2024  1308  1308  1308 28176  0.0  \_ crond
+Zs   Sat Jan  6 00:00:00 2024 28182 28182 28176 28182  0.0      \_ start_backup.sh <defunct>
 ````
 ## setsid
 setsid command is used to run a program in a new session. The command will call the fork(2) if already a process group leader. Else, it will execute a program in the current process.
