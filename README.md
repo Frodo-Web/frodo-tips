@@ -19,7 +19,7 @@ Useful commands, combinations, advices, etc...
 [KVM, QEMU commands](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/KVM-QEMU.md) <br>
 [Tmux, Screen](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/tmux-screen.md) <br>
 [Shell](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/shell.md) <br>
-[Working with files, file descriptors, sockets, limits in Linux](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/files-fds-sockets-limits.md) <br>
+[Working with files, file descriptors, sockets, processes, limits in Linux](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/files-fds-sockets-limits.md) <br>
 [Dig](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/dig.md) <br>
 [ufw, firewall-cmd](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/ufw-firewall-cmd.md) <br>
 [Systemd](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/systemd.md) <br>
