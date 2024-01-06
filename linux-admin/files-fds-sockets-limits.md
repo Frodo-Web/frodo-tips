@@ -163,6 +163,93 @@ systemd(1)───python3(28252)─┬─python3(28468)
                             ├─{python3}(28498)
                             └─{python3}(28501)
 ````
+Custom ps output example
+````
+ps faxo stat,euid,ruid,tty,tpgid,sess,pgrp,ppid,pid,pcpu,comm
+..
+STAT  EUID  RUID TT       TPGID  SESS  PGRP  PPID   PID %CPU COMMAND
+S      998   998 ?           -1  1305  1305     1  1306  0.0 chronyd
+Ss       0     0 ?           -1  1308  1308     1  1308  0.0 crond
+S        0     0 ?           -1  1308  1308  1308 28176  0.0  \_ crond
+Zs       0     0 ?           -1 28182 28182 28176 28182  0.0      \_ start_backup.sh <defunct>
+Sl     995   995 ?           -1 28251 28251     1 28252  0.1 python3
+S      995   995 ?           -1 28251 28251 28252 28468  5.9  \_ python3
+R      995   995 ?           -1 28251 28251 28252 28469 11.7  \_ python3
+S      995   995 ?           -1 28251 28251 28252 28470  5.7  \_ python3
+S      995   995 ?           -1 28251 28251 28252 28471  5.6  \_ python3
+Sl     995   995 ?           -1 28325 28325     1 28326  0.1 python3
+S      995   995 ?           -1 28325 28325 28326 29129  0.0  \_ python3
+R      995   995 ?           -1 28325 28325 28326 29132  9.6  \_ python3
+S      995   995 ?           -1 28325 28325 28326 29135  0.0  \_ python3
+S      995   995 ?           -1 28325 28325 28326 29137  4.7  \_ python3
+S      995   995 ?           -1 28325 28325 28326 29140  9.7  \_ python3
+S      995   995 ?           -1 28325 28325 28326 29148  4.8  \_ python3
+````
+## setsid
+setsid command is used to run a program in a new session. The command will call the fork(2) if already a process group leader. Else, it will execute a program in the current process.
+A session is a collection of processes that share a common controlling terminal. By running a program in a new session, setsid detaches it from the controlling terminal of the current session, making it immune to hangups, signals, or other events that would otherwise be sent to the terminal.
+In Unix-like systems, every process is associated with a process group, which is a collection of processes that share the same process ID. A process group leader is a process that is responsible for controlling the other processes in the group. If the calling process is not a process group leader, setsid creates a new session and sets the calling process as the session leader.
+The setsid command can be used to start a new process in the background, without any association with the current terminal. For example, the command setsid my_program & will start my_program in a new session and detach it from the current terminal, allowing it to continue running even after the terminal session has ended.
+In addition to detaching a process from a controlling terminal, setsid can also be used to create a daemon process. A daemon process is a background process that runs continuously, without any interactive input or output. By using setsid to create a new session for the daemon process, it can be run independently of any user sessions or terminal sessions, ensuring that it continues to run even if the user logs out.
+````
+# setsid program
+
+Run a program in a new session discarding the resulting output and error:
+# setsid program > /dev/null 2>&1
+
+Run a program creating a new process:
+#setsid --fork program
+
+Return the exit code of a program as the exit code of setsid when the program exits:
+# setsid --wait program
+
+Run a program in a new session setting the current terminal as the controlling terminal:
+# setsid --ctty program
+````
+## Jobs
+Run background jobs without using disown
+````
+nohup /usr/bin/curl http://someaddress.com &
+..
+[1] 873
+
+Then exit of this terminal, a task proceed to be continued
+
+You can even create pid file for it
+nohup -p pid_file /usr/bin/curl http://someaddress.com &
+````
+
+### CROND problem
+https://stackoverflow.com/questions/1506902/why-do-processes-spawned-by-cron-end-up-defunct?rq=4
+````
+STAT  EUID  RUID TT       TPGID  SESS  PGRP  PPID   PID %CPU COMMAND
+Ss       0     0 ?           -1  3197  3197     1  3197  0.0 cron
+S        0     0 ?           -1  3197  3197  3197 18825  0.0  \_ cron
+Zs    1000  1000 ?           -1 18832 18832 18825 18832  0.0      \_ sh <defunct>
+S     1000  1000 ?           -1 18832 18832     1 18836  0.0 sleep
+````
+Notice that the sh and the sleep are in the same SESS.
+
+````
+#!/bin/bash
+setsid sleep 27
+````
+Notice you don't need &, setsid puts it in the background.
+
+But that doesn't my case. I have different sess and pgrp
+
+This is the solution:
+````
+to my opinion it's caused by process CROND (spawned by crond for every task) waiting for input on stdin which is piped to the stdout/stderr of the command in the crontab. This is done because cron is able to send resulting output via mail to the user.
+
+So CROND is waiting for EOF till the user command and all it's spawned child processes have closed the pipe. If this is done CROND continues with the wait-statement and then the defunct user command disappears.
+
+So I think you have to explicitly disconnect every spawned subprocess in your script form the pipe (e.g. by redirecting it to a file or /dev/null.
+
+so the following line should work in crontab :
+
+* * * * * ( /tmp/launcher.sh /tmp/tester.sh &>/dev/null & ) 
+````
 ## Explanations
 #### Do killing the parent process will kill child processes?
 No. If the parent is killed, children become children of the init process (that has the process id 1 and is launched as the first user process by the kernel).
