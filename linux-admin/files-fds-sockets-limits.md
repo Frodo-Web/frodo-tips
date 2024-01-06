@@ -188,8 +188,10 @@ S      995   995 ?           -1 28325 28325 28326 29148  4.8  \_ python3
 ## setsid
 setsid command is used to run a program in a new session. The command will call the fork(2) if already a process group leader. Else, it will execute a program in the current process.
 A session is a collection of processes that share a common controlling terminal. By running a program in a new session, setsid detaches it from the controlling terminal of the current session, making it immune to hangups, signals, or other events that would otherwise be sent to the terminal.
+
 In Unix-like systems, every process is associated with a process group, which is a collection of processes that share the same process ID. A process group leader is a process that is responsible for controlling the other processes in the group. If the calling process is not a process group leader, setsid creates a new session and sets the calling process as the session leader.
 The setsid command can be used to start a new process in the background, without any association with the current terminal. For example, the command setsid my_program & will start my_program in a new session and detach it from the current terminal, allowing it to continue running even after the terminal session has ended.
+
 In addition to detaching a process from a controlling terminal, setsid can also be used to create a daemon process. A daemon process is a background process that runs continuously, without any interactive input or output. By using setsid to create a new session for the daemon process, it can be run independently of any user sessions or terminal sessions, ensuring that it continues to run even if the user logs out.
 ````
 # setsid program
