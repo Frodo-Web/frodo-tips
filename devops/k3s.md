@@ -244,7 +244,422 @@ PORT=$(kubectl get service my-nginx  -o jsonpath="{.spec.ports[0].nodePort}") &&
 ..
 31839
 
+kubecl describe deployments
+..
+Name:                   my-nginx
+Namespace:              default
+CreationTimestamp:      Sun, 07 Jan 2024 10:38:33 +0000
+Labels:                 app=my-nginx
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=my-nginx
+Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=my-nginx
+  Containers:
+   nginx:
+    Image:        nginx
+    Port:         <none>
+    Host Port:    <none>
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   my-nginx-7fbf685c4d (1/1 replicas created)
+Events:          <none>
 
+kubectl get deployments
+kubectl delete deployment my-nginx
+..
+deployment.apps "my-nginx" deleted
+
+k3s kubectl get ingress,svc,pods -n retail-project-dev
+k3s kubectl get svc
+..
+NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
+kubernetes   ClusterIP   10.43.0.1      <none>        443/TCP        46h
+my-nginx     NodePort    10.43.72.142   <none>        80:31839/TCP   136m
+
+k3s kubectl describe svc my-nginx
+..
+Name:                     my-nginx
+Namespace:                default
+Labels:                   app=my-nginx
+Annotations:              <none>
+Selector:                 app=my-nginx
+Type:                     NodePort
+IP Family Policy:         SingleStack
+IP Families:              IPv4
+IP:                       10.43.72.142
+IPs:                      10.43.72.142
+Port:                     <unset>  80/TCP
+TargetPort:               80/TCP
+NodePort:                 <unset>  31839/TCP
+Endpoints:                <none>
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+
+kubectl delete services my-nginx
+..
+service "my-nginx" deleted
+
+kubectl describe pvc --all-namespaces
+
+kubectl create namespace testing
+kubectl config set-context --current --namespace=testing
+
+kubectl config view
+kubectl config view --minify -o jsonpath='{..namespace}'
+..
+testing
+
+k3s crictl images
+..
+IMAGE                                        TAG                 IMAGE ID            SIZE
+docker.io/rancher/local-path-provisioner     v0.0.24             b29384aeb4b13       14.9MB
+docker.io/rancher/mirrored-coredns-coredns   1.10.1              ead0a4a53df89       16.2MB
+docker.io/rancher/mirrored-metrics-server    v0.6.3              817bbe3f2e517       29.9MB
+docker.io/rancher/mirrored-pause             3.6                 6270bb605e12e       301kB
+
+k3s crictl rmi // prune to delete any images no currently used by a running container
+crictl rmi IMAGE-ID [IMAGE-ID...]
+
+````
+## Kubernetes Deployment YAML File with Examples
+
+- apiVersion: Specifies the Kubernetes API version, such as “apps/v1” for Deployments.
+- kind: Specifies the type of Kubernetes resource, in this case, “Deployment.”
+- metadata: Provides metadata for the Deployment, including the name, labels, and annotations.
+- spec: Defines the desired state of the Deployment, including the number of replicas, the pod template, and any other related specifications. It includes:
+- replicas: Specifies the desired number of identical pod replicas to run.
+- selector: Specifies the labels that the Replica Set uses to select the pods it should manage.
+- template: Contains the pod template used for creating new pods, including container specifications, image names, and container ports.
+
+````
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: example
+  template:
+    metadata:
+      labels:
+        app: example
+    spec:
+      containers:
+      - name: example-container
+        image: example-image
+        ports:
+        - containerPort: 8080
+````
+- apiVersion: Specifies the Kubernetes API version. In this case, it’s using the “apps/v1” API version, which is appropriate for Deployments.
+- kind: Specifies the type of Kubernetes resource. Here, it’s “Deployment,” indicating that this configuration file is defining a Deployment.
+- spec: This section defines the desired state of the Deployment.
+- replicas: 3: Specifies that you want to run three replicas of your application.
+- selector: Describes the selector to match pods managed by this Deployment.
+- matchLabels: Specifies the labels that the Replica Set created by the Deployment should use to select the pods it manages. In this case, pods with the label app: example are selected.
+- template: Defines the pod template used for creating new pods.
+- metadata: Contains the labels to apply to the pods created from this template. In this case, the pods will have the label app: example.
+- spec: Describes the specification of the pods.
+- containers: This section specifies the containers to run in the pod.
+- name: example-container: Assigns a name to the container.
+- image: example-image: Specifies the Docker image to use for this container.
+- ports: Defines the ports to open in the container.
+- containerPort: 8080: Indicates that the container will listen on port 80.
+
+### Some examples
+nginx-deployment.yaml
+````
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+````
+Pass environment variables in Kubernetes deployment YAML (and why not to do that!)
+env-deployment.yaml
+````
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-deployment
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+      - name: my-app-container
+        image: my-app-image
+        ports:
+        - containerPort: 80
+        env:
+        - name: DATABASE_HOST
+          value: db.example.com
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: api-key
+````
+Environment variables can be viewed by anyone with access to the pod, which poses a security risk. Instead, use Kubernetes Secrets to store and securely mount sensitive data into containers.
+
+Kubernetes deployment YAML with resource limits
+nginx-deployment-with-resource-limits.yaml
+````
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            memory: "256Mi"  # Maximum memory allowed
+            cpu: "200m"       # Maximum CPU allowed (200 milliCPU)
+          requests:
+            memory: "128Mi"  # Initial memory request
+            cpu: "100m"       # Initial CPU request
+````
+
+Kubernetes deployment YAML with health checks
+nginx-deployment-with-health-checks.yaml
+````
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        livenessProbe:
+          httpGet:
+            path: /                # The path to check for the liveness probe
+            port: 80               # The port to check on
+          initialDelaySeconds: 15  # Wait this many seconds before starting the probe
+          periodSeconds: 10        # Check the probe every 10 seconds
+        readinessProbe:
+          httpGet:
+            path: /                # The path to check for the readiness probe
+            port: 80               # The port to check on
+          initialDelaySeconds: 5   # Wait this many seconds before starting the probe
+          periodSeconds: 5         # Check the probe every 5 seconds
+````
+- livenessProbe: The liveness probe checks whether the container is still alive. It uses an HTTP GET request to the / path on port 80 of the container. If the probe fails, K8s will restart the container.
+- readinessProbe: The readiness probe checks whether the container is ready to serve traffic. It also uses an HTTP GET request to the / path on port 80 of the container. If the probe fails, the container is marked as not ready, and K8s won’t send traffic to it.
+
+Kubernetes deployment YAML with persistent volumes
+The PVC defines the storage requirements, and a Persistent Volume (PV) is dynamically provisioned or statically assigned to meet those requirements.
+nginx-deployment-with-pvc.yaml
+````
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: my-pvc  # Name of the Persistent Volume Claim
+````
+A PVC is defined using persistentVolumeClaim. In this case, it’s referenced by the name my-pvc.
+
+The my-pvc PVC must be defined separately in another YAML file. The Deployment’s container can then mount the volume specified by the name: data in the volumes section.
+
+mypvc.yaml
+````
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi  # Request 1 Gigabyte of storage
+````
+
+- accessModes specifies the access mode for the volume. It’s set to ReadWriteOnce, indicating that it can be mounted in read-write mode by a single node at a time.
+- resources.requests.storage specifies the amount of storage requested. In this example, it requests 1 gigabyte of storage.
+
+Don’t forget to apply both files in this case using the kubctl -f apply commands.
+
+````
+kubectl apply -f mypvc.yaml
+kubectl apply -f nginx-deployment-with-pvc.yaml
+````
+
+Kubernetes deployment YAML with affinity settings
+nginx-deployment-with-affinity.yaml
+````
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-type
+                operator: In
+                values:
+                - nginx-node
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - nginx
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: nginx-container
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+````
+With these affinity settings, Kubernetes will attempt to schedule the NGINX Pods on nodes labeled as nginx-node, and it will make sure that no two NGINX Pods with the label app: nginx run on the same node, promoting fault tolerance and reliability in your NGINX deployment.
+
+- nodeAffinity is used to ensure that the Pods are scheduled only on nodes with a specific label. Pods will be required to be scheduled on nodes with the label node-type: nginx-node.
+- podAntiAffinity is used to ensure that no two NGINX Pods with the label app: nginx are scheduled on the same node. The topologyKey specifies that the scheduling is based on the hostname of the nodes.
+
+simple-rest-golang.yaml
+````
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-rest-golang-deployment
+  namespace: retail-project-dev
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: simple-rest-golang
+  template:
+    metadata:
+      labels:
+        app: simple-rest-golang
+    spec:
+      containers:
+        - name: simple-rest-golang
+          image: fransafu/simple-rest-golang:1.0.0
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+          - containerPort: 8080
+          imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: simple-rest-golang-service
+  namespace: retail-project-dev
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+    name: tcp
+  selector:
+    app: simple-rest-golang
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: simple-rest-golang-ingress
+  namespace: retail-project-dev
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        backend:
+          serviceName: simple-rest-golang-service
+          servicePort: 80
 ````
 ## How to move k3s data to another location
 The standard data location used for k3s is /run/k3s, /var/lib/kubelet/pods, /var/lib/rancher. Because this directory contains all containers/images/volumes, it can be large. So you no need to store this in OS Volume when you can use separate data volume.
