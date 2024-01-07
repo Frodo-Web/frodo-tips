@@ -332,6 +332,17 @@ docker.io/rancher/mirrored-pause             3.6                 6270bb605e12e  
 k3s crictl rmi // prune to delete any images no currently used by a running container
 crictl rmi IMAGE-ID [IMAGE-ID...]
 
+kubectl scale --help
+kubectl scale --replicas=0 deployment/<your-deployment>
+# Scale a resource identified by type and name specified in "foo.yaml" to 3.
+kubectl scale --replicas=3 -f foo.yaml
+# If the deployment named mysql's current size is 2, scale mysql to 3.
+kubectl scale --current-replicas=2 --replicas=3 deployment/mysql
+# Scale multiple replication controllers.
+kubectl scale --replicas=5 rc/foo rc/bar rc/baz
+Scale statefulset named 'web' to 3.
+kubectl scale --replicas=3 statefulset/web
+
 ````
 ## Kubernetes Deployment YAML File with Examples
 
