@@ -42,6 +42,10 @@ Check health status:
   kubectl cluster-info;
 } | grep -z 'Ready\| ok\|passed\|running'
 
+Also usefull comand for cheking config:
+k3s check-config
+
+
 kubectl get events
 ..
 LAST SEEN   TYPE      REASON                    OBJECT                       MESSAGE
@@ -120,6 +124,13 @@ coredns-6799fbcd5-2xrlx                   4m           23Mi
 local-path-provisioner-84db5d44d9-47ms7   1m           15Mi            
 metrics-server-67c658944b-5kqvt           7m           30Mi
 
+kubectl api-resources
+kubectl describe pods --all-namespaces
+kubectl describe pod <pod-name>
+
+You can list all Persistent Volumes sorted by capacity
+kubectl get pv --sort-by=.spec.capacity.storage --all-namespaces
+
 top -o %MEM -b -n1 | head -n 24
 ..
 top - 16:23:54 up  4:25,  2 users,  load average: 0.17, 0.11, 0.09
@@ -159,6 +170,79 @@ users:
 
 kubectl delete -n kube-system pod helm-install-traefik-s8nbg
 
+kubectl create deployment my-nginx --image=nginx
+..
+deployment.apps/my-nginx created
+
+kubectl expose deployment my-nginx --type=NodePort --port=80
+..
+service/my-nginx exposed
+
+kubectl get pods,services
+..
+NAME                            READY   STATUS    RESTARTS   AGE
+pod/my-nginx-7fbf685c4d-mr7gb   1/1     Running   0          36s
+
+NAME                 TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
+service/kubernetes   ClusterIP   10.43.0.1      <none>        443/TCP        43h
+service/my-nginx     NodePort    10.43.72.142   <none>        80:31839/TCP   13s
+
+kubectl get service my-nginx  -o jsonpath="{.spec}"
+..
+{"clusterIP":"10.43.72.142","clusterIPs":["10.43.72.142"],"externalTrafficPolicy":"Cluster","internalTrafficPolicy":"Cluster","ipFamilies":["IPv4"],"ipFamilyPolicy":"SingleStack","ports":[{"nodePort":31839,"port":80,"protocol":"TCP","targetPort":80}],"selector":{"app":"my-nginx"},"sessionAffinity":"None","type":"NodePort"}
+
+kubectl get service my-nginx  -o jsonpath="{.spec.ports[0]}"
+..
+{"nodePort":31839,"port":80,"protocol":"TCP","targetPort":80}
+
+PORT=$(kubectl get service my-nginx  -o jsonpath="{.spec.ports[0].nodePort}") && echo $PORT
+..
+31839
+
+
+````
+## How to move k3s data to another location
+The standard data location used for k3s is /run/k3s, /var/lib/kubelet/pods, /var/lib/rancher. Because this directory contains all containers/images/volumes, it can be large. So you no need to store this in OS Volume when you can use separate data volume.
+````
+du -d 1 -h /run/k3s/
+..
+162M	/run/k3s/containerd
+162M	/run/k3s/
+
+du -d 1 -h /var/lib/kubelet/pods
+..
+88K	/var/lib/kubelet/pods/9ee1bfb5-5e82-4ab8-9b2a-14c72abd171a
+68K	/var/lib/kubelet/pods/990d1b97-53fa-4ff4-a1d2-665c9d25342c
+80K	/var/lib/kubelet/pods/23f39cee-7287-4b79-acf5-6109785c1036
+240K	/var/lib/kubelet/pods
+
+du -d 1 -h /var/lib/rancher/
+..
+407M	/var/lib/rancher/k3s
+407M	/var/lib/rancher/
+````
+### 1. Stop daemon
+````
+# systemctl stop k3s
+# systemctl stop k3s-agent
+# /usr/local/bin/k3s-killall.sh
+````
+### 2. Copy files to new location
+````
+# mv /run/k3s/ /Toshiba/k3s/
+# mv /var/lib/kubelet/pods/ /Toshiba/k3s-pods/
+# mv /var/lib/rancher/ /Toshiba/k3s-rancher/
+````
+### 3. Create symbolic link
+````
+# ln -s /Toshiba/k3s/ /run/k3s
+# ln -s /Toshiba/k3s-pods/ /var/lib/kubelet/pods
+# ln -s /Toshiba/k3s-rancher/ /var/lib/rancher
+````
+### 4. Start daemon
+````
+# systemctl start k3s
+# systemctl start k3s-agent
 ````
 ## Uninstall k3s
 Here is two ways, the first is reset the data, the second is full uninstall method
