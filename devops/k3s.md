@@ -521,6 +521,9 @@ spec:
         image: nginx:latest
         ports:
         - containerPort: 80
+        volumeMounts:
+           —mountPath: "/usr/share/nginx/html"
+           name: my-pvc
       volumes:
       - name: data
         persistentVolumeClaim:
@@ -661,6 +664,124 @@ spec:
           serviceName: simple-rest-golang-service
           servicePort: 80
 ````
+
+#### Alternatives to the Deployment Object
+
+- DaemonSet—deploys a pod on all cluster nodes or a certain subset of nodes
+- StatefulSet—used for stateful applications. Similar to a Deployment, but each pod is unique and has a persistent identifier.
+
+A DaemonSet runs copies of a pod on all cluster nodes, or a selection of nodes within a cluster. Whenever a node is added to the cluster, the DaemonSet controller checks if it is eligible, and if so, runs the pod on it. When a node is removed from the cluster, the pods are moved to garbage collection. Deleting a DaemonSet also results in removal of the pods it created.
+
+````
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentd-elasticsearch
+  namespace: kube-system
+  labels:
+    k8s-app: fluentd-logging
+spec:
+  selector:
+    matchLabels:
+      name: fluentd-elasticsearch
+  template:
+    metadata:
+      labels:
+        name: fluentd-elasticsearch
+    spec:
+      tolerations:
+      # this toleration is to have the daemonset runnable on 
+      # master nodes
+     —key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+      containers:
+     —name: fluentd-elasticsearch
+        image: quay.io/fluentd_elasticsearch/fluentd:v2.5.2
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        volumeMounts:
+       —name: varlog
+          mountPath: /var/log
+       —name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+      terminationGracePeriodSeconds: 30
+      volumes:
+     —name: varlog
+        hostPath:
+          path: /var/log
+     —name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+````
+
+Kubernetes Statefulset Example YAML
+
+A StatefulSet manages a group of pods while maintaining a sticky identity for each pod, with a persistent identifier that remains even if the pod is shut down and restarted. Pods also have PersistentVolumes that can store data that outlines the lifecycle of each individual pod. 
+
+The following example shows a YAML configuration for a headless Service that controls the network domain, and a StatefulSet that runs 3 instances of an NGINX web server.
+````
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  ports:
+ —port: 80
+    name: web
+  clusterIP: None
+  selector:
+    app: nginx
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: web
+spec:
+  selector:
+    matchLabels:
+      app: nginx # has to match .spec.template.metadata.labels
+  serviceName: "nginx"
+  replicas: 3 # by default is 1
+  minReadySeconds: 10 # by default is 0
+  template:
+    metadata:
+      labels:
+        app: nginx # has to match .spec.selector.matchLabels
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+     —name: nginx
+        image: k8s.gcr.io/nginx-slim:0.8
+        ports:
+       —containerPort: 80
+          name: web
+        volumeMounts:
+       —name: www
+          mountPath: /usr/share/nginx/html
+  volumeClaimTemplates:
+ —metadata:
+      name: www
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "my-storage-class"
+      resources:
+        requests:
+          storage: 1Gi
+````
+- metadata.name — must be a valid DNS subdomain name.
+- .spec.selector.matchLabels and .spec.template.metadata.labels —both of these must match and are referenced by the headless Service to route requests to the application.
+- spec.selector.replicas —specifies that the StatefulSet should run three replicas of the container, each with a unique persistent identifier.
+- spec.template.spec.containers —specifies what NGINX image to run and how it should mount the PersistentVolumes.
+- volumeClaimTemplates —provides persistent storage using the my-storage-class storage class. In a real environment, your cluster will have one or more storage classes defined by the cluster administrator, which provide different types of persistent storage.
+
 ## How to move k3s data to another location
 The standard data location used for k3s is /run/k3s, /var/lib/kubelet/pods, /var/lib/rancher. Because this directory contains all containers/images/volumes, it can be large. So you no need to store this in OS Volume when you can use separate data volume.
 ````
