@@ -30,4 +30,11 @@ Create sha512 hash of a password:
 mkpasswd -m sha-512 --stdin
 mkpasswd -m sha-512 'password'
 `````
-
+Debug and find .yaml syntax mistakes
+````
+yamllint /tmp/public-ngix.yaml
+.. 
+/tmp/public-ngix.yaml
+  1:1       warning  missing document start "---"  (document-start)
+  5:1       error    syntax error: found character '\t' that cannot start any token (syntax)
+````
