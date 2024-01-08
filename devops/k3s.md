@@ -362,6 +362,11 @@ PRETTY_NAME="Debian GNU/Linux 12 (bookworm)"
 NAME="Debian GNU/Linux"
 VERSION_ID="12"
 ...
+We can see our neighboor container with nginx running
+# ss -ntulp
+Netid          State           Recv-Q          Send-Q                   Local Address:Port                   Peer Address:Port          Process          
+tcp            LISTEN          0               511                            0.0.0.0:80                          0.0.0.0:*                              
+tcp            LISTEN          0               511                               [::]:80                             [::]:*
 ````
 ## Kubernetes Deployment YAML File with Examples
 
@@ -735,6 +740,8 @@ spec:
               sleep 120;
             done
 ````
+![](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/images/k8s_multicloud_diagram-01.png)
+![](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/images/k8s_multicloud_diagram-03.png)
 Now we can see 2 different pods with 2 containers in them
 ````
 kubectl get pods
@@ -742,6 +749,62 @@ kubectl get pods
 NAME                                READY   STATUS    RESTARTS   AGE
 nginx-deployment-86b7598c75-g5b8l   2/2     Running   0          50m
 nginx-deployment-86b7598c75-6jr4g   2/2     Running   0          50m
+````
+
+In this case, Kubernetes runs init-myservice until it is successful, then init-mydb, and then the myapp-container application.
+````
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app: myapp
+spec:
+  containers:
+  - name: myapp-container
+    image: busybox:1.28
+  initContainers:
+  - name: init-myservice
+    image: busybox:1.28
+  - name: init-mydb
+    image: busybox:1.28
+````
+
+Inter-process communications (IPC)
+Containers in a Pod share the same IPC namespace, which means they can also communicate with each other using standard inter-process communications such as SystemV semaphores or POSIX shared memory.
+
+The first container, producer, creates a standard Linux message queue, writes a number of random messages, and then writes a special exit message. The second container,  consumer, opens that same message queue for reading and reads messages until it receives the exit message. We also set the restart policy to 'Never', so the Pod stops after termination of both containers.
+````
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mc2
+spec:
+  containers:
+  - name: producer
+    image: allingeek/ch6_ipc
+    command: ["./ipc", "-producer"]
+  - name: consumer
+    image: allingeek/ch6_ipc
+    command: ["./ipc", "-consumer"]
+  restartPolicy: Never
+````
+![](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/images/k8s_multicloud_diagram-02.png)
+ Now you can check logs for each container and verify that the 2nd container received all messages from the 1st container, including the exit message: 
+````
+$ kubectl logs mc2 -c producer
+...
+Produced: f4
+Produced: 1d
+Produced: 9e
+Produced: 27
+$ kubectl logs mc2 -c consumer
+...
+Consumed: f4
+Consumed: 1d
+Consumed: 9e
+Consumed: 27
+Consumed: done
 ````
 #### Alternatives to the Deployment Object
 
