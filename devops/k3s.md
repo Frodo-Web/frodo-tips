@@ -51,6 +51,18 @@ Deployment (развертывание)
 
 StatefulSet (набор состояния)
 Это контроллер Kubernetes, который используют для эксплуатации сохраняющих состояние приложений в виде контейнеров (подов) в кластере Kubernetes. StatefulSet присваивают каждому поду идентификатор-липучку (sticky identity) — порядковый номер начиная с нуля — а не случайные ID каждой реплике пода.
+
+
+kind: Service:
+
+Service: This directs the traffic to a pod.
+Port: The port of this service
+TargetPort: This is the actual port on which your application is running inside the container. The target port on the pod(s) to forward traffic to.
+nodePort: The port on the node where external traffic will come in on
+ClusterIP: Request comes through ingress and points to service name and port.
+
+So the traffic flows Ingress-->Service-->Endpoint(Basically has POD IP)-->POD
+
 ````
 
 ### Варианты развёртывания
