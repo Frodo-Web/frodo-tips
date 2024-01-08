@@ -367,6 +367,10 @@ We can see our neighboor container with nginx running
 Netid          State           Recv-Q          Send-Q                   Local Address:Port                   Peer Address:Port          Process          
 tcp            LISTEN          0               511                            0.0.0.0:80                          0.0.0.0:*                              
 tcp            LISTEN          0               511                               [::]:80                             [::]:*
+
+kubectl get pods --selector=app=nginx -o jsonpath='{.items[*].status.podIP}'
+..
+10.42.1.6 10.42.0.20
 ````
 ## Kubernetes Deployment YAML File with Examples
 
@@ -805,6 +809,71 @@ Consumed: 1d
 Consumed: 9e
 Consumed: 27
 Consumed: done
+````
+
+#### Working with service
+````
+nginx_test_deployment.yml
+..
+apiVersion: apps/v1   
+kind: Deployment    
+metadata:            
+  name: nginx-test-deployment
+  labels:        
+    app: nginx-test
+spec:            
+  replicas: 2    
+  selector:       
+    matchLabels: 
+      app: nginx-test-pod
+  template:        
+    metadata:    
+      labels:    
+        app: nginx-test-pod
+    spec: 
+      containers:    
+      - name: nginx
+        image: nginx:alpine    
+        ports:
+          - containerPort: 80
+
+
+nginx_test_service.yml
+..
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-test-service
+spec:
+  selector:
+    app: nginx-test-pod
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 80
+#   nodePort: 3333 // nodePort: Forbidden: may not be used when `type` is 'ClusterIP'
+    protocol: TCP
+
+
+cat nginx_test_pod.yml
+..
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-test-client
+spec:
+  restartPolicy: Never
+  containers:
+  - name: nginx-client
+    image: alpine
+    command: ["/bin/sh"]
+    args: ["-c", "echo -en 'GET / HTTP/1.0\r\n\r\n' | nc nginx-test-service 8080"]
+
+kubectl logs nginx-test-client
+..
+HTTP/1.1 200 OK
+...
+
 ````
 #### Alternatives to the Deployment Object
 
