@@ -343,6 +343,25 @@ kubectl scale --replicas=5 rc/foo rc/bar rc/baz
 Scale statefulset named 'web' to 3.
 kubectl scale --replicas=3 statefulset/web
 
+We can even execute commands inside containers
+kubectl exec $POD_NAME -c $CONTAINER_NAME -- /bin/cat /usr/share/nginx/html/index.html
+kubectl exec nginx-deployment-86c794df95-lj7c6 -c nginx -- /bin/cat /usr/share/nginx/html/index.html
+..
+Mon Jan  8 09:42:38 UTC 2024
+
+kubectl exec nginx-deployment-86c794df95-lj7c6 -c debian -- apt install curl -y
+// Meaning containers inside pod are using the same net stack
+kubectl exec nginx-deployment-86c794df95-lj7c6 -c debian -- curl -vvv -s -o - telnet://localhost:80
+
+Get inside containers of a pod
+
+kubectl exec --stdin --tty -c debian nginx-deployment-86c794df95-lj7c6 -- /bin/sh
+# cat /etc/*-release
+..
+PRETTY_NAME="Debian GNU/Linux 12 (bookworm)"
+NAME="Debian GNU/Linux"
+VERSION_ID="12"
+...
 ````
 ## Kubernetes Deployment YAML File with Examples
 
@@ -675,7 +694,55 @@ spec:
           serviceName: simple-rest-golang-service
           servicePort: 80
 ````
-
+Deploying 2 pods with 2 containers in them
+````
+apiVersion: apps/v1   
+kind: Deployment    
+metadata:            
+  name: nginx-deployment    
+  labels:        
+    app: nginx    
+spec:            
+  replicas: 2    
+  selector:       
+    matchLabels: 
+      app: nginx
+  template:        
+    metadata:    
+      labels:    
+        app: nginx
+    spec: 
+      volumes:
+      - name: html
+        emptyDir: {}
+      containers:    
+      - name: nginx
+        image: nginx:alpine    
+        ports:
+          - containerPort: 80 
+        volumeMounts:
+        - name: html
+          mountPath: /usr/share/nginx/html
+      - name: debian
+        image: debian
+        volumeMounts:
+        - name: html
+          mountPath: /html
+        command: ["/bin/sh", "-c"]
+        args:
+          - while true; do
+              date > /html/index.html;
+              sleep 120;
+            done
+````
+Now we can see 2 different pods with 2 containers in them
+````
+kubectl get pods
+..
+NAME                                READY   STATUS    RESTARTS   AGE
+nginx-deployment-86b7598c75-g5b8l   2/2     Running   0          50m
+nginx-deployment-86b7598c75-6jr4g   2/2     Running   0          50m
+````
 #### Alternatives to the Deployment Object
 
 - DaemonSet—deploys a pod on all cluster nodes or a certain subset of nodes
