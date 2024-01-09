@@ -91,3 +91,19 @@ ssh -v -i keys/docker -o IdentitiesOnly=yes -o PubkeyAuthentication=yes -o Prefe
 ````
 ssh -i build/keys/docker -o HostkeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa -o IdentitiesOnly=yes -o PubkeyAuthentication=yes -o PreferredAuthentications=publickey -o StrictHostKeyChecking=no -o LogLevel=quiet frodo@8.8.8.8
 ````
+
+### Host key verification failed
+When you see this:
+````
+[ERROR]: Failed to ssh to [hostname_here]. No ECDSA host key is known for greenplum-segment04 and you have requested strict checking.
+Host key verification failed.
+````
+Possible solutions.
+First, generate know_hosts for those hostnames
+````
+ssh-keyscan [hostname] >> ~/.ssh/known_hosts
+````
+Second, use ssh client with StrictHostKeyChecking=no option
+````
+ssh -o StrictHostKeyChecking=no ...
+````
