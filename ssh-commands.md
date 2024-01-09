@@ -93,12 +93,12 @@ ssh -i build/keys/docker -o HostkeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorith
 ````
 
 ### Host key verification failed
-When you see this:
+When you see these messages:
 ````
 [ERROR]: Failed to ssh to [hostname_here]. No ECDSA host key is known for greenplum-segment04 and you have requested strict checking.
 Host key verification failed.
 ````
-Possible solutions.
+Possible solutions. <br>
 First, generate know_hosts for those hostnames
 ````
 ssh-keyscan [hostname] >> ~/.ssh/known_hosts
