@@ -63,7 +63,19 @@ ClusterIP: Request comes through ingress and points to service name and port.
 
 So the traffic flows Ingress-->Service-->Endpoint(Basically has POD IP)-->POD
 
+Service types:
+
+ClusterIP (default): Internal clients send requests to a stable internal IP address.
+NodePort: Clients send requests to the IP address of a node on one or more nodePort values that are specified by the Service.
+LoadBalancer: Clients send requests to the IP address of a network load balancer.
+ExternalName: Internal clients use the DNS name of a Service as an alias for an external DNS name.
+Headless: You can use a headless service when you want a Pod grouping, but don't need a stable IP address.
 ````
+### Service types
+![](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/images/ClusterIP%20with%20proxy.png?raw=true)
+![](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/images/NodePort%20service.png?raw=true)
+![](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/images/LoadBalancer%20service.png?raw=true)
+![](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/images/Ingress%20controller.png?raw=true)
 
 ### Варианты развёртывания
 
