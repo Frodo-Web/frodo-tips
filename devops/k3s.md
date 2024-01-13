@@ -103,6 +103,15 @@ curl -sfL https://get.k3s.io | K3S_URL=https://192.168.122.205:6443 K3S_TOKEN=K1
 ### Command examples
 
 ````
+Delete everything from current (default) namespace:
+kubectl delete all --all
+Delete everything from specific namespace:
+kubectl delete all --all -n {namespace}
+Or you can re-create that namespace:
+kubectl delete namespace {namespace}
+kubectl create namespace {namespace}
+
+
 Check health status:
 { echo -e "\n==== Kubernetes Status ====\n" && \
   kubectl get --raw '/healthz?verbose' && \
