@@ -249,6 +249,24 @@ sudo netplan apply
 Change IP on CentOS7, if vm was clonned with static interface
 uuidgen eth0                                        // Generate new uuid
 sudo vim /etc/sysconfig/network-scripts/ifcfg-eth0  // Change UUID= and IPADDR= with yours
+
+TYPE=Ethernet
+PROXY_METHOD=none
+BROWSER_ONLY=no
+BOOTPROTO=none
+IPADDR=192.168.122.253
+PREFIX=24
+GATEWAY=192.168.122.1
+DNS1=8.8.8.8
+DNS2=1.1.1.1
+DEFROUTE=yes
+IPV4_FAILURE_FATAL=no
+IPV6INIT=no
+NAME=eth0
+UUID=30ad5379-8986-466b-8ad6-2db67e6eaaf5
+DEVICE=eth0
+ONBOOT=yes
+
 systemctl restart network                           // Restart network
 Change hostname and dnsdomainname
 sudo hostnamectl set-hostname ns2.sydney.sega.com
