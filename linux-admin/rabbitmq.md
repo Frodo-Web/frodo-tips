@@ -83,6 +83,11 @@ sudo chown -R rabbitmq:rabbitmq /var/lib/rabbitmq/
 sudo rabbitmqctl add_user admin password
 sudo rabbitmqctl set_user_tags admin management
 sudo rabbitmqctl set_permissions -p / admin ".*" ".*" ".*"
+
+sudo rabbitmqctl list_users
+..
+user    tags
+admin   [management]
 ````
 To access the RabbitMQ admin:
 ````
