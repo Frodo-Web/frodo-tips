@@ -15,6 +15,7 @@ Useful commands, combinations, advices, etc...
 [Mount: NTFS signature is missing when mounting Windows 11 partition](https://github.com/Frodo-Web/frodo-tips/blob/main/mount-NTFS-signature-is-missing-windows-11.md) <br>
 [Jira queries](https://github.com/Frodo-Web/frodo-tips/blob/main/All/Jira.md) <br>
 ## Linux Admin
+[GRUB](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/grub.md) <br>
 [LVM demonstration](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/lvm.md) <br>
 [KVM, QEMU commands](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/KVM-QEMU.md) <br>
 [Tmux, Screen](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/tmux-screen.md) <br>
