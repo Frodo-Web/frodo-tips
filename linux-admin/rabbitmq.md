@@ -72,3 +72,29 @@ Help:
 rabbitmqctl help
 rabbitmqctl help <command>
 ````
+## RabbitMQ Web Management Console
+Enable
+````
+sudo rabbitmq-plugins enable rabbitmq_management
+````
+Setting up access:
+````
+sudo chown -R rabbitmq:rabbitmq /var/lib/rabbitmq/
+sudo rabbitmqctl add_user admin password
+sudo rabbitmqctl set_user_tags admin management
+sudo rabbitmqctl set_permissions -p / admin ".*" ".*" ".*"
+````
+To access the RabbitMQ admin:
+````
+http://Your_Server_IP:15672
+````
+Using SSL is recommended. <br>
+Create or update rabbitmq conf file at /etc/rabbitmq/rabbitmq.conf:
+````
+management.listener.port = 15672
+management.listener.ssl  = true
+
+management.listener.ssl_opts.cacertfile = /path/to/cacertfile.pem
+management.listener.ssl_opts.certfile   = /path/to/certfile.pem
+management.listener.ssl_opts.keyfile    = /path/to/keyfile.pem
+````
