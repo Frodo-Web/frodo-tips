@@ -57,6 +57,22 @@ In the Advanced Message Queuing Protocol (AMQP), messages are structured data un
 
     Consumer (Subscriber):
         The consumer retrieves the message from the queue, processes it, and acknowledges its receipt.
+
+### Message Acknowledgment
+In RabbitMQ, acknowledgment (ack) is a mechanism that allows consumers to inform the broker that a message has been successfully processed and can be safely removed from the queue. There are two main acknowledgment modes: manual acknowledgment (manual ack) and automatic acknowledgment (auto ack).
+#### Manual Acknowledgment (Manual Ack)
+In manual acknowledgment mode, also known as explicit acknowledgment, the consumer is responsible for sending an acknowledgment signal to the broker after successfully processing a message. This gives the consumer more control over the acknowledgment process. <br>
+- Messages are not removed from the queue until they are explicitly acknowledged.
+- This can help avoid message loss in case of consumer failures or errors during message processing.
+- Developers need to ensure that acknowledgments are sent at the appropriate time and handle potential errors.
+- If a consumer fails to send an acknowledgment, the broker may redeliver the message to another consumer.
+#### Automatic Acknowledgment (Auto Ack)
+In automatic acknowledgment mode, also known as implicit acknowledgment or auto ack, the acknowledgment process is handled automatically by the broker as soon as the message is delivered to the consumer. The consumer does not need to send explicit acknowledgment signals.
+- Auto acknowledgment simplifies the consumer code as it does not need to explicitly handle acknowledgments.
+- The acknowledgment process is handled automatically in the background.
+- Eliminates the need for developers to manage acknowledgment logic, reducing potential errors.
+- If a consumer crashes or encounters an error during message processing, the message may be lost without acknowledgment.
+- May lead to scenarios where a message is not processed successfully, but the broker assumes it has been.
 ### Virtual Hosts
 In RabbitMQ, a virtual host is a way to partition and isolate resources such as exchanges, queues, and permissions within a RabbitMQ broker. Each virtual host operates independently of others, providing a logical separation of messaging entities and their associated configuration. <br>
 Here are some key purposes and benefits of using RabbitMQ virtual hosts:
