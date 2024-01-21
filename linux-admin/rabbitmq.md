@@ -269,15 +269,15 @@ sudo rabbitmqctl delete_user <username>
 
 List Queues:
 sudo rabbitmqctl list_queues
-rabbitmqctl -n rabbit@rabbitmq-02 -p / list_queues name messages_ready
+rabbitmqctl -n rabbit@rabbitmq-02 -p / list_queues name messages_ready messages_unacknowledged messages
 ..
 Timeout: 60.0 seconds ...
 Listing queues for vhost / ...
-name	messages_ready
-hello	0
-QueueA	3
-QueueB	3
-QueueC	3
+name	messages_ready	messages_unacknowledged	messages
+hello	0	            0	                    0
+QueueA	3	            0	                    3
+QueueB	3	            0	                    3
+QueueC	3	            0	                    3
 
 Purge a Queue:
 sudo rabbitmqctl purge_queue <queue_name>
