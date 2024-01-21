@@ -9,7 +9,8 @@ Here are some key purposes and benefits of using RabbitMQ virtual hosts:
 - Resource Partitioning
 - Policy Isolation
 - Message Routing Isolation
-- Ease of Management and Monitoring
+- Ease of Management and Monitoring <br>
+
 An Example of Policy on all queues (.*) in virtual host my_host:
 ````
 rabbitmqctl add_vhost my_vhost
