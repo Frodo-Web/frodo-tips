@@ -293,7 +293,7 @@ ip a
 virsh shutdown --domain centos7.9.2009-01 && virsh snapshot-revert --domain centos7.9.2009-01 --snapshotname "SSH + firewalld off + extended"
 virsh start centos7.9.2009-01
 ````
-## Change amount of RAM in KVM
+## Change amount of RAM and CPU cores in KVM
 ````
 virsh edit your_vm_name
 ````
