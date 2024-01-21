@@ -78,6 +78,51 @@ Let's consider an example where we have a topic exchange named "logs" and severa
 In this setup, messages with routing keys like info.message.warning, error.message.debug, or warning.critical would be routed to the appropriate queues based on the defined patterns.
 
 ![](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/images/Screenshot%20from%202024-01-21%2014-49-19.png?raw=true)
+
+### Bindings
+In RabbitMQ, a binding is a link between an exchange and a queue. It defines the rules for routing messages from the exchange to the queue. Bindings play a crucial role in determining how messages are delivered from producers to queues within the RabbitMQ message broker.
+
+    Link Between Exchange and Queue:
+        A binding establishes a connection between an exchange and a queue.
+        Messages sent to an exchange are routed to queues based on the bindings that exist between the exchange and queues.
+
+    Routing Key:
+        When creating a binding, you specify a routing key or pattern.
+        For some exchange types, the routing key is used to determine how messages should be routed to queues.
+
+    Exchange Types:
+        Different exchange types in RabbitMQ (direct, topic, fanout, headers) use bindings differently.
+        For example, in a direct exchange, the routing key in the binding is compared to the routing key of the message for routing.
+
+    Exchange-Queue Relationship:
+        An exchange can be bound to multiple queues, and a queue can be bound to multiple exchanges.
+        The same queue can have multiple bindings with different routing keys, allowing it to receive messages from different exchanges based on different criteria.
+
+    Binding Parameters:
+        In addition to the routing key, other parameters can be specified when creating a binding, depending on the exchange type.
+        For example, headers can be specified in a headers exchange binding.
+
+Example of creating binding:
+````
+import pika
+
+# Connect to RabbitMQ server
+connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+channel = connection.channel()
+
+# Declare a direct exchange named "direct_logs"
+channel.exchange_declare(exchange='direct_logs', exchange_type='direct')
+
+# Declare a queue named "my_queue"
+channel.queue_declare(queue='my_queue')
+
+# Bind the queue to the exchange with a specific routing key
+channel.queue_bind(exchange='direct_logs', queue='my_queue', routing_key='info')
+
+# Close the connection
+connection.close()
+````
+![](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/images/Screenshot%20from%202024-01-21%2015-31-15.png?raw=true)
 ## Install the latest version on CentOS 7
 ````
 1. Install Erlang OTP
