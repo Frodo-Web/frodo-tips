@@ -18,6 +18,40 @@ An Example of Policy on all queues (.*) in virtual host my_host:
 rabbitmqctl add_vhost my_vhost
 rabbitmqctl set_policy -p my_vhost queue_length_limit '.*' '{"max-length": 100, "overflow": "reject-publish"}'
 ````
+### Messaging Patterns
+````
+    Publish/Subscribe:
+        Description: In the publish/subscribe pattern, a message producer (publisher) sends messages to an exchange, and multiple message consumers (subscribers) receive messages from queues bound to that exchange. Each subscriber receives a copy of every message.
+        RabbitMQ Entities: Exchange, Queues, Bindings
+
+    Point-to-Point (Queues):
+        Description: In the point-to-point pattern, messages are sent to a queue, and each message is consumed by a single consumer. Multiple consumers can be connected to the same queue, but each message is processed by only one of them.
+        RabbitMQ Entities: Queue
+
+    Direct Routing:
+        Description: In this pattern, messages are sent to an exchange with a specific routing key. Queues are bound to the exchange with routing key criteria, and messages are routed to the queues based on these criteria.
+        RabbitMQ Entities: Exchange, Queues, Bindings
+
+    Topic Routing:
+        Description: Similar to direct routing, but with more flexible routing patterns. Messages are sent to an exchange with a topic, and queues are bound to the exchange with topic patterns. Messages are routed to queues based on matching patterns.
+        RabbitMQ Entities: Exchange, Queues, Bindings
+
+    Headers Exchange:
+        Description: Messages are sent to an exchange with a set of headers. Queues are bound to the exchange with header criteria, and messages are routed to queues based on matching header values.
+        RabbitMQ Entities: Exchange, Queues, Bindings
+
+    Request/Reply (RPC):
+        Description: In the request/reply pattern, a client (requester) sends a message to a server (responder), and the server replies with a response. The client waits for the response, creating a synchronous communication pattern.
+        RabbitMQ Entities: Queues, Correlation ID
+
+    Dead Letter Exchange:
+        Description: Messages that cannot be delivered to their intended queues are sent to a dead letter exchange. Dead letter exchanges are often used to handle messages that fail to be processed after multiple attempts.
+        RabbitMQ Entities: Exchange, Queues, Bindings
+
+    Fanout Exchange:
+        Description: A fanout exchange broadcasts messages to all queues bound to it, ignoring routing keys. This pattern is useful for implementing broadcast-style communication where all subscribers receive the same message.
+        RabbitMQ Entities: Exchange, Queues, Bindings
+````
 ## Install the latest version on CentOS 7
 ````
 1. Install Erlang OTP
