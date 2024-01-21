@@ -29,6 +29,9 @@ sudo rabbitmq-server
 Add a User:
 sudo rabbitmqctl add_user <username> <password>
 
+Set User tags:
+sudo rabbitmqctl set_user_tags frodo administrator management
+
 Set User Permissions:
 sudo rabbitmqctl set_permissions -p / <username> ".*" ".*" ".*"
 This command sets permissions for a user. In the example above, the user has full permissions (".*").
