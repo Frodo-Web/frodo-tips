@@ -11,6 +11,8 @@ Here are some key purposes and benefits of using RabbitMQ virtual hosts:
 - Message Routing Isolation
 - Ease of Management and Monitoring <br>
 
+In RabbitMQ, you can limit resources for a specific virtual host by setting various policies. Resource limitations can include constraints on message TTL (Time To Live), maximum length of queues, maximum number of connections, and more. These limitations help in preventing resource exhaustion and managing the behavior of messaging entities within a virtual host.
+
 An Example of Policy on all queues (.*) in virtual host my_host:
 ````
 rabbitmqctl add_vhost my_vhost
