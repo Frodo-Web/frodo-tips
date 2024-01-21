@@ -103,7 +103,36 @@ management.listener.ssl_opts.cacertfile = /path/to/cacertfile.pem
 management.listener.ssl_opts.certfile   = /path/to/certfile.pem
 management.listener.ssl_opts.keyfile    = /path/to/keyfile.pem
 ````
+## RabbitMQ Cluster
+For example, we have 2 nodes, rabbitmq-01 and rabbitmq-02. <br>
+We want to add rabbitmq-02 to rabbitmq-01 cluster <br>
+These are the steps, on rabbitmq-01:
+````
+vim /etc/hosts
+192.168.122.253  rabbitmq-01
+192.168.122.254  rabbitmq-02
 
+cat /var/lib/rabbitmq/.erlang.cookie
+..
+MAFSGVPPIDKTIRJHBQHY
+````
+On rabbitmq-02:
+````
+vim /etc/hosts
+192.168.122.253  rabbitmq-01
+192.168.122.254  rabbitmq-02
+
+systemctl stop rabbitmq-server
+echo -n "MAFSGVPPIDKTIRJHBQHY" > /var/lib/rabbitmq/.erlang.cookie
+systemctl start rabbitmq-server
+
+rabbitmqctl stop_app
+rabbitmqctl reset
+rabbitmqctl join_cluster rabbit@rabbitmq-01
+rabbitmqctl start_app
+
+rabbitmqctl cluster_status
+````
 ## RabbitMQ learning roadmap
 Here's a roadmap to guide your learning journey:
 1. Understand Messaging Concepts:
