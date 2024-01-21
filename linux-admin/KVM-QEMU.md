@@ -303,3 +303,29 @@ virsh edit your_vm_name
   <currentMemory unit='KiB'>1048576</currentMemory>
   <vcpu placement='static'>2</vcpu>
 ````
+## Add swapfile on CentOS 7
+````
+swapon --show
+swapon -s
+free -h
+df -h
+
+sudo dd if=/dev/zero of=/swapfile count=4096 bs=1MiB
+ls -lh /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+
+swapon -s
+free -m
+
+sudo nano /etc/fstab
+..
+/swapfile   swap    swap    sw  0   0
+
+mount -fav
+..
+/                        : ignored
+/boot                    : already mounted
+swap                     : ignored
+````
