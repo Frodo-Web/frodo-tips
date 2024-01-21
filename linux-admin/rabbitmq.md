@@ -73,6 +73,27 @@ In automatic acknowledgment mode, also known as implicit acknowledgment or auto 
 - Eliminates the need for developers to manage acknowledgment logic, reducing potential errors.
 - If a consumer crashes or encounters an error during message processing, the message may be lost without acknowledgment.
 - May lead to scenarios where a message is not processed successfully, but the broker assumes it has been.
+
+### Unacknowledged messages
+In RabbitMQ, unacknowledged messages (often referred to as "unacked messages" or "unacknowledged deliveries") represent messages that have been delivered to a consumer but have not yet been acknowledged by that consumer. Acknowledgment is a mechanism that allows consumers to inform the broker that a message has been successfully processed and can be safely removed from the queue. <br>
+
+When a message is sent to a consumer, it enters an unacknowledged state until the consumer explicitly acknowledges it. The acknowledgment process is a critical part of message reliability and ensures that messages are not lost, even in the presence of consumer failures. <br>
+
+Here is an overview of the life cycle of a message in RabbitMQ related to acknowledgment:
+
+    Message Delivery:
+        A message is sent to a consumer for processing.
+
+    Unacknowledged State:
+        The message enters an unacknowledged state until the consumer explicitly acknowledges it.
+        During this period, the message is considered "in-flight" or "delivered" but not yet confirmed as successfully processed.
+
+    Acknowledgment:
+        The consumer acknowledges the message to confirm its successful processing.
+        Acknowledgment can be automatic (auto ack) or manual (manual ack) based on the acknowledgment mode used by the consumer.
+
+    Acknowledged State:
+        Once acknowledged, the message is considered successfully processed, and RabbitMQ removes it from the queue.
 ### Virtual Hosts
 In RabbitMQ, a virtual host is a way to partition and isolate resources such as exchanges, queues, and permissions within a RabbitMQ broker. Each virtual host operates independently of others, providing a logical separation of messaging entities and their associated configuration. <br>
 Here are some key purposes and benefits of using RabbitMQ virtual hosts:
