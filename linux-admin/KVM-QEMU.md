@@ -245,6 +245,23 @@ network:
 
 sudo netplan apply
 
+Change IP on Debian 13, testing, trixie
+vim /etc/network/interfaces
+..
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+allow-hotplug enp1s0
+iface enp1s0 inet static
+  address 192.168.122.252
+  netmask 255.255.255.0
+  network 192.168.122.0
+  gateway 192.168.122.1
+  broadcast 192.168.122.255
 
 Change IP on CentOS7, if vm was clonned with static interface
 uuidgen eth0                                        // Generate new uuid
