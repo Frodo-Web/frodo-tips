@@ -18,6 +18,7 @@ An Example of Policy on all queues (.*) in virtual host my_host:
 rabbitmqctl add_vhost my_vhost
 rabbitmqctl set_policy -p my_vhost queue_length_limit '.*' '{"max-length": 100, "overflow": "reject-publish"}'
 ````
+![](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/images/Screenshot%20from%202024-01-21%2014-10-52.png?raw=true)
 ### Messaging Patterns
 ````
     Publish/Subscribe:
