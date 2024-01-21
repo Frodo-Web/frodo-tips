@@ -53,6 +53,21 @@ rabbitmqctl set_policy -p my_vhost queue_length_limit '.*' '{"max-length": 100, 
         Description: A fanout exchange broadcasts messages to all queues bound to it, ignoring routing keys. This pattern is useful for implementing broadcast-style communication where all subscribers receive the same message.
         RabbitMQ Entities: Exchange, Queues, Bindings
 ````
+### Exchanges
+In RabbitMQ, exchanges are routing mechanisms that determine how messages are routed from message producers (publishers) to message consumers (subscribers). Exchanges receive messages from producers and then route them to one or more queues based on specific rules, known as routing keys and binding rules.
+
+    Routing Logic:
+        Exchanges define the routing logic for messages within RabbitMQ.
+        Messages sent to an exchange can be routed to one or more queues based on routing keys and binding rules.
+
+    Message Routing:
+        Exchanges determine how messages are distributed to queues based on routing keys and binding rules.
+        Different types of exchanges use different routing algorithms.
+
+    No Storage of Messages:
+        Exchanges do not store messages. Their primary role is to route messages to queues.
+
+![](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/images/Screenshot%20from%202024-01-21%2014-49-19.png?raw=true)
 ## Install the latest version on CentOS 7
 ````
 1. Install Erlang OTP
