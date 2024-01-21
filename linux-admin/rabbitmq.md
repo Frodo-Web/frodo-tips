@@ -133,6 +133,18 @@ rabbitmqctl start_app
 
 rabbitmqctl cluster_status
 ````
+#### Pass erlang cookie
+````
+export RABBITMQ_ERLANG_COOKIE='XMSBWXUFRMWNOYHSDPER'
+````
+````
+rabbitmqctl status --erlang-cookie MAFSGVPPIDKTIRJHBQHY
+rabbitmq-diagnostics erlang_cookie_sources --erlang-cookie MAFSGVPPIDKTIRJHBQHY
+````
+#### Pass nodename
+````
+export RABBITMQ_NODENAME=rabbit@rabbitmq-02
+````
 ## RabbitMQ learning roadmap
 Here's a roadmap to guide your learning journey:
 1. Understand Messaging Concepts:
