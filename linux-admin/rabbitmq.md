@@ -1,6 +1,62 @@
 # Managing RabbitMQ
 ## Terms
 Understand the main components of RabbitMQ, including exchanges, queues, and bindings.
+### AMQP
+In the Advanced Message Queuing Protocol (AMQP), messages are structured data units that are exchanged between message producers (publishers) and message consumers (subscribers) through a message broker. The structure of an AMQP message includes both header and body sections, each containing various properties and payload data. <br>
+#### AMQP Message Structure
+    Message Header:
+        The message header contains metadata and properties related to the message.
+        Key properties in the header include:
+            delivery_mode: Indicates whether the message is persistent (1) or transient (0).
+            content_type: Describes the MIME type of the message payload.
+            priority: Specifies the priority of the message.
+            timestamp: The timestamp of when the message was sent.
+            expiration: Specifies the message's expiration time.
+            correlation_id: Used for correlating responses to requests.
+            reply_to: Specifies the name of the reply-to queue.
+
+    Message Properties:
+        The message properties section provides additional application-specific properties.
+        Properties include user-defined headers and other custom properties.
+        Properties can be used to convey application-specific metadata about the message.
+
+    Message Body:
+        The message body contains the actual payload data of the message.
+        The payload can be of any data type or format (e.g., JSON, XML, binary data).
+        The interpretation of the payload is determined by the content_type property in the header.
+#### Example of AMQP Message Structure (JSON Representation):
+```json
+{
+  "header": {
+    "delivery_mode": 1,
+    "content_type": "application/json",
+    "priority": 0,
+    "timestamp": 1642126800000,
+    "expiration": "3600000",
+    "correlation_id": "abc123",
+    "reply_to": "response_queue"
+  },
+  "properties": {
+    "user_id": "user123",
+    "custom_header": "value"
+  },
+  "body": {
+    "message": "Hello, AMQP!"
+  }
+}
+```
+#### AMQP Message Flow
+    Producer (Publisher):
+        The producer creates an AMQP message and publishes it to an exchange.
+
+    Exchange:
+        The exchange receives the message and routes it to one or more queues based on routing rules and bindings.
+
+    Queue:
+        The message is stored in a queue until a consumer is ready to process it.
+
+    Consumer (Subscriber):
+        The consumer retrieves the message from the queue, processes it, and acknowledges its receipt.
 ### Virtual Hosts
 In RabbitMQ, a virtual host is a way to partition and isolate resources such as exchanges, queues, and permissions within a RabbitMQ broker. Each virtual host operates independently of others, providing a logical separation of messaging entities and their associated configuration. <br>
 Here are some key purposes and benefits of using RabbitMQ virtual hosts:
