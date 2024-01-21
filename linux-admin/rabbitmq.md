@@ -67,6 +67,16 @@ In RabbitMQ, exchanges are routing mechanisms that determine how messages are ro
     No Storage of Messages:
         Exchanges do not store messages. Their primary role is to route messages to queues.
 
+Example of Topic Exchange:
+
+Let's consider an example where we have a topic exchange named "logs" and several queues with different routing patterns:
+
+    Queue A is bound to "logs" with the routing pattern *.error.*.
+    Queue B is bound to "logs" with the routing pattern info.*.*.
+    Queue C is bound to "logs" with the routing pattern #.critical.
+
+In this setup, messages with routing keys like info.message.warning, error.message.debug, or warning.critical would be routed to the appropriate queues based on the defined patterns.
+
 ![](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/images/Screenshot%20from%202024-01-21%2014-49-19.png?raw=true)
 ## Install the latest version on CentOS 7
 ````
