@@ -123,6 +123,38 @@ channel.queue_bind(exchange='direct_logs', queue='my_queue', routing_key='info')
 connection.close()
 ````
 ![](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/images/Screenshot%20from%202024-01-21%2015-31-15.png?raw=true)
+
+### Queue Types
+````
+    Classic Queue:
+        Description: Classic queues are the basic and most commonly used type of queue in RabbitMQ. They follow the standard queuing model where messages are delivered to consumers in the order they arrive in the         queue.
+        Use Cases: Suitable for most messaging scenarios where messages should be processed in a first-in, first-out (FIFO) order.
+
+    Durable Queue:
+        Description: Durable queues persist their state to disk, ensuring that the queue and its messages survive broker restarts. Non-durable queues exist only in memory and may lose their state during a broker          restart.
+        Use Cases: Recommended for scenarios where message durability and queue persistence are essential to prevent data loss.
+
+    Transient Queue:
+        Description: Transient queues (non-durable queues) exist only in memory and do not survive broker restarts. They are faster than durable queues but may lose their state in case of a broker restart.
+        Use Cases: Suitable for scenarios where message durability is not critical, and fast, non-persistent messaging is preferred.
+
+    Auto-Delete Queue:
+        Description: Auto-delete queues are automatically deleted by RabbitMQ when the last consumer unsubscribes from the queue. This can be useful in scenarios where temporary queues are needed and can be               cleaned up automatically.
+        Use Cases: Useful for temporary or short-lived queues that are no longer needed once consumers disconnect.
+
+    Lazy Queue:
+        Description: Lazy queues are designed to store large numbers of messages on disk efficiently. They are suitable for scenarios with a high message volume and where messages can be processed at a slower             pace.
+        Use Cases: Ideal for scenarios with large message storage requirements, such as log aggregation or message buffering.
+
+    Priority Queue:
+        Description: Priority queues allow messages to be prioritized based on their priority level. Messages with higher priority levels are delivered before those with lower priority levels.
+        Use Cases: Useful in scenarios where message prioritization is critical, and certain messages need to be processed with higher priority.
+
+    Quorum Queue:
+        Description: Quorum queues provide improved durability compared to classic queues. They use a quorum-based replication approach to ensure message persistence and availability even in the case of broker            failures.
+        Use Cases: Recommended for scenarios where high durability and availability are crucial, such as critical business applications.
+````
+![](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/images/Screenshot%20from%202024-01-21%2015-43-09.png?raw=true)
 ## Install the latest version on CentOS 7
 ````
 1. Install Erlang OTP
