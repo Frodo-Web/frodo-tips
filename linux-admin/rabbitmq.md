@@ -94,6 +94,79 @@ Here is an overview of the life cycle of a message in RabbitMQ related to acknow
 
     Acknowledged State:
         Once acknowledged, the message is considered successfully processed, and RabbitMQ removes it from the queue.
+#### Code example
+Auto ack:
+````python
+import pika
+
+def callback(ch, method, properties, body):
+    # Simulate message processing
+    print(f"Received message: {body}")
+
+# Connect to RabbitMQ server
+connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+channel = connection.channel()
+
+# Declare a queue named "my_queue"
+channel.queue_declare(queue='my_queue', durable=True)
+
+# Set up the consumer with automatic acknowledgment (auto ack)
+channel.basic_consume(queue='my_queue', on_message_callback=callback, auto_ack=True)
+
+print(' [*] Waiting for messages. To exit, press CTRL+C')
+channel.start_consuming()
+````
+Manual ack:
+````python
+import pika
+
+def callback(ch, method, properties, body):
+    # Simulate message processing
+    print(f"Received message: {body}")
+
+    # Explicit acknowledgment (manual ack)
+    ch.basic_ack(delivery_tag=method.delivery_tag)
+    print("Acknowledged message")
+
+# Connect to RabbitMQ server
+connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+channel = connection.channel()
+
+# Declare a durable queue named "my_queue" with manual acknowledgment
+channel.queue_declare(queue='my_queue', durable=True)
+
+# Set up the consumer with manual acknowledgment
+channel.basic_consume(queue='my_queue', on_message_callback=callback)
+
+print(' [*] Waiting for messages. To exit, press CTRL+C')
+channel.start_consuming()
+````
+### Durable vs Transient
+In RabbitMQ, the concepts of "durable" and "transient" are related to the durability of queues, exchanges, and messages.
+#### Durable
+    Durable Queue:
+        A durable queue is a queue that survives broker restarts. When a queue is declared as durable, its definition and the state of its messages are persisted to disk, ensuring that the queue and its contents          are not lost in case of a broker restart.
+        Example: channel.queue_declare(queue='my_queue', durable=True)
+
+    Durable Exchange:
+        A durable exchange is an exchange that survives broker restarts. Similar to durable queues, a durable exchange's definition is persisted to disk, making sure that the exchange is not lost during a broker          restart.
+        Example: channel.exchange_declare(exchange='my_exchange', exchange_type='direct', durable=True)
+
+    Durable Message:
+        A durable message is a message that survives a broker restart. For a message to be durable, it must be published to a durable exchange and routed to a durable queue. Additionally, the message itself must be marked as persistent.
+        Example: channel.basic_publish(exchange='my_exchange', routing_key='my_queue', body='Hello, RabbitMQ!', properties=pika.BasicProperties(delivery_mode=2))
+#### Transient (Non-Durable)
+    Transient Queue:
+        A transient (non-durable) queue exists only in memory and does not survive a broker restart. Transient queues are faster than durable queues but may lose their state (definition and messages) in case of a         broker restart.
+        Example: channel.queue_declare(queue='my_queue', durable=False)
+
+    Transient Exchange:
+        A transient (non-durable) exchange exists only in memory and does not survive a broker restart. Similar to transient queues, transient exchanges are faster but may lose their state during a broker restart.
+        Example: channel.exchange_declare(exchange='my_exchange', exchange_type='direct', durable=False)
+
+    Transient Message:
+        A transient (non-durable) message is a message that is not marked as persistent. Such messages are not guaranteed to survive a broker restart and may be lost if the broker goes down.
+        Example: channel.basic_publish(exchange='my_exchange', routing_key='my_queue', body='Hello, RabbitMQ!', properties=pika.BasicProperties(delivery_mode=1))
 ### Virtual Hosts
 In RabbitMQ, a virtual host is a way to partition and isolate resources such as exchanges, queues, and permissions within a RabbitMQ broker. Each virtual host operates independently of others, providing a logical separation of messaging entities and their associated configuration. <br>
 Here are some key purposes and benefits of using RabbitMQ virtual hosts:
@@ -249,7 +322,7 @@ connection.close()
 ````
 ![](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/images/Screenshot%20from%202024-01-21%2015-43-09.png?raw=true)
 ## Install the latest version on CentOS 7
-````
+````shell
 1. Install Erlang OTP
 sudo rpm --import https://packages.erlang-solutions.com/rpm/erlang_solutions.asc
 // Browse for the latest package on https://www.erlang-solutions.com/downloads/ , this will install all the stuff
@@ -265,7 +338,7 @@ sudo rpm -Uvh rabbitmq-server-3.12.12-1.el8.noarch.rpm
 sudo systemctl start rabbitmq-server
 ````
 ## rabbitmqctl commands
-````
+```bash
 Check RabbitMQ Node Status:
 sudo rabbitmqctl status
 
@@ -332,7 +405,7 @@ sudo rabbitmqctl list_channels
 Help:
 rabbitmqctl help
 rabbitmqctl help <command>
-````
+```
 ## RabbitMQ Web Management Console
 Enable
 ````
@@ -410,7 +483,7 @@ export RABBITMQ_NODENAME=rabbit@rabbitmq-02
 ## Example of using RabbitMQ with python
 ### Direct Exchange
 direct_producer.py:
-````
+````python
 // This connects to rabbitmq-01 of our RabbitMQ cluster
 import pika
 
@@ -434,7 +507,7 @@ print(" [x] Sent 'Hello, RabbitMQ!'")
 connection.close()
 ````
 direct_consumer.py:
-````
+````python
 // This connects and reads messages from rabbitmq-02 of our RabbitMQ cluster
 import pika
 
@@ -462,7 +535,7 @@ channel.start_consuming()
 ````
 ### Topic Exchange
 topic_producer.py:
-````
+````python
 import pika
 
 # Connect to RabbitMQ server
@@ -502,7 +575,7 @@ for routing_key, message_body in example_messages:
 connection.close()
 ````
 topic_consumer.py:
-````
+````python
 import pika
 
 def callback(ch, method, properties, body):
