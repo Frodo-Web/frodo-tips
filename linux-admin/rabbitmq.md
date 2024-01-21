@@ -660,6 +660,14 @@ channel.basic_consume(queue='QueueC', on_message_callback=callback, auto_ack=Tru
 print(' [*] Waiting for messages. To exit, press CTRL+C')
 channel.start_consuming()
 ````
+### TODO
+- Configuration Files. Be familiar with RabbitMQ configuration files and the settings that impact performance and behavior.
+- Resource Management. Optimize resource usage by tuning parameters such as memory, file descriptors, and Erlang VM settings. RabbitMQ + Cluster + Erlang VM + Host settings.
+- Connection Pooling. Implement connection pooling to efficiently manage connections and reduce overhead.
+- Prefetch Count. Adjust the prefetch count to optimize the balance between message throughput and consumer efficiency.
+- Backup and Restore
+- Plugins. Explore and use RabbitMQ plugins to extend functionality based on specific use cases.
+
 ## RabbitMQ learning roadmap
 Here's a roadmap to guide your learning journey:
 1. Understand Messaging Concepts:
