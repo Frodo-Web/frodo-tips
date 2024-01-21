@@ -229,7 +229,8 @@ export RABBITMQ_NODENAME=rabbit@rabbitmq-02
 ````
 
 ## Example of using RabbitMQ with python
-producer.py:
+### Direct Exchange
+direct_producer.py:
 ````
 // This connects to rabbitmq-01 of our RabbitMQ cluster
 import pika
@@ -253,7 +254,7 @@ print(" [x] Sent 'Hello, RabbitMQ!'")
 # Close the connection
 connection.close()
 ````
-consumer.py:
+direct_consumer.py:
 ````
 // This connects and reads messages from rabbitmq-02 of our RabbitMQ cluster
 import pika
@@ -278,6 +279,82 @@ channel.basic_consume(queue='hello', on_message_callback=callback, auto_ack=True
 
 print(' [*] Waiting for messages. To exit, press CTRL+C')
 # Start consuming messages
+channel.start_consuming()
+````
+### Topic Exchange
+topic_producer.py:
+````
+import pika
+
+# Connect to RabbitMQ server
+connection = pika.BlockingConnection(pika.ConnectionParameters(
+    host='192.168.122.253',
+    port=5672,
+    virtual_host='/',
+    credentials=pika.PlainCredentials('frodo', 'test'),))
+channel = connection.channel()
+
+# Declare a topic exchange named "logs"
+channel.exchange_declare(exchange='logs', exchange_type='topic')
+
+# Declare and bind queues with specific routing patterns
+queues_and_patterns = [
+    ('QueueA', 'error.message.debug'),
+    ('QueueB', 'info.*.*'),
+    ('QueueC', '#.critical')
+]
+
+for queue, routing_key_pattern in queues_and_patterns:
+    channel.queue_declare(queue=queue)
+    channel.queue_bind(exchange='logs', queue=queue, routing_key=routing_key_pattern)
+
+# Publish some example messages with different routing keys
+example_messages = [
+    ('info.message.warning', 'This is an info message with a warning'),
+    ('error.message.debug', 'This is an error message with debug information'),
+    ('warning.critical', 'This is a warning message with critical importance')
+]
+
+for routing_key, message_body in example_messages:
+    channel.basic_publish(exchange='logs', routing_key=routing_key, body=message_body)
+    print(f" [x] Sent '{routing_key}':'{message_body}'")
+
+# Close the connection
+connection.close()
+````
+topic_consumer.py:
+````
+import pika
+
+def callback(ch, method, properties, body):
+    print(f" [x] Received {method.routing_key}: {body}")
+
+# Connect to RabbitMQ server
+connection = pika.BlockingConnection(pika.ConnectionParameters(
+    host='192.168.122.254',
+    port=5672,
+    virtual_host='/',
+    credentials=pika.PlainCredentials('frodo', 'test'),))
+channel = connection.channel()
+
+# Declare and bind queues with specific routing patterns (similar to the producer)
+queues_and_patterns = [
+    ('QueueA', 'error.message.debug'),
+    ('QueueB', 'info.*.*'),
+    ('QueueC', '#.critical')
+]
+
+for queue, routing_key_pattern in queues_and_patterns:
+    channel.queue_declare(queue=queue)
+    channel.queue_bind(exchange='logs', queue=queue, routing_key=routing_key_pattern)
+
+# Set up the consumer callback
+channel.basic_consume(queue='QueueA', on_message_callback=callback, auto_ack=True)
+channel.basic_consume(queue='QueueB', on_message_callback=callback, auto_ack=True)
+channel.basic_consume(queue='QueueC', on_message_callback=callback, auto_ack=True)
+
+# Start consuming messages
+print(' [*] Waiting for messages. To exit, press CTRL+C')
 channel.start_consuming()
 ````
 ## RabbitMQ learning roadmap
