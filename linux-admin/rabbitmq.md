@@ -8,7 +8,7 @@ sudo yum install -y https://binaries2.erlang-solutions.com/centos/7/esl-erlang_2
 
 2. Install RabbitMQ
 // Browse for the latest package on https://github.com/rabbitmq/rabbitmq-server/releases/
-curl -L -O - https://github.com/rabbitmq/rabbitmq-server/releases/download/v3.12.12/rabbitmq-server-3.12.12-1.el8.noarch.rpm
+curl -L -O https://github.com/rabbitmq/rabbitmq-server/releases/download/v3.12.12/rabbitmq-server-3.12.12-1.el8.noarch.rpm
 sudo rpm --import https://www.rabbitmq.com/rabbitmq-signing-key-public.asc
 sudo rpm -Uvh rabbitmq-server-3.12.12-1.el8.noarch.rpm
 
