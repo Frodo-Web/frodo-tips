@@ -145,6 +145,59 @@ rabbitmq-diagnostics erlang_cookie_sources --erlang-cookie MAFSGVPPIDKTIRJHBQHY
 ````
 export RABBITMQ_NODENAME=rabbit@rabbitmq-02
 ````
+
+## Example of using RabbitMQ with python
+producer.py:
+````
+// This connects to rabbitmq-01 of our RabbitMQ cluster
+import pika
+
+# Connect to RabbitMQ server
+connection = pika.BlockingConnection(pika.ConnectionParameters(
+    host='192.168.122.253',
+    port=5672,
+    virtual_host='/',
+    credentials=pika.PlainCredentials('frodo', 'test'),))
+channel = connection.channel()
+
+# Declare a queue named 'hello'
+channel.queue_declare(queue='hello')
+
+# Publish a message to the 'hello' queue
+channel.basic_publish(exchange='', routing_key='hello', body='Hello, RabbitMQ!')
+
+print(" [x] Sent 'Hello, RabbitMQ!'")
+
+# Close the connection
+connection.close()
+````
+consumer.py:
+````
+// This connects and reads messages from rabbitmq-02 of our RabbitMQ cluster
+import pika
+
+# Callback function to handle incoming messages
+def callback(ch, method, properties, body):
+    print(f" [x] Received {body}")
+
+# Connect to RabbitMQ server
+connection = pika.BlockingConnection(pika.ConnectionParameters(
+    host='192.168.122.254',
+    port=5672,
+    virtual_host='/',
+    credentials=pika.PlainCredentials('frodo', 'test'),))
+channel = connection.channel()
+
+# Declare a queue named 'hello'
+channel.queue_declare(queue='hello')
+
+# Set up the callback function to handle incoming messages
+channel.basic_consume(queue='hello', on_message_callback=callback, auto_ack=True)
+
+print(' [*] Waiting for messages. To exit, press CTRL+C')
+# Start consuming messages
+channel.start_consuming()
+````
 ## RabbitMQ learning roadmap
 Here's a roadmap to guide your learning journey:
 1. Understand Messaging Concepts:
