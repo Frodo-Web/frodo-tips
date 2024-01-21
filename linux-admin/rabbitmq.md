@@ -167,6 +167,57 @@ In RabbitMQ, the concepts of "durable" and "transient" are related to the durabi
     Transient Message:
         A transient (non-durable) message is a message that is not marked as persistent. Such messages are not guaranteed to survive a broker restart and may be lost if the broker goes down.
         Example: channel.basic_publish(exchange='my_exchange', routing_key='my_queue', body='Hello, RabbitMQ!', properties=pika.BasicProperties(delivery_mode=1))
+
+### Queue mirroring
+Queue mirroring in RabbitMQ is a feature that provides high availability and fault tolerance for message queues. When a queue is mirrored, its contents are replicated across multiple nodes in a RabbitMQ cluster. This means that even if a RabbitMQ node hosting a mirrored queue fails, the queue and its messages are still accessible from another node in the cluster. <br>
+
+High Availability:
+
+    Queue mirroring enhances the availability of queues in case of node failures.
+    If a node goes down, a mirrored queue remains accessible on another node, preventing disruptions in message processing.
+
+Mirrored Queue Structure:
+
+    A mirrored queue consists of the master and its replicas.
+    The master is the primary node where the queue is declared and where writes (publishing messages) are performed.
+    Replicas are copies of the queue stored on other nodes in the RabbitMQ cluster.
+
+Automatic Failover:
+
+    If the master node fails, one of the replicas is automatically promoted to be the new master.
+    The cluster maintains continuous service, and consumers can continue consuming messages without interruption.
+
+Synchronous Replication:
+
+    Mirroring involves synchronous replication of messages to the replicas.
+    The master node waits for acknowledgments from the replicas before confirming message receipt to the publisher.
+
+Mirrored Queue Declaration:
+
+    To create a mirrored queue, the x-ha-policy argument is set to "all" when declaring the queue.
+Example:
+```python
+channel.queue_declare(queue='my_mirrored_queue', durable=True, arguments={'x-ha-policy': 'all'})
+```
+Network Partitions:
+
+    RabbitMQ is designed to handle network partitions and ensure that only one set of nodes is active for a mirrored queue at any given time.
+
+Resource Intensive:
+
+    Queue mirroring can be resource-intensive, especially for high-throughput queues with a large number of messages.
+    It is essential to consider the impact on system resources when enabling mirroring for queues.
+
+Mirror All Queues or Selectively:
+
+    Queues can be selectively mirrored based on the requirements of the application.
+    For critical queues, you may choose to mirror them, while for others, mirroring may be unnecessary.
+Example:
+```python
+# Declare a mirrored queue named 'my_mirrored_queue'
+channel.queue_declare(queue='my_mirrored_queue', durable=True, arguments={'x-ha-policy': 'all'})
+```
+In this example, the x-ha-policy argument is set to "all", indicating that the queue should be mirrored across all nodes in the RabbitMQ cluster.
 ### Virtual Hosts
 In RabbitMQ, a virtual host is a way to partition and isolate resources such as exchanges, queues, and permissions within a RabbitMQ broker. Each virtual host operates independently of others, providing a logical separation of messaging entities and their associated configuration. <br>
 Here are some key purposes and benefits of using RabbitMQ virtual hosts:
