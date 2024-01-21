@@ -1,4 +1,20 @@
 # Managing RabbitMQ
+## Terms
+Understand the main components of RabbitMQ, including exchanges, queues, and bindings.
+### Virtual Hosts
+In RabbitMQ, a virtual host is a way to partition and isolate resources such as exchanges, queues, and permissions within a RabbitMQ broker. Each virtual host operates independently of others, providing a logical separation of messaging entities and their associated configuration. <br>
+Here are some key purposes and benefits of using RabbitMQ virtual hosts:
+- Logical Isolation
+- Security and Permissions
+- Resource Partitioning
+- Policy Isolation
+- Message Routing Isolation
+- Ease of Management and Monitoring
+An Example of Policy on all queues (.*) in virtual host my_host:
+````
+rabbitmqctl add_vhost my_vhost
+rabbitmqctl set_policy -p my_vhost queue_length_limit '.*' '{"max-length": 100, "overflow": "reject-publish"}'
+````
 ## Install the latest version on CentOS 7
 ````
 1. Install Erlang OTP
