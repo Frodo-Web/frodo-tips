@@ -667,6 +667,8 @@ channel.start_consuming()
 - Prefetch Count. Adjust the prefetch count to optimize the balance between message throughput and consumer efficiency.
 - Backup and Restore
 - Plugins. Explore and use RabbitMQ plugins to extend functionality based on specific use cases.
+- Message TTL and Dead Letter Exchanges
+- Depending on your use case, consider sharding queues or topics to distribute load across multiple RabbitMQ instances.
 
 ## RabbitMQ learning roadmap
 Here's a roadmap to guide your learning journey:
