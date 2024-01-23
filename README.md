@@ -26,6 +26,7 @@ Useful commands, combinations, advices, etc...
 [Systemd](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/systemd.md) <br>
 [Python, pip tips](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/python-pip.md) <br>
 [RabbitMQ](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/rabbitmq.md) <br>
+[OpenSUSE TumbleWeed + i3wm](https://github.com/Frodo-Web/frodo-tips/blob/main/All/i3wm-opensuse.md) <br>
 # DevOps
 [Ansible](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/ansible.md) <br>
 [Jenkins](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/jenkins.md) <br>
