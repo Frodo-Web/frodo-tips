@@ -3,7 +3,7 @@
 1. Install minimal version of openSUSE, without xorg and any additional packages
 2. Install packages:
 ```bash
-zypper install xorg-x11-server xinit i3wm kitty firefox
+zypper install xorg-x11-server xinit i3wm picom kitty alsa-utils pipewire-alsa firefox mpv iotop at-spi2-core nitrogen fira-code-fonts
 ```
 3. Add command to .xinitrc
 ```bash
@@ -47,10 +47,25 @@ $mod+;  right
 Splitting
 To split a window vertically, press $mod+v before you create the new window. To split it horizontally, press $mod+h.
 ````
-## Config 
+## i3wm conf 
 Add background images to displays:
 ````
-exec --no-startup-id nitrogen --set-auto /path/pic1.jpg --head=0 && nitrogen --set-auto /path/pic2.png --head=1
+exec --no-startup-id nitrogen --set-auto /home/frodo/Downloads/Monkey-Beach-Wallpaper.jpg --head=1 && nitrogen --set-auto /home/frodo/Downloads/aesthetic-pastel-clouds.jpg --head=0; sleep 1; picom -b > /tmp/picom.stdout 2> /tmp/picom.stderr
+````
+## Kitty conf
+````
+kitty +kitten theme --reload-in=all kanagawabones
+..
+background_opacity 0.8
+dynamic_background_opacity yes
+font_size 16.0
+font_family Fira Code
+
+
+# BEGIN_KITTY_THEME
+# kanagawabones
+include current-theme.conf
+# END_KITTY_THEME
 ````
 ## Layouts
 Create a file /etc/X11/xorg.conf.d/00-keyboard.conf with content like this, restart xorg:
