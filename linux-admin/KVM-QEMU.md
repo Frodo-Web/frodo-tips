@@ -346,3 +346,35 @@ mount -fav
 /boot                    : already mounted
 swap                     : ignored
 ````
+## Migrate VMs on fresh KVM host
+````
+// Use the same network configuration
+sudo virsh net-define networks/default.xml
+..
+error: Failed to create network from networks/default.xml
+error: operation failed: network 'default' already exists with uuid fb5a73a6-d9dc-45ef-8517-80284b160eae
+
+// Replace uuid of default network
+vim networks/default.xml
+..
+<uuid>fb5a73a6-d9dc-45ef-8517-80284b160eae</uuid>
+
+sudo virsh net-define networks/default.xml
+..
+Network default created from networks/default.xml
+
+sudo virsh net-start default
+..
+Network default started
+
+sudo virsh net-list --all
+..
+ Name      State      Autostart   Persistent
+----------------------------------------------
+ default   active   no          yes
+
+sudo virsh define rabbitmq-01.xml
+sudo virsh start rabbitmq-01.xml
+ssh rabbitmq-01
+
+````
