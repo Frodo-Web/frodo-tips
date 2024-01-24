@@ -3,7 +3,7 @@
 1. Install minimal version of openSUSE, without xorg and any additional packages
 2. Install packages:
 ```bash
-zypper install xorg-x11-server xinit i3wm picom kitty alsa-utils pipewire-alsa firefox mpv iotop at-spi2-core nitrogen fira-code-fonts
+zypper install xorg-x11-server xinit i3wm picom kitty alsa-utils pipewire-alsa firefox mpv iotop at-spi2-core nitrogen autoconf automake bison gcc zlib-devel gcc-c++
 ```
 3. Add command to .xinitrc
 ```bash
@@ -63,6 +63,17 @@ bindsym XF86AudioMicMute exec --no-startup-id pamixer --toggle-mute --sink 5 && 
 # start a terminal
 bindsym $mod+Return exec kitty
 ````
+## Fonts for Lunar Vim
+From https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode
+````
+fc-list | grep 'FiraCode Nerd'
+/usr/share/fonts/truetype/FiraCodeNerdFont-Retina.ttf: FiraCode Nerd Font,FiraCode Nerd Font Ret:style=Retina,Regular
+/usr/share/fonts/truetype/FiraCodeNerdFont-Regular.ttf: FiraCode Nerd Font:style=Regular
+/usr/share/fonts/truetype/FiraCodeNerdFont-Medium.ttf: FiraCode Nerd Font,FiraCode Nerd Font Med:style=Medium,Regular
+/usr/share/fonts/truetype/FiraCodeNerdFont-SemiBold.ttf: FiraCode Nerd Font,FiraCode Nerd Font SemBd:style=SemiBold,Regular
+/usr/share/fonts/truetype/FiraCodeNerdFont-Light.ttf: FiraCode Nerd Font,FiraCode Nerd Font Light:style=Light,Regular
+/usr/share/fonts/truetype/FiraCodeNerdFont-Bold.ttf: FiraCode Nerd Font:style=Bold
+````
 ## Kitty conf
 ````
 kitty +kitten theme --reload-in=all kanagawabones
@@ -70,7 +81,7 @@ kitty +kitten theme --reload-in=all kanagawabones
 background_opacity 0.8
 dynamic_background_opacity yes
 font_size 16.0
-font_family Fira Code
+font_family FiraCode Nerd Font
 
 
 # BEGIN_KITTY_THEME
