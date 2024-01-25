@@ -218,6 +218,166 @@ Example:
 channel.queue_declare(queue='my_mirrored_queue', durable=True, arguments={'x-ha-policy': 'all'})
 ```
 In this example, the x-ha-policy argument is set to "all", indicating that the queue should be mirrored across all nodes in the RabbitMQ cluster.
+### Quorum Queues 
+The RabbitMQ quorum queue is a modern queue type, which implements a durable, replicated FIFO queue based on the Raft consensus algorithm.
+
+Quorum queues are designed to be safer and provide simpler, well defined failure handling semantics that users should find easier to reason about when designing and operating their systems.
+
+Quorum queues and streams now replace the original, replicated mirrored classic queue. Mirrored classic queues are now deprecated and scheduled for removal.
+
+Quorum queues are optimized for set of use cases where data safety is a top priority. This is covered in Motivation. Quorum queues should be considered the default option for a replicated queue type.
+
+Quorum queues share most of the fundamentals with other queue types. A client library that can use regular mirrored queues will be able to use quorum queues.
+
+The following operations work the same way for quorum queues as they do for regular queues:
+
+    Consumption (subscription)
+    Consumer acknowledgements (except for global QoS and prefetch)
+    Cancelling consumers
+    Purging
+    Deletion
+
+With some queue operations there are minor differences:
+
+    Declaration
+    Setting prefetch for consumers
+#### When Not to Use Quorum Queues
+
+    Temporary nature of queues: transient or exclusive queues, high queue churn (declaration and deletion rates)
+    Lowest possible latency: the underlying consensus algorithm has an inherently higher latency due to its data safety features
+    When data safety is not a priority (e.g. applications do not use manual acknowledgements and publisher confirms are not used)
+    Very long queue backlogs (streams are likely to be a better fit)
+
+#### Quorum Queue Replication and Data Locality
+When a quorum queue is declared, an initial number of replicas for it must be started in the cluster. By default the number of replicas to be started is up to three, one per RabbitMQ node in the cluster.
+
+Three nodes is the practical minimum of replicas for a quorum queue. In RabbitMQ clusters with a larger number of nodes, adding more replicas than a quorum (majority) will not provide any improvements in terms of quorum queue availability but it will consume more cluster resources.
+
+Therefore the recommended number of replicas for a quorum queue is the quorum of cluster nodes (but no fewer than three). This assumes a fully formed cluster of at least three nodes.
+#### Controlling the Initial Replication Factor
+For example, a cluster of three nodes will have three replicas, one on each node. In a cluster of seven nodes, three nodes will have one replica each but four more nodes won't host any replicas of the newly declared queue.
+
+Like with classic mirrored queues, the replication factor (number of replicas a queue has) can be configured for quorum queues.
+
+The minimum factor value that makes practical sense is three. It is highly recommended for the factor to be an odd number. This way a clear quorum (majority) of nodes can be computed. For example, there is no "majority" of nodes in a two node cluster. This is covered with more examples below in the Fault Tolerance and Minimum Number of Replicas Online section.
+
+This may not be desirable for larger clusters or for cluster with an even number of nodes. To control the number of quorum queue members set the x-quorum-initial-group-size queue argument when declaring the queue. The group size argument provided should be an integer that is greater than zero and smaller or equal to the current RabbitMQ cluster size. The quorum queue will be launched to run on a random subset of RabbitMQ nodes present in the cluster at declaration time.
+
+In case a quorum queue is declared before all cluster nodes have joined the cluster, and the initial replica count is greater than the total number of cluster members, the effective value used will be equal to the total number of cluster nodes. When more nodes join the cluster, the replica count will not be automatically increased but it can be increased by the operator.
+
+#### Queue Leader Location
+Every quorum queue has a primary replica. That replica is called queue leader. All queue operations go through the leader first and then are replicated to followers (mirrors). This is necessary to guarantee FIFO ordering of messages.
+
+To avoid some nodes in a cluster hosting the majority of queue leader replicas and thus handling most of the load, queue leaders should be reasonably evenly distributed across cluster nodes.
+
+When a new quorum queue is declared, the set of nodes that will host its replicas is randomly picked, but will always include the node the client that declares the queue is connected to.
+
+Which replica becomes the initial leader can controlled using three options:
+
+    Setting the queue-leader-locator policy key (recommended)
+    By defining the queue_leader_locator key in the configuration file (recommended)
+    Using the x-queue-leader-locator optional queue argument
+
+Supported queue leader locator values are
+
+    client-local: Pick the node the client that declares the queue is connected to. This is the default value.
+    balanced: If there are overall less than 1000 queues (classic queues, quorum queues, and streams), pick the node hosting the minimum number of quorum queue leaders. If there are overall more than 1000 queues, pick a random node.
+    
+#### Managing Replicas (Quorum Group Members)
+Replicas of a quorum queue are explicitly managed by the operator. When a new node is added to the cluster, it will host no quorum queue replicas unless the operator explicitly adds it to a member (replica) list of a quorum queue or a set of quorum queues.
+
+When a node has to be decommissioned (permanently removed from the cluster), it must be explicitly removed from the member list of all quorum queues it currently hosts replicas for.
+
+Several CLI commands are provided to perform the above operations:
+````
+rabbitmq-queues add_member [-p <vhost>] <queue-name> <node>
+
+rabbitmq-queues delete_member [-p <vhost>] <queue-name> <node>
+
+rabbitmq-queues grow <node> <all | even> [--vhost-pattern <pattern>] [--queue-pattern <pattern>]
+
+rabbitmq-queues shrink <node> [--errors-only]
+````
+When replacing a cluster node, it is safer to first add a new node and then decomission the node it replaces.
+
+#### Rebalancing Replicas for Quorum Queues
+Once declared, the RabbitMQ quorum queue leaders may be unevenly distributed across the RabbitMQ cluster. To re-balance use the rabbitmq-queues rebalance command. It is important to know that this does not change the nodes which the quorum queues span. To modify the membership instead see managing replicas.
+````
+# rebalances all quorum queues
+rabbitmq-queues rebalance quorum
+````
+it is possible to rebalance a subset of queues selected by name:
+````
+# rebalances a subset of quorum queues
+rabbitmq-queues rebalance quorum --queue-pattern "orders.*"
+````
+or quorum queues in a particular set of virtual hosts:
+````
+# rebalances a subset of quorum queues
+rabbitmq-queues rebalance quorum --vhost-pattern "production.*"
+````
+### Streams
+RabbitMQ Streams is a persistent replicated data structure that can complete the same tasks as queues: they buffer messages from producers that are read by consumers. However, streams differ from queues in two important ways: how messages are stored and consumed.
+
+Streams model an append-only log of messages that can be repeatedly read until they expire. Streams are always persistent and replicated. A more technical description of this stream behavior is “non-destructive consumer semantics”.
+
+To read messages from a stream in RabbitMQ, one or more consumers subscribe to it and read the same messages as many times as they want.
+
+Data in a stream can be used via a RabbitMQ client library or through a dedicated binary protocol plugin and associated client(s). The latter option is highly recommended as it provides access to all stream-specific features and offers best possible throughput (performance).
+
+Now, you might be asking the following questions:
+
+    Do streams replace queues then?
+    Should I move away from using queues?
+
+To answer these questions, streams were not introduced to replace queues but to complement them. Streams open up many opportunities for new RabbitMQ use cases which are described in Use Cases for Using Streams.
+
+#### Use Cases for Using Streams
+Streams were developed to initially cover 4 messaging use-cases that existing queue types either can not provide or provide with downsides:
+
+    Large fan-outs
+
+    When wanting to deliver the same message to multiple subscribers users currently have to bind a dedicated queue for each consumer. If the number of consumers is large this becomes potentially inefficient, especially when wanting persistence and/or replication. Streams will allow any number of consumers to consume the same messages from the same queue in a non-destructive manner, negating the need to bind multiple queues. Stream consumers will also be able to read from replicas allowing read load to be spread across the cluster.
+
+    Replay (Time-travelling)
+
+    As all current RabbitMQ queue types have destructive consume behaviour, i.e. messages are deleted from the queue when a consumer is finished with them, it is not possible to re-read messages that have been consumed. Streams will allow consumers to attach at any point in the log and read from there.
+
+    Throughput Performance
+
+    No persistent queue types are able to deliver throughput that can compete with any of the existing log based messaging systems. Streams have been designed with performance as a major goal.
+
+    Large backlogs
+
+    Most RabbitMQ queues are designed to converge towards the empty state and are optimised as such and can perform worse when there are millions of messages on a given queue. Streams are designed to store larger amounts of data in an efficient manner with minimal in-memory overhead.
+#### Performance Characteristics
+As streams persist all data to disks before doing anything it is recommended to use the fastest disks possible.
+
+Due to the disk I/O-heavy nature of streams, their throughput decreases as message sizes increase.
+
+Just like quorum queues, streams are also affected by cluster sizes. The more replicas a stream has, the lower its throughput generally will be since more work has to be done to replicate data and achieve consensus.
+
+#### Controlling the Initial Replication Factor
+The x-initial-cluster-size queue argument controls how many rabbit nodes the initial stream cluster should span.
+#### Managing Stream Replicas
+Replicas of a stream are explicitly managed by the operator. When a new node is added to the cluster, it will host no stream replicas unless the operator explicitly adds it to a replica set of a stream.
+
+When a node has to be decommissioned (permanently removed from the cluster), it must be explicitly removed from the replica list of all streams it currently hosts replicas for.
+
+Two CLI commands are provided to perform the above operations, rabbitmq-streams add_replica and rabbitmq-streams delete_replica:
+````
+rabbitmq-streams add_replica [-p <vhost>] <stream-name> <node>
+rabbitmq-streams delete_replica [-p <vhost>] <stream-name> <node>
+````
+To successfully add and remove replicas the stream coordinator must be available in the cluster.
+
+When replacing a cluster node, it is safer to first add a new node, wait for it to become in-sync and then de-comission the node it replaces.
+
+The replication status of a stream can be queried using the following command:
+````
+rabbitmq-streams stream_status [-p <vhost>] <stream-name>
+````
+
 ### Virtual Hosts
 In RabbitMQ, a virtual host is a way to partition and isolate resources such as exchanges, queues, and permissions within a RabbitMQ broker. Each virtual host operates independently of others, providing a logical separation of messaging entities and their associated configuration. <br>
 Here are some key purposes and benefits of using RabbitMQ virtual hosts:
@@ -812,6 +972,33 @@ shovel.dest-queue = destination_queue
 # channel_max = 128
 ````
 ### vm_memory_high_watermark.*
+The RabbitMQ server detects the total amount of RAM installed in the computer on startup and when
+rabbitmqctl set_vm_memory_high_watermark fraction is executed. By default, when the RabbitMQ server uses above 40% of the available RAM, it raises a memory alarm and blocks all connections that are publishing messages. Once the memory alarm has cleared (e.g. due to the server paging messages to disk or delivering them to clients that consume and acknowledge the deliveries) normal service resumes. <br>
+The default memory threshold is set to 40% of installed RAM. Note that this does not prevent the RabbitMQ server from using more than 40%, it is merely the point at which publishers are throttled. Erlang's garbage collector can, in the worst case, cause double the amount of memory to be used (by default, 80% of RAM). It is strongly recommended that OS swap or page files are enabled. <br>
+
+The memory limit is appended to the log file when the RabbitMQ node starts:
+````
+2019-06-10 23:17:05.976 [info] <0.308.0> Memory high watermark set to 1024 MiB (1073741824 bytes) of 8192 MiB (8589934592 bytes) total
+````
+The memory limit may also be queried using the rabbitmq-diagnostics memory_breakdown and rabbitmq-diagnostics status commands.
+
+The threshold can be changed while the broker is running using the
+````
+rabbitmqctl set_vm_memory_high_watermark <fraction>
+````
+command or
+````
+rabbitmqctl set_vm_memory_high_watermark absolute <memory_limit>
+````
+For example:
+````
+rabbitmqctl set_vm_memory_high_watermark 0.6
+````
+and
+````
+rabbitmqctl set_vm_memory_high_watermark absolute "4G"
+````
+
     Option Name: vm_memory_high_watermark.relative
     Description: This option controls the high watermark level for RabbitMQ's memory usage.
     Default Value: 0.4
@@ -820,15 +1007,49 @@ shovel.dest-queue = destination_queue
     Explanation: The value of vm_memory_high_watermark.relative is a fraction of the available system memory. The RabbitMQ node will start considering the system to have high memory usage when the used memory reaches this fraction of the total available memory. For example, if the total available memory is 1 GB and vm_memory_high_watermark.relative is set to 0.4, RabbitMQ will start taking actions when the used memory reaches 40% (0.4 * 1 GB) of the total available memory.
 
 This setting is crucial for preventing RabbitMQ from exhausting system resources during periods of high message traffic. It helps maintain stability by applying backpressure when memory usage is approaching critical levels, allowing the system to recover or adjust accordingly. Adjusting this value may be necessary based on the specific requirements and available resources of your RabbitMQ deployment.
-
+#### Stop All Publishing
+When the threshold or absolute limit is set to 0, it makes the memory alarm go off immediately and thus eventually blocks all publishing connections. This may be useful if you wish to deactivate publishing globally:
+````
+rabbitmqctl set_vm_memory_high_watermark 0
+````
+#### Configuring the Paging Threshold
+This section is obsolete or not applicable for quorum queues, streams and classic queues storage version 2 (CQv2). All of them actively move data to disk and do not generally accumulate a significant backlog of messages in memory. <br>
+Before the broker hits the high watermark and blocks publishers, it will attempt to free up memory by instructing CQv1 queues to page their contents out to disc. Both persistent and transient messages will be paged out (the persistent messages will already be on disc but will be evicted from memory). <br>
+By default this starts to happen when the broker is 50% of the way to the high watermark (i.e. with a default high watermark of 0.4, this is when 20% of memory is used). To change this value, modify the vm_memory_high_watermark_paging_ratio configuration from its default value of 0.5. For example:
+````
+vm_memory_high_watermark_paging_ratio = 0.75
+vm_memory_high_watermark.relative = 0.4
+````
+The above configuration starts paging at 30% of memory used, and blocks publishers at 40%.
 ### disk_free_limit.*
 When free disk space drops below a configured limit (50 MB by default), an alarm will be triggered and all producers will be blocked.
 
 The goal is to avoid filling up the entire disk which will lead all write operations on the node to fail and can lead to RabbitMQ termination.
 
-
 This setting is essential for preventing RabbitMQ from overwhelming the disk with persistent messages, especially in scenarios where disk space is limited. Adjusting this value allows you to configure the system's response to low disk space conditions, ensuring that RabbitMQ takes appropriate actions to maintain stability and avoid potential out-of-disk errors.
 
+The limit can be changed while the broker is running using the 
+````
+rabbitmqctl set_disk_free_limit
+````
+command. This command will have its effect until the next node restart.
+
+To reduce the risk of filling up the disk, all incoming messages are blocked. Transient messages, which aren't normally persisted, are still paged out to disk when under memory pressure, and will use up the already limited disk space.
+
+If the disk alarm is set too low and messages are paged out rapidly, it is possible to run out of disk space and crash RabbitMQ in between disk space checks (at least 10 seconds apart). A more conservative approach would be to set the limit to the same as the amount of memory installed on the system (see the configuration below).
+
+Monitoring will begin on node start. It will leave a log entry like this:
+````
+2019-04-01 12:02:11.564 [info] <0.329.0> Enabling free disk space monitoring
+2019-04-01 12:02:11.564 [info] <0.329.0> Disk free limit set to 950MB
+````
+Free disk space monitoring will be deactivated on unrecognised platforms, causing an entry such as the one below:
+````
+2019-04-01 11:04:54.002 [info] <0.329.0> Disabling disk free space monitoring
+````
+When running RabbitMQ in a cluster, the disk alarm is cluster-wide; if one node goes under the limit then all nodes will block incoming messages.
+
+When free disk space drops below the configured limit, RabbitMQ will block producers and prevent memory-based messages from being paged to disk. This will reduce the likelihood of a crash due to disk space being exhausted, but will not eliminate it entirely. In particular, if messages are being paged out rapidly it is possible to run out of disk space and crash in the time between two runs of the disk space monitor. A more conservative approach would be to set the limit to the same as the amount of memory installed on the system (see the configuration section below).
 ### Heartbeat
  Set the server AMQP 0-9-1 heartbeat timeout in seconds.
  RabbitMQ nodes will send heartbeat frames at roughly
