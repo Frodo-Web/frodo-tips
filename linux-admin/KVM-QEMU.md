@@ -69,6 +69,11 @@ spice://localhost:5900
 Можно подключиться по имени
 virt-viewer centos7.9.2009-01
 
+Запустить virt-viewer из-под рута:
+export DISPLAY=":0"  // Как у юзера
+export XAUTHORITY="/home/frodo/.Xauthority"
+virt-viewer vm..
+
 After the installation completes, log in as root to configure the Linux server:
 Edit /etc/sysconfig/network-scripts/ifcfg-<interface name>, change ONBOOT=no to ONBOOT=yes and restart the network service:
 systemctl restart network
