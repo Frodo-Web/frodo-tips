@@ -113,3 +113,35 @@ sudo systemctl enable --now snapd.apparmor
 ````
 sudo snap install telegram-desktop
 ````
+## Can't see VMs created by root on openSUSE Tumbleweed
+````
+sudo usermod --append --groups libvirt frodo
+// All these commands are most likely unnecessary, should work just with libvirt
+sudo groupadd vmusers
+sudo usermod -a -G vmusers frodo
+sudo usermod -a -G vmusers root
+sudo chgrp -R vmusers /mnt/Toshiba/VMs/images
+sudo chgrp -R vmusers /mnt/Toshiba/VMs/etc
+sudo chgrp -R vmusers /etc/libvirt/
+sudo chmod -R g+rwX /mnt/Toshiba/VMs/images
+sudo chmod -R g+rwX /mnt/Toshiba/VMs/etc
+sudo chmod -R g+rwX /etc/libvirt
+````
+Edit libvirtd.conf:
+````
+sudo vim /etc/libvirt/libvirtd.conf
+..
+unix_sock_group = "vmusers"  // Should be used with libvirt if you didn't use the previous commands
+unix_sock_rw_perms = "0770"
+auth_unix_rw = "none"
+````
+By default, virsh uses the following URI:
+- qemu:///session - for normal unprivileged users
+- qemu:///system - for root and privileged users running sudo
+You can change the default virsh URI with:
+- Command option: -c, --connect
+- Environment variable: LIBVIRT_DEFAULT_URI
+So add this to your ~/.bashrc:
+````
+export LIBVIRT_DEFAULT_URI="qemu:///system"
+````
