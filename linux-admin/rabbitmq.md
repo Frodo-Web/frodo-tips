@@ -377,7 +377,60 @@ The replication status of a stream can be queried using the following command:
 ````
 rabbitmq-streams stream_status [-p <vhost>] <stream-name>
 ````
+### Channels 
+In RabbitMQ, a channel is a virtual connection inside a real TCP connection. When you're working with RabbitMQ, it's common to open a single TCP connection to the broker and then use multiple channels on this connection for different operations. This approach is more efficient than opening multiple TCP connections, as channels are much lighter on resources and can be created and destroyed without the overhead associated with TCP connections.
 
+Channels are particularly useful because they allow for concurrent operations like publishing or consuming messages in isolation, without interfering with each other. Each channel can be thought of as a lightweight connection that shares the main TCP connection's socket, but operates independently in terms of the AMQP commands it processes.
+
+#### Key Points About Channels:
+
+    Concurrency: Multiple channels can operate concurrently over a single connection, making it efficient for multi-threaded applications.
+    Isolation: Channels provide a way to segregate operations. If an error occurs on one channel, it can be closed without affecting the connection or other channels.
+    Resource Efficiency: Using channels reduces the networking and resource overhead compared to using multiple connections.
+
+Example of publisher (pika):
+```python
+import pika
+
+# Establish a connection to RabbitMQ server
+connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+channel = connection.channel()
+
+# Declare a queue named 'hello'
+channel.queue_declare(queue='hello')
+
+# Publish a message to the 'hello' queue
+channel.basic_publish(exchange='',
+                      routing_key='hello',
+                      body='Hello World!')
+
+print(" [x] Sent 'Hello World!'")
+
+# Close the connection
+connection.close()
+```
+Example of consumer (pika):
+```python
+import pika
+
+def callback(ch, method, properties, body):
+    print(f" [x] Received {body}")
+
+# Establish a connection to RabbitMQ server
+connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+channel = connection.channel()
+
+# Declare the same queue as the sender to make sure it exists
+channel.queue_declare(queue='hello')
+
+# Subscribe to the queue
+channel.basic_consume(queue='hello',
+                      auto_ack=True,
+                      on_message_callback=callback)
+
+print(' [*] Waiting for messages. To exit press CTRL+C')
+channel.start_consuming()
+```
 ### Virtual Hosts
 In RabbitMQ, a virtual host is a way to partition and isolate resources such as exchanges, queues, and permissions within a RabbitMQ broker. Each virtual host operates independently of others, providing a logical separation of messaging entities and their associated configuration. <br>
 Here are some key purposes and benefits of using RabbitMQ virtual hosts:
@@ -1138,6 +1191,12 @@ public class RabbitMQConfig {
 }
 
 ```
+
+### Considerations:
+
+    Auto Acknowledgment: If auto acknowledgment is enabled (not recommended for tasks that should not be lost), the prefetch count might not be as effective since RabbitMQ considers a message acknowledged once it's delivered.
+    Multiple Consumers: If you have multiple consumers on the same channel, the prefetch count is divided among them.
+    Message Size: For larger messages, a lower prefetch count can prevent memory issues, especially if the consumer processes messages slowly.
 ## Connection Pooling
 1. Use Connection Pooling Libraries
 
