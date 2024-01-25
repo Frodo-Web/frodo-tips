@@ -1304,6 +1304,32 @@ System-Level Optimizations:
 
     Disk Performance
         Use faster disks (e.g., SSDs) and configure RAID levels appropriately for the balance of performance and redundancy.
+
+## WAL
+In the context of RabbitMQ, WAL stands for Write-Ahead Logging, a concept borrowed from database systems to enhance data integrity and durability. RabbitMQ uses WAL as part of its message store for durable queues to ensure that messages are not lost in the event of a crash or failure.
+### How WAL Works in RabbitMQ
+Operations first get written to memory and to a Write Ahead Log (WAL). There is a single WAL per broker, which serves all quorum queues on that broker. From there, operations are then written to per-queue segment files by the Segment Writer.
+![](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/images/wal-and-segments.png?raw=true)
+
+    Message Persistence: When a message is published to a durable queue with the delivery_mode property set to persistent (2), RabbitMQ writes the message to the WAL before it is actually stored in the queue's message store. This is done to ensure that, in case of a failure, the system can recover the message from the WAL.
+
+    Data Integrity: The WAL records changes to the message store in a sequential manner. If RabbitMQ crashes or is restarted, it can use the WAL to replay and restore the state of the message store up to the last known good state, ensuring data integrity.
+
+    Performance Consideration: While WAL enhances durability, it can also impact performance due to the additional disk I/O required for logging the message before storing it. RabbitMQ optimizes this process to balance durability with performance.
+
+    Recovery Process: Upon restart, RabbitMQ checks the WAL for any unprocessed entries. If any are found, it replays them to ensure that the message store reflects all changes made before the crash.
+
+    WAL and Mirrored Queues: In a clustered RabbitMQ setup with mirrored queues, WAL plays a crucial role in ensuring that messages are replicated across nodes in a consistent manner. Each node maintains its own WAL for the queues it hosts, ensuring durability across the cluster.
+
+### Configurations Related to WAL:
+
+    Queue Durability: As mentioned, for WAL to be utilized, the queue must be declared as durable.
+    Message Persistence: Messages must be published with delivery_mode set to 2 (persistent).
+    Disk Free Limit: RabbitMQ has a configurable disk free limit (disk_free_limit), which ensures that the node has enough disk space to operate safely. This setting is crucial for the WAL's operation, as running out of disk space could prevent new entries from being logged, affecting durability.
+    Memory Thresholds: RabbitMQ also has memory thresholds that, when exceeded, trigger flow control or message paging to disk, involving WAL operations to ensure messages are not lost even when memory is constrained.
+
+In summary, WAL in RabbitMQ is a mechanism to ensure that messages published to durable queues are not lost in the event of a system crash or failure, providing a higher level of data integrity and durability at the cost of some performance overhead.
+
 ## RabbitMQ learning roadmap
 Here's a roadmap to guide your learning journey:
 1. Understand Messaging Concepts:
