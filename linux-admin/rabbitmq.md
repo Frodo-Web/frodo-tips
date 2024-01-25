@@ -669,7 +669,191 @@ channel.start_consuming()
 - Plugins. Explore and use RabbitMQ plugins to extend functionality based on specific use cases.
 - Message TTL and Dead Letter Exchanges
 - Depending on your use case, consider sharding queues or topics to distribute load across multiple RabbitMQ instances.
+## RabbitMQ configuration files
 
+    rabbitmq.conf: This is the main configuration file for RabbitMQ. It is typically located in the etc/rabbitmq directory. The file may not exist by default, but you can create it to override default settings.
+
+    advanced.config: This file is used for advanced configuration settings. It allows you to specify more detailed configurations that are not covered by the main rabbitmq.conf file. Like rabbitmq.conf, this file is also located in the etc/rabbitmq directory.
+
+    enabled_plugins: This file lists the plugins that should be enabled when RabbitMQ starts. It is located in the etc/rabbitmq directory. Each line corresponds to a plugin that RabbitMQ will load.
+
+    definitions.json: This JSON file contains definitions for exchanges, queues, bindings, and other RabbitMQ entities. It is typically used for defining the initial state of RabbitMQ when it starts. The file may be found in the etc/rabbitmq directory.
+
+    rabbitmq-env.conf: This file allows you to set environment variables for RabbitMQ. It is used to configure system-level settings and is often found in the same directory as the other configuration files.
+
+Note that the file locations mentioned here are general and may differ based on your installation method (e.g., package manager, manual installation) and operating system (e.g., Linux, Windows).
+
+### rabbitmq.conf
+````
+# Example rabbitmq.conf file
+
+# Define the RabbitMQ node name
+node.name = rabbit@localhost
+
+# Specify the location of the RabbitMQ log files
+log.dir = /var/log/rabbitmq
+
+# Set the default user for RabbitMQ management plugin
+default_user = guest
+
+# Set the default password for RabbitMQ management plugin
+default_pass = guest
+
+# Enable RabbitMQ management plugin
+management.load_definitions = /etc/rabbitmq/definitions.json
+management.tcp.port = 15672
+
+# Set the RabbitMQ server port
+listeners.tcp.default = 5672
+
+# Configure the RabbitMQ memory-based flow control threshold
+vm_memory_high_watermark.relative = 0.4
+
+## Alternatively, we can set a limit (in bytes) of RAM used by the node.
+##
+# vm_memory_high_watermark.absolute = 1073741824
+# vm_memory_high_watermark.absolute = 2GB
+## Supported unit symbols:
+##
+## k, kiB: kibibytes (2^10 - 1,024 bytes)
+## M, MiB: mebibytes (2^20 - 1,048,576 bytes)
+## G, GiB: gibibytes (2^30 - 1,073,741,824 bytes)
+## kB: kilobytes (10^3 - 1,000 bytes)
+## MB: megabytes (10^6 - 1,000,000 bytes)
+## GB: gigabytes (10^9 - 1,000,000,000 bytes)
+
+## Fraction of the high watermark limit at which queues start to
+## page message out to disc in order to free up memory.
+## For example, when vm_memory_high_watermark is set to 0.4 and this value is set to 0.5,
+## paging can begin as early as when 20% of total available RAM is used by the node.
+##
+## Values greater than 1.0 can be dangerous and should be used carefully.
+##
+## One alternative to this is to use durable queues and publish messages
+## as persistent (delivery mode = 2). With this combination queues will
+## move messages to disk much more rapidly.
+##
+## Another alternative is to configure queues to page all messages (both
+## persistent and transient) to disk as quickly
+## as possible, see https://rabbitmq.com/lazy-queues.html.
+##
+# vm_memory_high_watermark_paging_ratio = 0.5
+
+## Selects Erlang VM memory consumption calculation strategy. Can be `allocated`, `rss` or `legacy` (aliased as `erlang`),
+## Introduced in 3.6.11. `rss` is the default as of 3.6.12.
+## See https://github.com/rabbitmq/rabbitmq-server/issues/1223 and rabbitmq/rabbitmq-common#224 for background.
+# vm_memory_calculation_strategy = rss
+
+## Interval (in milliseconds) at which we perform the check of the memory
+## levels against the watermarks.
+##
+# memory_monitor_interval = 2500
+
+## The total memory available can be calculated from the OS resources
+## - default option - or provided as a configuration parameter.
+# total_memory_available_override_value = 2GB
+
+## Set disk free limit (in bytes). Once free disk space reaches this
+## lower bound, a disk alarm will be set - see the documentation
+## listed above for more details.
+##
+## Absolute watermark will be ignored if relative is defined!
+# disk_free_limit.absolute = 50000
+
+## Or you can set it using memory units (same as in vm_memory_high_watermark)
+## with RabbitMQ 3.6.0+.
+# disk_free_limit.absolute = 500KB
+# disk_free_limit.absolute = 50mb
+# disk_free_limit.absolute = 5GB
+
+## Alternatively, we can set a limit relative to total available RAM.
+##
+## Values lower than 1.0 can be dangerous and should be used carefully.
+# disk_free_limit.relative = 2.0
+
+# Enable RabbitMQ SSL
+listeners.ssl.default = 5671
+ssl_options.cacertfile = /etc/rabbitmq/ca_certificate.pem
+ssl_options.certfile = /etc/rabbitmq/server_certificate.pem
+ssl_options.keyfile = /etc/rabbitmq/server_key.pem
+
+# Set the RabbitMQ heartbeat interval
+heartbeat = 60
+
+# Configure RabbitMQ clustering
+cluster_formation.peer_discovery_backend = rabbit_peer_discovery_classic_config
+cluster_formation.classic_config.nodes.1 = rabbit@node1
+cluster_formation.classic_config.nodes.2 = rabbit@node2
+cluster_formation.classic_config.nodes.3 = rabbit@node3
+
+# Enable RabbitMQ federation
+federation-upstream = upstream
+federation-upstream-set = upstream-set
+
+# Enable RabbitMQ Shovel plugin
+shovel.src-uri = amqp://user:password@source_host
+shovel.src-queue = source_queue
+shovel.dest-uri = amqp://user:password@destination_host
+shovel.dest-queue = destination_queue
+
+
+## Set the max permissible size of an AMQP frame (in bytes).
+##
+# frame_max = 131072
+
+## Set the max frame size the server will accept before connection
+## tuning occurs
+##
+# initial_frame_max = 4096
+
+## Set the max permissible number of channels per connection.
+## 0 means "no limit".
+##
+# channel_max = 128
+````
+### vm_memory_high_watermark.*
+    Option Name: vm_memory_high_watermark.relative
+    Description: This option controls the high watermark level for RabbitMQ's memory usage.
+    Default Value: 0.4
+    Possible Values: A floating-point number between 0.0 and 1.0.
+    Purpose: RabbitMQ uses memory-based flow control to prevent excessive memory usage. When the memory usage reaches the level defined by vm_memory_high_watermark.relative, RabbitMQ will take actions to slow down or stop producers to avoid overwhelming the system with messages.
+    Explanation: The value of vm_memory_high_watermark.relative is a fraction of the available system memory. The RabbitMQ node will start considering the system to have high memory usage when the used memory reaches this fraction of the total available memory. For example, if the total available memory is 1 GB and vm_memory_high_watermark.relative is set to 0.4, RabbitMQ will start taking actions when the used memory reaches 40% (0.4 * 1 GB) of the total available memory.
+
+This setting is crucial for preventing RabbitMQ from exhausting system resources during periods of high message traffic. It helps maintain stability by applying backpressure when memory usage is approaching critical levels, allowing the system to recover or adjust accordingly. Adjusting this value may be necessary based on the specific requirements and available resources of your RabbitMQ deployment.
+
+### disk_free_limit.*
+When free disk space drops below a configured limit (50 MB by default), an alarm will be triggered and all producers will be blocked.
+
+The goal is to avoid filling up the entire disk which will lead all write operations on the node to fail and can lead to RabbitMQ termination.
+
+
+This setting is essential for preventing RabbitMQ from overwhelming the disk with persistent messages, especially in scenarios where disk space is limited. Adjusting this value allows you to configure the system's response to low disk space conditions, ensuring that RabbitMQ takes appropriate actions to maintain stability and avoid potential out-of-disk errors.
+
+### Heartbeat
+ Set the server AMQP 0-9-1 heartbeat timeout in seconds.
+ RabbitMQ nodes will send heartbeat frames at roughly
+ the (timeout / 2) interval. Two missed heartbeats from
+ a client will close its connection.
+
+    Option Name: heartbeat
+    Description: This option sets the interval, in seconds, between heartbeat messages exchanged between RabbitMQ clients and the server.
+    Default Value: 60 seconds
+    Possible Values: Any positive integer representing the interval in seconds.
+    Purpose: The heartbeat mechanism is designed to detect network issues or unresponsive peers in a timely manner. If a connection's heartbeat interval passes without any communication, the connection is considered dead, and appropriate actions can be taken, such as closing and re-establishing the connection.
+    Explanation: For example, if heartbeat is set to 60, RabbitMQ clients and the server will exchange heartbeat messages every 60 seconds. If, for any reason, a client or the server does not receive a heartbeat within the expected interval, it may assume that the connection is lost and take appropriate measures to handle the situation.
+
+## Paging data from RAM to Disk
+In a computer system, RAM is used to store actively used programs and data. However, if the amount of data being used exceeds the available physical RAM, the operating system may use a portion of the hard disk as virtual memory to compensate for the shortage.
+
+    Paging: The operating system divides physical memory into fixed-size blocks known as pages. When the system runs out of available physical RAM, it moves less frequently used or inactive pages of data from RAM to the hard disk. This frees up space in RAM for more critical processes.
+
+    Swapping: The act of moving pages between RAM and the hard disk is often referred to as swapping. The data that is swapped out to the hard disk is stored in a file known as the paging file or swap file.
+
+    Paging File: The paging file is a reserved space on the hard disk that the operating system uses for virtual memory management. It is used to store pages of data that are not immediately needed in RAM.
+
+The use of a paging file allows the operating system to handle situations where the demand for memory exceeds the physical capacity. However, accessing data from the hard disk is significantly slower than accessing data from RAM, so excessive paging can lead to performance degradation.
+
+In the context of RabbitMQ or other server applications, it's important to monitor and manage paging carefully, as excessive paging can impact the overall performance of the system. RabbitMQ, for example, relies on sufficient system resources, including RAM, for efficient message processing. If the system is heavily paging, it may indicate a need for more physical RAM or adjustments to the system's configuration.
 ## RabbitMQ learning roadmap
 Here's a roadmap to guide your learning journey:
 1. Understand Messaging Concepts:
