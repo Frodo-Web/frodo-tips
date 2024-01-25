@@ -136,11 +136,15 @@ unix_sock_rw_perms = "0770"
 auth_unix_rw = "none"
 ````
 By default, virsh uses the following URI:
+
 - qemu:///session - for normal unprivileged users
 - qemu:///system - for root and privileged users running sudo
+- 
 You can change the default virsh URI with:
+
 - Command option: -c, --connect
 - Environment variable: LIBVIRT_DEFAULT_URI
+
 So add this to your ~/.bashrc:
 ````
 export LIBVIRT_DEFAULT_URI="qemu:///system"
