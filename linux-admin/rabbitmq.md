@@ -1330,6 +1330,14 @@ Operations first get written to memory and to a Write Ahead Log (WAL). There is 
 
 In summary, WAL in RabbitMQ is a mechanism to ensure that messages published to durable queues are not lost in the event of a system crash or failure, providing a higher level of data integrity and durability at the cost of some performance overhead.
 
+The primary storage-related setting that can affect quorum queue resource use is the write-ahead log segment size limit, the limit at which WAL in-memory table will be moved to disk. In other words, every quorum queue would be able to keep up to this much message data in memory under steady load.
+The limit can be controlled
+```
+# Flush current WAL file to a segment file on disk once it reaches 32 MiB in size
+raft.wal_max_size_bytes = 32000000
+```
+Because memory deallocation may take some time, we recommend that the RabbitMQ node is allocated at least 3 times the memory of the default WAL file size limit. More will be required in high-throughput systems. 4 times is a good starting point for those.
+
 ## RabbitMQ learning roadmap
 Here's a roadmap to guide your learning journey:
 1. Understand Messaging Concepts:
