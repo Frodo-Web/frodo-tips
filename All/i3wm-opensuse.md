@@ -139,7 +139,7 @@ By default, virsh uses the following URI:
 
 - qemu:///session - for normal unprivileged users
 - qemu:///system - for root and privileged users running sudo
-- 
+
 You can change the default virsh URI with:
 
 - Command option: -c, --connect
