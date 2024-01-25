@@ -1076,6 +1076,68 @@ The use of a paging file allows the operating system to handle situations where 
 
 In the context of RabbitMQ or other server applications, it's important to monitor and manage paging carefully, as excessive paging can impact the overall performance of the system. RabbitMQ, for example, relies on sufficient system resources, including RAM, for efficient message processing. If the system is heavily paging, it may indicate a need for more physical RAM or adjustments to the system's configuration.
 
+## Prefetch Count
+The prefetch count setting in RabbitMQ is a crucial parameter for controlling how many messages are sent over a channel before an acknowledgment is received. It's part of the Quality of Service (QoS) settings and is used to limit the number of unacknowledged messages on a channel. This can help to distribute messages more evenly among consumers and prevent a single consumer from being overwhelmed, which is particularly useful in work queue scenarios where workload distribution among multiple workers is desired.
+How Prefetch Count Works:
+
+    When prefetch count is set to 1, RabbitMQ will deliver one message to a consumer at a time. The consumer must acknowledge this message before RabbitMQ will deliver the next one.
+    Setting a higher prefetch count allows consumers to work on multiple messages at once, but increases the risk that messages might be re-delivered if a consumer crashes or becomes unavailable before acknowledging them.
+    The optimal prefetch count value depends on the nature of the task and the processing time of each message.
+
+### Setting Prefetch Count
+The prefetch count can be set at the channel level or the consumer level, depending on the client library you're using. Here are examples for some common RabbitMQ client libraries.
+
+Pika
+```python
+import pika
+
+connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+channel = connection.channel()
+
+channel.queue_declare(queue='task_queue')
+
+# Set the prefetch count
+channel.basic_qos(prefetch_count=1)
+
+def callback(ch, method, properties, body):
+    print(f" [x] Received {body}")
+    # Simulate a task
+    time.sleep(body.count(b'.'))
+    print(" [x] Done")
+    ch.basic_ack(delivery_tag=method.delivery_tag)
+
+channel.basic_consume(queue='task_queue', on_message_callback=callback)
+
+print(' [*] Waiting for messages. To exit press CTRL+C')
+channel.start_consuming()
+```
+Java (Using Spring AMQP): <br>
+In a Spring Boot application, you can configure the prefetch count in the application properties or through configuration classes. <br>
+application.properties Configuration:
+```
+spring.rabbitmq.listener.simple.prefetch=1
+```
+```java
+import org.springframework.amqp.core.AcknowledgeMode;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class RabbitMQConfig {
+
+    @Bean
+    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        factory.setPrefetchCount(1);
+        factory.setAcknowledgeMode(AcknowledgeMode.AUTO);
+        return factory;
+    }
+}
+
+```
 ## Connection Pooling
 1. Use Connection Pooling Libraries
 
