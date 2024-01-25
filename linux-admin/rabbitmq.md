@@ -1338,6 +1338,48 @@ raft.wal_max_size_bytes = 32000000
 ```
 Because memory deallocation may take some time, we recommend that the RabbitMQ node is allocated at least 3 times the memory of the default WAL file size limit. More will be required in high-throughput systems. 4 times is a good starting point for those.
 
+## Mnesia
+Mnesia is the distributed database management system that comes built into the Erlang/OTP platform, which RabbitMQ is built upon. RabbitMQ uses Mnesia for storing metadata about the broker itself, including information about users, queues, exchanges, bindings, and cluster configuration. Mnesia supports both in-memory and disk-based storage, making it suitable for high-throughput environments like those RabbitMQ often operates in.
+
+Key Mnesia Options for RabbitMQ:
+
+    Table Fragmentation:
+        Mnesia tables can be fragmented to distribute the load and improve scalability and performance. RabbitMQ allows you to configure the degree of fragmentation for certain tables, like the queue table, to better support large deployments.
+
+    RAM and Disk Nodes:
+        Mnesia allows data to be stored in RAM for faster access or on disk for persistence. RabbitMQ nodes can be configured as disk nodes to store Mnesia data persistently, ensuring that critical metadata survives broker restarts.
+
+    Backup and Restore:
+        Mnesia provides built-in mechanisms for backing up and restoring its data. RabbitMQ leverages these capabilities to allow users to backup and restore the state of the broker, including its configuration and persistent message data.
+
+    Schema Management:
+        RabbitMQ allows for the management of the Mnesia schema, which includes creating, migrating, or updating the schema as necessary, especially during upgrades or when changing cluster configurations.
+
+    Cluster Configuration:
+        Mnesia's distributed nature supports RabbitMQ's clustering capabilities, allowing for broker metadata to be replicated across nodes in a RabbitMQ cluster. This includes support for automatic synchronization of schema and data across nodes.
+
+    Table Locking and Transactions:
+        Mnesia supports ACID transactions, which RabbitMQ uses to ensure data consistency, especially in operations that involve multiple steps or need to be atomic, such as creating a queue along with its bindings.
+
+    Configurable Storage Locations:
+        The location where Mnesia stores its data can be configured, allowing administrators to specify directories that might be on faster storage media or have more space available.
+
+Configuring Mnesia for RabbitMQ:
+
+RabbitMQ's use of Mnesia is largely managed internally by the application, but there are several environment variables and configuration options that can be set to tune Mnesia's behavior:
+
+    RABBITMQ_MNESIA_DIR: Sets the directory where Mnesia data is stored.
+    RABBITMQ_MNESIA_BASE: Specifies the base directory for Mnesia data, allowing for more granular control over where different types of Mnesia data are stored.
+
+When adjusting Mnesia configurations, it's crucial to ensure that the changes are compatible with your RabbitMQ version and deployment architecture. Improper configurations can lead to issues with data consistency, cluster stability, and performance.
+
+Best Practices:
+
+    Regular Backups: Regularly back up your Mnesia database to recover from data loss or corruption.
+    Monitor Disk Usage: Keep an eye on the disk space used by Mnesia, especially in environments with a high volume of changes to metadata.
+    Cluster Considerations: In clustered environments, ensure that Mnesia is correctly configured to replicate data across all nodes, and be mindful of the implications of network partitions on Mnesia's data consistency.
+
+RabbitMQ's use of Mnesia is a key part of its robustness and clustering capabilities, and understanding how to configure and manage Mnesia can help in optimizing RabbitMQ deployments for different scenarios.
 ## RabbitMQ learning roadmap
 Here's a roadmap to guide your learning journey:
 1. Understand Messaging Concepts:
