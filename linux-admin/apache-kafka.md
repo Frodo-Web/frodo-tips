@@ -1529,10 +1529,13 @@ ls -lh ~/kafka-logs/users.registrations-0/
 -rw-r--r--. 1 kafka kafka  43 Jan 26 03:14 partition.metadata
 ````
 А вот и настройки для контроля размера сегмента
-    log.segment.bytes: the max size of a single segment in bytes (default 1 GB)
-    log.segment.ms: the time Kafka will wait before committing the segment if not full (default 1 week)
+
+- log.segment.bytes: the max size of a single segment in bytes (default 1 GB)
+- log.segment.ms: the time Kafka will wait before committing the segment if not full (default 1 week)
+
 И вот что важно
-    A Kafka broker keeps an open file handle to every segment in every partition - even inactive segments. This leads to a usually high number of open file handles, and the OS must be tuned accordingly.
+
+- A Kafka broker keeps an open file handle to every segment in every partition - even inactive segments. This leads to a usually high number of open file handles, and the OS must be tuned accordingly.
 #### Структура партиции
 ![](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/images/kafka%20segments.png?raw=true)
 Разбираемся, как Кафка хранит данные на диске. Партиции состоят из набора файлов, которые называются сегментами. Данные, которые продюсеры присылают брокеру, сохраняются в открытый или головной сегмент партиции. Через некоторое время, согласно некоторому набору правил, он роллапится (закрывается). После этого открывается новый сегмент. Закрытые сегменты хранятся на диске, но при этом в них никогда уже не происходит запись (они становятся полностью иммутабельными). Важно понимать, что LogCleaner Кафки удаляет данные исключительно посегментно. То есть, он удаляет файлы целиком. Для того чтобы LogCleaner понял, можно удалять файл или нет (если мы говорим о retention по времени), он производит следующий простой набор операций:
