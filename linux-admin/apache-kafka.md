@@ -187,6 +187,7 @@ ln -s kafka_2.13-3.6.1/ kafka
 chown -R kafka:kafka kafka
 ````
 3. Creating unit files
+
 3.1. kafka-zookeeper.service
 ````
 vim /etc/systemd/system/kafka-zookeeper.service
