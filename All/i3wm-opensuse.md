@@ -90,8 +90,10 @@ include current-theme.conf
 # END_KITTY_THEME
 ````
 ### Enable line wrapping in Kitty
+~/.bashrc:
 ````
-cat "setterm -linewrap on" >> ~/.bashrc
+export TERM="xterm"
+setterm -linewrap on
 ````
 ## Layouts
 Create a file /etc/X11/xorg.conf.d/00-keyboard.conf with content like this, restart xorg:
