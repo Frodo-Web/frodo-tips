@@ -1496,5 +1496,48 @@ for i in $(seq 1 3600); do echo $"{i}" >> /tmp/data; sleep 1; done
 
 Давайте разбираться. Нам нужно заглянуть во внутреннюю структуру данных партиции и понять: как именно Кафка сохраняет данные на диск.
 
+Кстати когда отключился и подождал вот так получилось:
+````
+./kafka-consumer-groups.sh --bootstrap-server localhost:9092 --group slurp --describe
+..
+Consumer group 'slurp' has no active members.
+
+GROUP           TOPIC               PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
+slurp           users.registrations 0          30151           30159           8               -               -               -
+
+./kafka-console-consumer.sh  --bootstrap-server localhost:9092 --topic users.registrations --from-beginning --group slurp
+..
+^CProcessed a total of 0 messages
+
+./kafka-consumer-groups.sh --bootstrap-server localhost:9092 --group slurp --describe
+..
+Consumer group 'slurp' has no active members.
+
+GROUP           TOPIC               PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
+slurp           users.registrations 0          30159           30159           0               -               -               -
+````
+Сообщения в топике пропали, а также кафка сервер хранил LAG, пока консьюмер не подключился и оффсет не поправился
+
+Похоже вот он сегмент и данные по нему, именуется последним оффсетом
+````
+ls -lh ~/kafka-logs/users.registrations-0/
+..
+-rw-r--r--. 1 kafka kafka   0 Jan 26 10:34 00000000000000030159.log
+-rw-r--r--. 1 kafka kafka  56 Jan 26 10:34 00000000000000030159.snapshot
+-rw-r--r--. 1 kafka kafka 10M Jan 26 10:34 00000000000000030159.timeindex
+-rw-r--r--. 1 kafka kafka  12 Jan 26 10:34 leader-epoch-checkpoint
+-rw-r--r--. 1 kafka kafka  43 Jan 26 03:14 partition.metadata
+````
+А вот и настройки для контроля размера сегмента
+    log.segment.bytes: the max size of a single segment in bytes (default 1 GB)
+    log.segment.ms: the time Kafka will wait before committing the segment if not full (default 1 week)
+И вот что важно
+    A Kafka broker keeps an open file handle to every segment in every partition - even inactive segments. This leads to a usually high number of open file handles, and the OS must be tuned accordingly.
 #### Структура партиции
 ![](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/images/kafka%20segments.png?raw=true)
+Разбираемся, как Кафка хранит данные на диске. Партиции состоят из набора файлов, которые называются сегментами. Данные, которые продюсеры присылают брокеру, сохраняются в открытый или головной сегмент партиции. Через некоторое время, согласно некоторому набору правил, он роллапится (закрывается). После этого открывается новый сегмент. Закрытые сегменты хранятся на диске, но при этом в них никогда уже не происходит запись (они становятся полностью иммутабельными). Важно понимать, что LogCleaner Кафки удаляет данные исключительно посегментно. То есть, он удаляет файлы целиком. Для того чтобы LogCleaner понял, можно удалять файл или нет (если мы говорим о retention по времени), он производит следующий простой набор операций:
+
+- находит максимальный таймстамп сообщения внутри одного сегмента;
+- находит разницу между максимальным таймстампом и текущим временем;
+- определяет, больше ли эта разница во времени, чем заданный конфигурационной опцией retention.ms;
+- если разница больше, то сегмент уже старый, его можно удалить.
