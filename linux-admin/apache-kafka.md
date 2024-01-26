@@ -997,6 +997,286 @@ The kafka-verifiable-producer tool produces increasing integers to the specified
 kafka-producer-perf-test.sh
 The kafka-producer-perf-test tool enables you to produce a large quantity of data to test producer performance for the Kafka cluster.
 
+usage: producer-perf-test [-h] --topic TOPIC --num-records NUM-RECORDS
+                            [--payload-delimiter PAYLOAD-DELIMITER] --throughput THROUGHPUT
+                            [--producer-props PROP-NAME=PROP-VALUE [PROP-NAME=PROP-VALUE ...]]
+                            [--producer.config CONFIG-FILE] [--print-metrics]
+                            [--transactional-id TRANSACTIONAL-ID]
+                            [--transaction-duration-ms TRANSACTION-DURATION]
+                            (--record-size RECORD-SIZE | --payload-file PAYLOAD-FILE)
+
+This tool is used to verify the producer performance.
+optional arguments:
+  -h, --help             show this help message and exit
+  --topic TOPIC          produce messages to this topic
+  --num-records NUM-RECORDS
+                        number of messages to produce
+  --payload-delimiter PAYLOAD-DELIMITER
+                        provides  delimiter  to  be  used  when  --payload-file  is  provided.
+                        Defaults to new line. Note that  this  parameter will be ignored if --
+                        payload-file is not provided. (default: \n)
+  --throughput THROUGHPUT
+                        throttle maximum  message  throughput  to  *approximately*  THROUGHPUT
+                        messages/sec. Set this to -1 to disable throttling.
+  --producer-props PROP-NAME=PROP-VALUE [PROP-NAME=PROP-VALUE ...]
+                        kafka  producer  related  configuration   properties  like  bootstrap.
+                        servers, client.id  etc.  These  configs  take  precedence  over  those
+                        passed via --producer.config.
+  --producer.config CONFIG-FILE
+                        producer config properties file.
+  --print-metrics        print out metrics at the end of the test. (default: false)
+  --transactional-id TRANSACTIONAL-ID
+                        The transactionalId to use if  transaction-duration-ms  is > 0. Useful
+                        when testing the  performance  of  concurrent  transactions. (default:
+                        performance-producer-default-transactional-id)
+  --transaction-duration-ms TRANSACTION-DURATION
+                        The max age of each transaction.  The commitTransaction will be called
+                        after this time has  elapsed.  Transactions  are  only enabled if this
+                        value is positive. (default: 0)
+
+  either --record-size or --payload-file must be specified but not both.
+
+  --record-size RECORD-SIZE
+                        message size in bytes. Note that  you  must  provide exactly one of --
+                        record-size or --payload-file.
+  --payload-file PAYLOAD-FILE
+                        file to read the  message  payloads  from.  This  works only for UTF-8
+                        encoded text files.  Payloads  will  be  read  from  this  file  and a
+                        payload will be randomly  selected  when  sending  messages. Note that
+                        you must provide exactly one of --record-size or --payload-file.
+
+kafka-consumer-groups.sh
+Use the kafka-consumer-groups tool to get a list of the active groups in the cluster.
+bin/kafka-consumer-groups.sh \
+         --bootstrap-server localhost:9092 \
+         --describe --group user-group
+TOPIC          PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG CONSUMER-ID       HOST         CLIENT-ID
+user           0          2               4               2   consumer-1-...    /127.0.0.1   consumer-1
+user           1          2               3               1   consumer-1-...    /127.0.0.1   consumer-1
+user           2          2               3               1   consumer-2-...    /127.0.0.1   consumer-2
+
+Option                                  Description
+------                                  -----------
+--all-groups                            Apply to all consumer groups.
+--all-topics                            Consider all topics assigned to a
+                                          group in the `reset-offsets` process.
+--bootstrap-server <String: server to   REQUIRED: The server(s) to connect to.
+  connect to>
+--by-duration <String: duration>        Reset offsets to offset by duration
+                                          from current timestamp. Format:
+                                          'PnDTnHnMnS'
+--command-config <String: command       Property file containing configs to be
+  config property file>                   passed to Admin Client and Consumer.
+--delete                                Pass in groups to delete topic
+                                          partition offsets and ownership
+                                          information over the entire consumer
+                                          group. For instance --group g1 --
+                                          group g2
+--delete-offsets                        Delete offsets of consumer group.
+                                          Supports one consumer group at the
+                                          time, and multiple topics.
+--describe                              Describe consumer group and list
+                                          offset lag (number of messages not
+                                          yet processed) related to given
+                                          group.
+--dry-run                               Only show results without executing
+                                          changes on Consumer Groups.
+                                          Supported operations: reset-offsets.
+--execute                               Execute operation. Supported
+                                          operations: reset-offsets.
+--export                                Export operation execution to a CSV
+                                          file. Supported operations: reset-
+                                          offsets.
+--from-file <String: path to CSV file>  Reset offsets to values defined in CSV
+                                          file.
+--group <String: consumer group>        The consumer group we wish to act on.
+--help                                  Print usage information.
+--list                                  List all consumer groups.
+--members                               Describe members of the group. This
+                                          option may be used with '--describe'
+                                          and '--bootstrap-server' options
+                                          only.
+                                        Example: --bootstrap-server localhost:
+                                          9092 --describe --group group1 --
+                                          members
+--offsets                               Describe the group and list all topic
+                                          partitions in the group along with
+                                          their offset lag. This is the
+                                          default sub-action of and may be
+                                          used with '--describe' and '--
+                                          bootstrap-server' options only.
+                                        Example: --bootstrap-server localhost:
+                                          9092 --describe --group group1 --
+                                          offsets
+--reset-offsets                         Reset offsets of consumer group.
+                                          Supports one consumer group at the
+                                          time, and instances should be
+                                          inactive
+                                        Has 2 execution options: --dry-run
+                                          (the default) to plan which offsets
+                                          to reset, and --execute to update
+                                          the offsets. Additionally, the --
+                                          export option is used to export the
+                                          results to a CSV format.
+                                        You must choose one of the following
+                                          reset specifications: --to-datetime,
+                                          --by-period, --to-earliest, --to-
+                                          latest, --shift-by, --from-file, --
+                                          to-current.
+                                        To define the scope use --all-topics
+                                          or --topic. One scope must be
+                                          specified unless you use '--from-
+                                          file'.
+--shift-by <Long: number-of-offsets>    Reset offsets shifting current offset
+                                          by 'n', where 'n' can be positive or
+                                          negative.
+--state [String]                        When specified with '--describe',
+                                          includes the state of the group.
+                                        Example: --bootstrap-server localhost:
+                                          9092 --describe --group group1 --
+                                          state
+                                        When specified with '--list', it
+                                          displays the state of all groups. It
+                                          can also be used to list groups with
+                                          specific states.
+                                        Example: --bootstrap-server localhost:
+                                          9092 --list --state stable,empty
+                                        This option may be used with '--
+                                          describe', '--list' and '--bootstrap-
+                                          server' options only.
+--timeout <Long: timeout (ms)>          The timeout that can be set for some
+                                          use cases. For example, it can be
+                                          used when describing the group to
+                                          specify the maximum amount of time
+                                          in milliseconds to wait before the
+                                          group stabilizes (when the group is
+                                          just created, or is going through
+                                          some changes). (default: 5000)
+--to-current                            Reset offsets to current offset.
+--to-datetime <String: datetime>        Reset offsets to offset from datetime.
+                                          Format: 'YYYY-MM-DDTHH:mm:SS.sss'
+--to-earliest                           Reset offsets to earliest offset.
+--to-latest                             Reset offsets to latest offset.
+--to-offset <Long: offset>              Reset offsets to a specific offset.
+--topic <String: topic>                 The topic whose consumer group
+                                          information should be deleted or
+                                          topic whose should be included in
+                                          the reset offset process. In `reset-
+                                          offsets` case, partitions can be
+                                          specified using this format: `topic1:
+                                          0,1,2`, where 0,1,2 are the
+                                          partition to be included in the
+                                          process. Reset-offsets also supports
+                                          multiple topic inputs.
+--verbose                               Provide additional information, if
+                                          any, when describing the group. This
+                                          option may be used with '--
+                                          offsets'/'--members'/'--state' and
+                                          '--bootstrap-server' options only.
+                                        Example: --bootstrap-server localhost:
+                                          9092 --describe --group group1 --
+                                          members --verbose
+--version                               Display Kafka version.
+
+
+kafka-consumer-perf-test.sh
+This tool tests the consumer performance for the Kafka cluster.
+Option                                   Description
+------                                   -----------
+--bootstrap-server <String: server to    REQUIRED unless --broker-list
+  connect to>                              (deprecated) is specified. The server
+                                          (s) to connect to.
+--broker-list <String: broker-list>      DEPRECATED, use --bootstrap-server
+                                          instead; ignored if --bootstrap-
+                                          server is specified.  The broker
+                                          list string in the form HOST1:PORT1,
+                                          HOST2:PORT2.
+--consumer.config <String: config file>  Consumer config properties file.
+--date-format <String: date format>      The date format to use for formatting
+                                          the time field. See java.text.
+                                          SimpleDateFormat for options.
+                                          (default: yyyy-MM-dd HH:mm:ss:SSS)
+--fetch-size <Integer: size>             The amount of data to fetch in a
+                                          single request. (default: 1048576)
+--from-latest                            If the consumer does not already have
+                                          an established offset to consume
+                                          from, start with the latest message
+                                          present in the log rather than the
+                                          earliest message.
+--group <String: gid>                    The group id to consume on. (default:
+                                          perf-consumer-50334)
+--help                                   Print usage information.
+--hide-header                            If set, skips printing the header for
+                                          the stats
+--messages <Long: count>                 REQUIRED: The number of messages to
+                                          send or consume
+--num-fetch-threads <Integer: count>     DEPRECATED AND IGNORED: Number of
+                                          fetcher threads. (default: 1)
+--print-metrics                          Print out the metrics.
+--reporting-interval <Integer:           Interval in milliseconds at which to
+  interval_ms>                             print progress info. (default: 5000)
+--show-detailed-stats                    If set, stats are reported for each
+                                          reporting interval as configured by
+                                          reporting-interval
+--socket-buffer-size <Integer: size>     The size of the tcp RECV size.
+                                          (default: 2097152)
+--threads <Integer: count>               DEPRECATED AND IGNORED: Number of
+                                          processing threads. (default: 10)
+--timeout [Long: milliseconds]           The maximum allowed time in
+                                          milliseconds between returned
+                                          records. (default: 10000)
+--topic <String: topic>                  REQUIRED: The topic to consume from.
+--version                                Display Kafka version.
+
+kafka-acls
+Use the kafka-acls tool to add, remove and list ACLs. For example, if you wanted to add two principal users, Jose and Jane to have read and write permissions on the user topic from specific IP addresses, you could use a command like the following:
+bin/kafka-acls.sh --bootstrap-server localhost:9092 --add --allow-principal User:Jose --allow-principal User:Jane --allow-host 198.51.100.0 --allow-host 198.51.100.1 --operation Read --operation Write --topic user
+
+kafka-delegation-tokens.sh
+Use the kafka-delegation-tokens tool to create, renew, expire and describe delegation tokens. Delegation tokens are shared secrets between Kafka brokers and clients, and are a lightweight authentication mechanism meant to complement existing SASL/SSL methods.
+
+kafka-e2e-latency.sh
+The kafka-e2e-latency tool is a performance testing tool used to measure end-to-end latency in Kafka. It works by sending messages to a Kafka topic and then consuming those messages from a Kafka consumer. The tool calculates the time difference between when a message was produced and when it was consumed, giving you an idea of the end-to-end latency for your Kafka cluster. This tool is useful for testing the performance of your Kafka cluster and identifying any bottlenecks or issues that may be affecting latency.
+
+Following are the required arguments
+        broker_list: The location of the bootstrap broker for both the producer and the consumer
+        topic: The topic name used by both the producer and the consumer to send/receive messages
+        num_messages: The number of messages to send
+        producer_acks: The producer setting for acks.
+        message_size_bytes: size of each message in bytes
+
+For example:
+kafka-e2e-latency.sh localhost:9092 test 10000 1 20
+
+acks
+The number of acknowledgments the producer requires the leader to have received before considering a request complete. This controls the durability of records that are sent. The following settings are allowed:
+
+    acks=0 If set to zero then the producer will not wait for any acknowledgment from the server at all. The record will be immediately added to the socket buffer and considered sent. No guarantee can be made that the server has received the record in this case, and the retries configuration will not take effect (as the client won’t generally know of any failures). The offset given back for each record will always be set to -1.
+    acks=1 This will mean the leader will write the record to its local log but will respond without awaiting full acknowledgement from all followers. In this case should the leader fail immediately after acknowledging the record but before the followers have replicated it then the record will be lost.
+    acks=all This means the leader will wait for the full set of in-sync replicas to acknowledge the record. This guarantees that the record will not be lost as long as at least one in-sync replica remains alive. This is the strongest available guarantee. This is equivalent to the acks=-1 setting.
+
+USAGE: java org.apache.kafka.tools.EndToEndLatency broker_list topic num_messages producer_acks message_size_bytes [optional] properties_file
+
+kafka-dump-log.sh
+The kafka-dump-log tool can be used in KRaft mode to parse a metadata log file and output its contents to the console. Requires a comma-separated list of log files. The tool will scan the provided files and decode the metadata records.
+The following example shows using the cluster-metadata-decoder argument to decode the metadata records in a log segment.
+bin/kafka-dump-log.sh --cluster-metadata-decoder --files tmp/kraft-combined-logs/_cluster_metadata-0/00000000000000023946.log
+
+kafka-jmx.sh
+The kafka-jmx tool enables you to read JMX metrics from a given endpoint. This tool only works reliably if the JmxServer is fully initialized prior to invoking the tool.
+
+trogdor.sh
+Trogdor is a test framework for Kafka. Trogdor can run benchmarks and other workloads. Trogdor can also inject faults in order to stress test the system. 
+
+The Trogdor fault injector.
+Usage:
+  ./trogdor.sh [action] [options]
+Actions:
+  agent: Run the trogdor agent.
+  coordinator: Run the trogdor coordinator.
+  client: Run the client which communicates with the trogdor coordinator.
+  agent-client: Run the client which communicates with the trogdor agent.
+  help: This help message.
 ````
 ## .sh scripts to work with Kafka
 ````
@@ -1091,4 +1371,42 @@ Executing records delete operation
 Records delete operation completed:
 [2024-01-26 04:44:06,559] ERROR [AdminClient clientId=adminclient-1] DeleteRecords request for topic partition users.registrations-0 failed due to an unexpected error OFFSET_OUT_OF_RANGE (org.apache.kafka.clients.admin.internals.DeleteRecordsHandler)
 partition: users.registrations-0	error: org.apache.kafka.common.errors.OffsetOutOfRangeException: The requested offset is not within the range of offsets maintained by the server.
+
+Задавая оффсет -1 можно удалить все сообщения в топике:
+
+cat /tmp/offset_example.json
+..
+{"partitions":
+  [{"topic": "users.registrations", "partition": 0,
+  "offset": -1}],
+  "version":1
+}
+
+// Perfomance tests
+./kafka-producer-perf-test.sh --topic users.registrations --num-records 20000 --record-size 1000 --throughput 10000000 --producer-props bootstrap.servers=localhost:9092
+..
+20000 records sent, 13745.704467 records/sec (13.11 MB/sec), 507.94 ms avg latency, 725.00 ms max latency, 592 ms 50th, 716 ms 95th, 723 ms 99th, 724 ms 99.9th
+
+Then we can clear them out like in previous example with offset -1:
+./kafka-delete-records.sh --bootstrap-server localhost:9092 --offset-json-file /tmp/offset_example.json
+
+
+./kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --all-groups
+GROUP           TOPIC               PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                           HOST             CLIENT-ID
+slurp           users.registrations 0          20012           20012           0               console-consumer-30cc3146-66c0-42e5-a4b1-712937c3a8bd /192.168.122.251 console-consumer
+
+./kafka-e2e-latency.sh localhost:9092 users.registrations 10000 1 2000
+..
+0	64.69036
+1000	0.538343
+2000	0.41516000000000003
+3000	0.459293
+4000	0.31889999999999996
+5000	0.377733
+6000	0.395324
+7000	0.439079
+8000	0.276823
+9000	0.25577099999999997
+Avg latency: 0.7439 ms
+Percentiles: 50th = 0, 99th = 11, 99.9th = 13
 ````
