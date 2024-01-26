@@ -1279,7 +1279,7 @@ Actions:
   help: This help message.
 ````
 ## .sh scripts to work with Kafka
-````
+```bash
 // ./kafka-topics.sh --list --zookeeper localhost:2181
 // Option zookeeper is deprecated, use --bootstrap-server instead.
 
@@ -1409,4 +1409,4 @@ slurp           users.registrations 0          20012           20012           0
 9000	0.25577099999999997
 Avg latency: 0.7439 ms
 Percentiles: 50th = 0, 99th = 11, 99.9th = 13
-````
+```
