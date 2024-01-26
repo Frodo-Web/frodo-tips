@@ -1497,3 +1497,4 @@ for i in $(seq 1 3600); do echo $"{i}" >> /tmp/data; sleep 1; done
 Давайте разбираться. Нам нужно заглянуть во внутреннюю структуру данных партиции и понять: как именно Кафка сохраняет данные на диск.
 
 #### Структура партиции
+![](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/images/kafka%20segments.png?raw=true)
