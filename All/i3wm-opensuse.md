@@ -89,6 +89,10 @@ font_family FiraCode Nerd Font
 include current-theme.conf
 # END_KITTY_THEME
 ````
+### Enable line wrapping in Kitty
+````
+cat "setterm -linewrap on" >> ~/.bashrc
+````
 ## Layouts
 Create a file /etc/X11/xorg.conf.d/00-keyboard.conf with content like this, restart xorg:
 ````
