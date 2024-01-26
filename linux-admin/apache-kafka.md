@@ -248,3 +248,847 @@ systemctl status kafka.service
 journalctl -u kafka-zookeeper.service -e
 journalctl -u kafka.service -e
 ````
+## Kafka CLI tools overview 
+````
+kafka-server-start.sh
+Use the kafka-server-start tool to start a Kafka server. You must pass the path to the properties file you want to use. If you are using ZooKeeper for metadata management, you must start ZooKeeper first. For KRaft mode, first generate a cluster ID and store it in the properties file.
+
+USAGE: ./kafka-server-start.sh [-daemon] server.properties [--override property=value]*
+Option               Description
+------               -----------
+--override <String>  Optional property that should override values set in
+                     server.properties file
+--version            Print version information and exit.
+
+kafka-server-stop.sh
+Use the kafka-server-stop tool to stop the running Kafka server. When you run this tool, you do not need to pass any arguments.
+
+zookeeper-server-start.sh
+Use the zookeeper-server-start tool to start the ZooKeeper server. ZooKeeper is the default method for metadata management for Kafka versions prior to 3.4. To run this tool, you must pass the path to the ZooKeeper properties file.
+
+zookeeper-server-stop.sh
+Use the zookeeper-server-stop tool to stop the ZooKeeper server. Running this tool does not require arguments
+
+kafka-storage.sh
+Use the kafka-storage tool to generate a Cluster UUID and format storage with the generated UUID when running Kafka in KRaft mode. You must explicitly create a cluster ID for a KRaft cluster, and format the storage specifying that ID.
+For example, the following command generates a cluster ID and stores it in a variable named KAFKA_CLUSTER_ID. The next command formats storage with that ID.
+
+KAFKA_CLUSTER_ID="$(bin/kafka-storage.sh random-uuid)"
+bin/kafka-storage.sh format -t KAFKA_CLUSTER_ID -c config/kraft/server.properties
+
+USAGE: kafka-storage.sh [-h] {info,format,random-uuid}
+The Kafka storage tool.
+positional arguments:
+ {info,format,random-uuid}
+   info                 Get information about the Kafka log directories on this node.
+   format               Format the Kafka log directories on this node.
+   random-uuid          Print a random UUID.
+optional arguments:
+ -h, --help             show this help message and exit
+
+kafka-cluster.sh
+Use the kafka-cluster tool to get the ID of a cluster or unregister a cluster. The following example shows how to retrieve the cluster ID, which requires a bootstrap-server argument.
+
+bin/kafka-cluster.sh cluster-id --bootstrap-server localhost:9092
+..
+Cluster ID: WZEKwK-b123oT3ZOSU0dgw
+
+USAGE: kafka-cluster.sh [-h] {cluster-id,unregister}
+The Kafka cluster tool.
+positional arguments:
+{cluster-id,unregister}
+  cluster-id           Get information about the ID of a cluster.
+  unregister           Unregister a broker.
+optional arguments:
+  -h, --help             show this help message and exit
+
+zookeeper-shell.sh
+Use the zookeeper-shell tool to connect to the interactive ZooKeeper shell.
+
+Following is an example of how to connect to the ZooKeeper shell:
+bin/zookeeper-shell.sh localhost:2181
+
+Your results might look like the following:
+Welcome to ZooKeeper!
+JLine support is disabled
+
+USAGE: ./zookeeper-shell.sh zookeeper_host:port[/path] [-zk-tls-config-file file] [args...]
+Once the shell has started, you can complete the following:
+ZooKeeper -server host:port [-zk-tls-config-file <file>] cmd args
+  addWatch [-m mode] path # optional mode is one of [PERSISTENT, PERSISTENT_RECURSIVE] - default is PERSISTENT_RECURSIVE
+  addauth scheme auth
+  close
+  config [-c] [-w] [-s]
+  connect host:port
+  create [-s] [-e] [-c] [-t ttl] path [data] [acl]
+  delete [-v version] path
+  deleteall path [-b batch size]
+  delquota [-n|-b] path
+  get [-s] [-w] path
+  getAcl [-s] path
+  getAllChildrenNumber path
+  getEphemerals path
+  history
+  listquota path
+  ls [-s] [-w] [-R] path
+  printwatches on|off
+  quit
+  reconfig [-s] [-v version] [[-file path] | [-members serverID=host:port1:port2;port3[,...]*]] | [-add serverId=host:port1:port2;port3[,...]]* [-remove serverId[,...]*]
+  redo cmdno
+  removewatches path [-c|-d|-a] [-l]
+  set [-s] [-v version] path data
+  setAcl [-s] [-v version] [-R] path acl
+  setquota -n|-b val path
+  stat [-w] path
+  sync path
+  version
+
+kafka-features.sh
+Use the kafka-features tool to manage feature flags to disable or enable functionality at runtime in Kafka. Pass the describe argument to describe the current active feature flags, upgrade to upgrade one or more feature flags, downgrade to downgrade one or more, and disable to disable one or more feature flags, which is the same as downgrading the version to zero.
+
+USAGE: kafka-features.sh [-h] --bootstrap-server BOOTSTRAP_SERVER [--command-config COMMAND_CONFIG]
+                {describe,upgrade,downgrade,disable} ...
+This tool manages feature flags in Kafka.
+positional arguments:
+  {describe,upgrade,downgrade,disable}
+    describe             Describe one or more feature flags.
+    upgrade              Upgrade one or more feature flags.
+    downgrade            Upgrade one or more feature flags.
+    disable              Disable one or more feature flags. This is the same as downgrading the version to zero.
+optional arguments:
+  -h, --help             show this help message and exit
+  --bootstrap-server BOOTSTRAP_SERVER
+      A comma-separated list of host:port pairs  to  use  for establishing the connection to the
+                        Kafka cluster.
+  --command-config COMMAND_CONFIG
+      Property file containing configs to be passed to Admin Client.
+
+kafka-broker-api-versions.sh
+The kafka-broker-api-versions tool retrieves and displays broker information. For example, the following command outputs the version of Kafka that is running on the broker:
+bin/kafka-broker-api-versions.sh --bootstrap-server host1:9092 --version
+
+This tool helps to retrieve broker version information.
+Option                                 Description
+------                                 -----------
+--bootstrap-server <String: server(s)  REQUIRED: The server to connect to.
+  to use for bootstrapping>
+--command-config <String: command      A property file containing configs to
+  config property file>                  be passed to Admin Client.
+--help                                 Print usage information.
+--version                              Display Kafka version.
+
+kafka-metadata-quorum.sh
+Use the kafka-metadata-quorum tool to query the metadata quorum status. This tool is useful when you are debugging a cluster in KRaft mode. Pass the describe command to describe the current state of the metadata quorum.
+The following code example displays a summary of the metadata quorum:
+The output for this command might look like the following.
+ClusterId:              fMCL8kv1SWm87L_Md-I2hg
+LeaderId:               3002
+LeaderEpoch:            2
+HighWatermark:          10
+MaxFollowerLag:         0
+MaxFollowerLagTimeMs:   -1
+CurrentVoters:          [3000,3001,3002]
+CurrentObservers:       [0,1,2]
+
+kafka-metadata-shell.sh
+The kafka-metadata-shell tool enables you to interactively examine the metadata stored in a KRaft cluster.
+The following example shows how to open the shell:
+kafka-metadata-shell.sh --directory tmp/kraft-combined-logs/_cluster-metadata-0/
+..
+Loading...
+ [ Kafka Metadata Shell ]
+ >> ls
+ brokers  configs  features  linkIds  links  shell  topicIds  topics
+ >> ls /topics
+ test
+ >> cat /topics/test/0/data
+ {
+   "partitionId" : 0,
+   "topicId" : "5zoAlv-xEh9xRANKXt1Lbg",
+   "replicas" : [ 1 ],
+   "isr" : [ 1 ],
+   "removingReplicas" : null,
+   "addingReplicas" : null,
+   "leader" : 1,
+   "leaderEpoch" : 0,
+   "partitionEpoch" : 0
+   }
+ >> exit
+
+kafka-configs.sh
+Use the kafka-configs tool to change and describe topic, client, user, broker, or IP configuration settings. To change a property, specify the entity-type to the desired entity (topic, broker, user, etc), and use the alter option. The following example shows how you might add the delete.retention configuration property for a topic with kafka-configs.
+
+/bin/kafka-configs.sh --bootstrap-server localhost:9092 --entity-type topics --entity-default --alter --add-config delete.retention.ms=172800000
+
+This tool helps to manipulate and describe entity configuration for a topic, client, user, broker or IP address.
+Option                                 Description
+------                                 -----------
+--add-config <String>                  Key Value pairs of configs to add.
+                                       Square brackets can be used to group
+                                       values which contain commas: 'k1=v1,
+                                       k2=[v1,v2,v2],k3=v3'. The following
+                                       is a list of valid configurations:
+                                       For entity-type 'topics':
+                                       cleanup.policy
+                                       compression.type
+                                       delete.retention.ms
+                                       file.delete.delay.ms
+                                       flush.messages
+                                       flush.ms
+                                       follower.replication.throttled.
+                                       replicas
+                                       index.interval.bytes
+                                       leader.replication.throttled.replicas
+                                       local.retention.bytes
+                                       local.retention.ms
+                                       max.compaction.lag.ms
+                                       max.message.bytes
+                                       message.downconversion.enable
+                                       message.format.version
+                                       message.timestamp.difference.max.ms
+                                       message.timestamp.type
+                                       min.cleanable.dirty.ratio
+                                       min.compaction.lag.ms
+                                       min.insync.replicas
+                                       preallocate
+                                       remote.storage.enable
+                                       retention.bytes
+                                       retention.ms
+                                       segment.bytes
+                                       segment.index.bytes
+                                       segment.jitter.ms
+                                       segment.ms
+                                       unclean.leader.election.enable
+                                       For entity-type 'brokers':
+                                       advertised.listeners
+                                       background.threads
+                                       compression.type
+                                       follower.replication.throttled.rate
+                                       leader.replication.throttled.rate
+                                       listener.security.protocol.map
+                                       listeners
+                                       log.cleaner.backoff.ms
+                                       log.cleaner.dedupe.buffer.size
+                                       log.cleaner.delete.retention.ms
+                                       log.cleaner.io.buffer.load.factor
+                                       log.cleaner.io.buffer.size
+                                       log.cleaner.io.max.bytes.per.second
+                                       log.cleaner.max.compaction.lag.ms
+                                       log.cleaner.min.cleanable.ratio
+                                       log.cleaner.min.compaction.lag.ms
+                                       log.cleaner.threads
+                                       log.cleanup.policy
+                                       log.flush.interval.messages
+                                       log.flush.interval.ms
+                                       log.index.interval.bytes
+                                       log.index.size.max.bytes
+                                       log.message.downconversion.enable
+                                       log.message.timestamp.difference.max.
+                                       ms
+                                       log.message.timestamp.type
+                                       log.preallocate
+                                       log.retention.bytes
+                                       log.retention.ms
+                                       log.roll.jitter.ms
+                                       log.roll.ms
+                                       log.segment.bytes
+                                       log.segment.delete.delay.ms
+                                       max.connection.creation.rate
+                                       max.connections
+                                       max.connections.per.ip
+                                       max.connections.per.ip.overrides
+                                       message.max.bytes
+                                       metric.reporters
+                                       min.insync.replicas
+                                       num.io.threads
+                                       num.network.threads
+                                       num.recovery.threads.per.data.dir
+                                       num.replica.fetchers
+                                       principal.builder.class
+                                       producer.id.expiration.ms
+                                       replica.alter.log.dirs.io.max.bytes.
+                                       per.second
+                                       sasl.enabled.mechanisms
+                                       sasl.jaas.config
+                                       sasl.kerberos.kinit.cmd
+                                       sasl.kerberos.min.time.before.relogin
+                                       sasl.kerberos.principal.to.local.rules
+                                       sasl.kerberos.service.name
+                                       sasl.kerberos.ticket.renew.jitter
+                                       sasl.kerberos.ticket.renew.window.
+                                       factor
+                                       sasl.login.refresh.buffer.seconds
+                                       sasl.login.refresh.min.period.seconds
+                                       sasl.login.refresh.window.factor
+                                       sasl.login.refresh.window.jitter
+                                       sasl.mechanism.inter.broker.protocol
+                                       ssl.cipher.suites
+                                       ssl.client.auth
+                                       ssl.enabled.protocols
+                                       ssl.endpoint.identification.algorithm
+                                       ssl.engine.factory.class
+                                       ssl.key.password
+                                       ssl.keymanager.algorithm
+                                       ssl.keystore.certificate.chain
+                                       ssl.keystore.key
+                                       ssl.keystore.location
+                                       ssl.keystore.password
+                                       ssl.keystore.type
+                                       ssl.protocol
+                                       ssl.provider
+                                       ssl.secure.random.implementation
+                                       ssl.trustmanager.algorithm
+                                       ssl.truststore.certificates
+                                       ssl.truststore.location
+                                       ssl.truststore.password
+                                       ssl.truststore.type
+                                       unclean.leader.election.enable
+                                       For entity-type 'users':
+                                       SCRAM-SHA-256
+                                       SCRAM-SHA-512
+                                       consumer_byte_rate
+                                       controller_mutation_rate
+                                       producer_byte_rate
+                                       request_percentage
+                                       For entity-type 'clients':
+                                       consumer_byte_rate
+                                       controller_mutation_rate
+                                       producer_byte_rate
+                                       request_percentage
+                                       For entity-type 'ips':
+                                       connection_creation_rate
+                                       Entity types 'users' and 'clients' may
+                                       be specified together to update
+                                       config for clients of a specific
+                                       user.
+--add-config-file <String>             Path to a properties file with configs
+                                       to add. See add-config for a list of
+                                       valid configurations.
+--all                                  List all configs for the given topic,
+                                       broker, or broker-logger entity
+                                       (includes static configuration when
+                                       the entity type is brokers)
+--alter                                Alter the configuration for the entity.
+--bootstrap-server <String: server to  The Kafka server to connect to. This
+connect to>                            is required for describing and
+                                       altering broker configs.
+--broker <String>                      The broker's ID.
+--broker-defaults                      The config defaults for all brokers.
+--broker-logger <String>               The broker's ID for its logger config.
+--client <String>                      The client's ID.
+--client-defaults                      The config defaults for all clients.
+--command-config <String: command      Property file containing configs to be
+config property file>                  passed to Admin Client. This is used
+                                       only with --bootstrap-server option
+                                       for describing and altering broker
+                                       configs.
+--delete-config <String>               config keys to remove 'k1,k2'
+--describe                             List configs for the given entity.
+--entity-default                       Default entity name for
+                                       clients/users/brokers/ips (applies
+                                       to corresponding entity type in
+                                       command line)
+--entity-name <String>                 Name of entity (topic name/client
+                                       id/user principal name/broker id/ip)
+--entity-type <String>                 Type of entity
+                                       (topics/clients/users/brokers/broker-
+                                       loggers/ips)
+--force                                Suppress console prompts
+--help                                 Print usage information.
+--ip <String>                          The IP address.
+--ip-defaults                          The config defaults for all IPs.
+--topic <String>                       The topic's name.
+--user <String>                        The user's principal name.
+--user-defaults                        The config defaults for all users.
+--version                              Display Kafka version.
+--zk-tls-config-file <String:          Identifies the file where ZooKeeper
+ZooKeeper TLS configuration>           client TLS connectivity properties
+                                       are defined.  Any properties other
+                                       than zookeeper.clientCnxnSocket,
+                                       zookeeper.ssl.cipher.suites,
+                                       zookeeper.ssl.client.enable,
+                                       zookeeper.ssl.crl.enable, zookeeper.
+                                       ssl.enabled.protocols, zookeeper.ssl.
+                                       endpoint.identification.algorithm,
+                                       zookeeper.ssl.keystore.location,
+                                       zookeeper.ssl.keystore.password,
+                                       zookeeper.ssl.keystore.type,
+                                       zookeeper.ssl.ocsp.enable, zookeeper.
+                                       ssl.protocol, zookeeper.ssl.
+                                       truststore.location, zookeeper.ssl.
+                                       truststore.password, zookeeper.ssl.
+                                       truststore.type are ignored.
+--zookeeper <String: urls>             DEPRECATED. The connection string for
+                                       the zookeeper connection in the form
+                                       host:port. Multiple URLS can be
+                                       given to allow fail-over. Required
+                                       when configuring SCRAM credentials
+                                       for users or dynamic broker configs
+                                       when the relevant broker(s) are
+                                       down. Not allowed otherwise.
+
+zookeeper-security-migration.sh
+Use the zookeeper-security-migration tool to restrict or provide access to ZooKeeper metadata. The tool updates the ACLs of znodes.
+
+kafka-topics.sh
+Use the kafka-topics tool to create or delete a topic. You can also use the tool to retrieve a list of topics associated with a Kafka cluster. For more information, see Topic Operations.
+
+bin/kafka-topics.sh --bootstrap-server host1:9092 --topic test-topic --partitions 3
+
+This tool helps to create, delete, describe, or change a topic.
+Option                                   Description
+------                                   -----------
+--alter                                  Alter the number of partitions and
+                                          replica assignment. Update the
+                                          configuration of an existing topic
+                                          via --alter is no longer supported
+                                          here (the kafka-configs CLI supports
+                                          altering topic configs with a --
+                                          bootstrap-server option).
+--at-min-isr-partitions                  if set when describing topics, only
+                                          show partitions whose isr count is
+                                          equal to the configured minimum.
+--bootstrap-server <String: server to    REQUIRED: The Kafka server to connect
+  connect to>                              to.
+--command-config <String: command        Property file containing configs to be
+  config property file>                    passed to Admin Client. This is used
+                                          only with --bootstrap-server option
+                                          for describing and altering broker
+                                          configs.
+--config <String: name=value>            A topic configuration override for the
+                                          topic being created or altered. The
+                                          following is a list of valid
+                                          configurations:
+                                                cleanup.policy
+                                                compression.type
+                                                delete.retention.ms
+                                                file.delete.delay.ms
+                                                flush.messages
+                                                flush.ms
+                                                follower.replication.throttled.
+                                          replicas
+                                                index.interval.bytes
+                                                leader.replication.throttled.replicas
+                                                local.retention.bytes
+                                                local.retention.ms
+                                                max.compaction.lag.ms
+                                                max.message.bytes
+                                                message.downconversion.enable
+                                                message.format.version
+                                                message.timestamp.difference.max.ms
+                                                message.timestamp.type
+                                                min.cleanable.dirty.ratio
+                                                min.compaction.lag.ms
+                                                min.insync.replicas
+                                                preallocate
+                                                remote.storage.enable
+                                                retention.bytes
+                                                retention.ms
+                                                segment.bytes
+                                                segment.index.bytes
+                                                segment.jitter.ms
+                                                segment.ms
+                                                unclean.leader.election.enable
+                                        See the Kafka documentation for full
+                                          details on the topic configs. It is
+                                          supported only in combination with --
+                                          create if --bootstrap-server option
+                                          is used (the kafka-configs CLI
+                                          supports altering topic configs with
+                                          a --bootstrap-server option).
+--create                                 Create a new topic.
+--delete                                 Delete a topic
+--delete-config <String: name>           A topic configuration override to be
+                                          removed for an existing topic (see
+                                          the list of configurations under the
+                                          --config option). Not supported with
+                                          the --bootstrap-server option.
+--describe                               List details for the given topics.
+--exclude-internal                       exclude internal topics when running
+                                          list or describe command. The
+                                          internal topics will be listed by
+                                          default
+--help                                   Print usage information.
+--if-exists                              if set when altering or deleting or
+                                          describing topics, the action will
+                                          only execute if the topic exists.
+--if-not-exists                          if set when creating topics, the
+                                          action will only execute if the
+                                          topic does not already exist.
+--list                                   List all available topics.
+--partitions <Integer: # of partitions>  The number of partitions for the topic
+                                          being created or altered (WARNING:
+                                          If partitions are increased for a
+                                          topic that has a key, the partition
+                                          logic or ordering of the messages
+                                          will be affected). If not supplied
+                                          for create, defaults to the cluster
+                                          default.
+--replica-assignment <String:            A list of manual partition-to-broker
+  broker_id_for_part1_replica1 :           assignments for the topic being
+  broker_id_for_part1_replica2 ,           created or altered.
+  broker_id_for_part2_replica1 :
+  broker_id_for_part2_replica2 , ...>
+--replication-factor <Integer:           The replication factor for each
+  replication factor>                      partition in the topic being
+                                          created. If not supplied, defaults
+                                          to the cluster default.
+--topic <String: topic>                  The topic to create, alter, describe
+                                          or delete. It also accepts a regular
+                                          expression, except for --create
+                                          option. Put topic name in double
+                                          quotes and use the '\' prefix to
+                                          escape regular expression symbols; e.
+                                          g. "test\.topic".
+--topic-id <String: topic-id>            The topic-id to describe.This is used
+                                          only with --bootstrap-server option
+                                          for describing topics.
+--topics-with-overrides                  if set when describing topics, only
+                                          show topics that have overridden
+                                          configs
+--unavailable-partitions                 if set when describing topics, only
+                                          show partitions whose leader is not
+                                          available
+--under-min-isr-partitions               if set when describing topics, only
+                                          show partitions whose isr count is
+                                          less than the configured minimum.
+--under-replicated-partitions            if set when describing topics, only
+                                          show under replicated partitions
+--version                                Display Kafka version.
+
+
+kafka-get-offsets.sh
+Use the kafka-get-offsets tool to retrieve topic-partition offsets.
+An interactive shell for getting topic-partition offsets.
+
+Option                                   Description
+------                                   -----------
+--bootstrap-server <String: HOST1:       REQUIRED. The server(s) to connect to
+  PORT1,...,HOST3:PORT3>                 in the form HOST1:PORT1,HOST2:PORT2.
+--broker-list <String: HOST1:PORT1,...,  DEPRECATED, use --bootstrap-server
+  HOST3:PORT3>                             instead; ignored if --bootstrap-
+                                          server is specified. The server(s)
+                                          to connect to in the form HOST1:
+                                          PORT1,HOST2:PORT2.
+--command-config <String: config file>   Property file containing configs to be
+                                          passed to Admin Client.
+--exclude-internal-topics                By default, internal topics are
+                                          included. If specified, internal
+                                          topics are excluded.
+--partitions <String: partition ids>     Comma separated list of partition ids
+                                          to get the offsets for. If not
+                                          present, all partitions of the
+                                          authorized topics are queried.
+                                          Cannot be used if --topic-partitions
+                                          is present.
+--time <String: <timestamp> / -1 or      timestamp of the offsets before that.
+  latest / -2 or earliest / -3 or max-     [Note: No offset is returned, if the
+  timestamp>                               timestamp greater than recently
+                                          committed record timestamp is
+                                          given.] (default: latest)
+--topic <String: topic>                  The topic to get the offsets for. It
+                                          also accepts a regular expression.
+                                          If not present, all authorized
+                                          topics are queried. Cannot be used
+                                          if --topic-partitions is present.
+--topic-partitions <String: topic1:1,    Comma separated list of topic-
+  topic2:0-3,topic3,topic4:5-,topic5:-3    partition patterns to get the
+  >                                        offsets for, with the format of:
+                                          ([^:,]*)(?::(?:([0-9]*)|(?:([0-9]*)
+                                          -([0-9]*))))?. The first group is
+                                          an optional regex for the topic
+                                          name, if omitted, it matches any
+                                          topic name. The section after ':'
+                                          describes a partition pattern,
+                                          which can be: a number, a range in
+                                          the format of NUMBER-NUMBER (lower
+                                          inclusive, upper exclusive), an
+                                          inclusive lower bound in the format
+                                          of NUMBER-, an exclusive upper
+                                          bound in the format of -NUMBER or
+                                          may be omitted to accept all
+                                          partitions.
+
+
+kafka-transactions.sh
+Use the kafka-transactions tool to list and describe transactions. Use to detect and abort hanging transactions. For more information, see Detect and Abort Hanging Transactions
+usage: kafka-transactions.sh [-h] [-v] [--command-config FILE] --bootstrap-server host:port COMMAND ...
+
+This tool is used to analyze the transactional state  of  producers  in  the  cluster. It can be used to detect and
+recover from hanging transactions.
+optional arguments:
+  -h, --help             show this help message and exit
+  -v, --version          show the version of this Kafka distribution and exit
+  --command-config FILE  property file containing configs to be passed to admin client
+  --bootstrap-server host:port
+                        hostname and port for the broker to connect  to, in the form `host:port`
+                       (multiple comma-separated entries can be given)
+commands:
+    list                 list transactions
+    describe             describe the state of an active transactional-id
+    describe-producers   describe the states of active producers for a topic partition
+    abort                abort a hanging transaction (requires administrative privileges)
+    find-hanging         find hanging transactions
+
+kafka-reassign-partitions.sh
+Use the kafka-reassign-partitions to move topic partitions between replicas You pass a JSON-formatted file to specify the new replicas. To learn more, see Changing the replication factor in the Confluent documentation.
+
+This tool helps to move topic partitions between replicas.
+Option                                  Description
+------                                  -----------
+--additional                            Execute this reassignment in addition
+                                          to any other ongoing ones. This
+                                          option can also be used to change
+                                          the throttle of an ongoing
+                                          reassignment.
+--bootstrap-server <String: Server(s)   REQUIRED: the server(s) to use for
+  to use for bootstrapping>               bootstrapping.
+--broker-list <String: brokerlist>      The list of brokers to which the
+                                          partitions need to be reassigned in
+                                          the form "0,1,2". This is required
+                                          if --topics-to-move-json-file is
+                                          used to generate reassignment
+                                          configuration
+--cancel                                Cancel an active reassignment.
+--command-config <String: Admin client  Property file containing configs to be
+  property file>                          passed to Admin Client.
+--disable-rack-aware                    Disable rack aware replica assignment
+--execute                               Kick off the reassignment as specified
+                                          by the --reassignment-json-file
+                                          option.
+--generate                              Generate a candidate partition
+                                          reassignment configuration. Note
+                                          that this only generates a candidate
+                                          assignment, it does not execute it.
+--help                                  Print usage information.
+--list                                  List all active partition
+                                          reassignments.
+--preserve-throttles                    Do not modify broker or topic
+                                          throttles.
+--reassignment-json-file <String:       The JSON file with the partition
+  manual assignment json file path>       reassignment configurationThe format
+                                          to use is -
+                                        {"partitions":
+                                                [{"topic": "foo",
+                                                  "partition": 1,
+                                                  "replicas": [1,2,3,4],
+                                                  "observers":[3,4],
+                                                  "log_dirs": ["dir1","dir2","dir3","
+                                          dir4"] }],
+                                        "version":1
+                                        }
+                                        Note that "log_dirs" is optional. When
+                                          it is specified, its length must
+                                          equal the length of the replicas
+                                          list. The value in this list can be
+                                          either "any" or the absolution path
+                                          of the log directory on the broker.
+                                          If absolute log directory path is
+                                          specified, the replica will be moved
+                                          to the specified log directory on
+                                          the broker.
+                                        Note that  "observers" is optional.
+                                          When it is specified it must be a
+                                          suffix of the replicas list.
+--replica-alter-log-dirs-throttle       The movement of replicas between log
+  <Long: replicaAlterLogDirsThrottle>     directories on the same broker will
+                                          be throttled to this value
+                                          (bytes/sec). This option can be
+                                          included with --execute when a
+                                          reassignment is started, and it can
+                                          be altered by resubmitting the
+                                          current reassignment along with the
+                                          --additional flag. The throttle rate
+                                          should be at least 1 KB/s. (default:
+                                          -1)
+--throttle <Long: throttle>             The movement of partitions between
+                                          brokers will be throttled to this
+                                          value (bytes/sec). This option can
+                                          be included with --execute when a
+                                          reassignment is started, and it can
+                                          be altered by resubmitting the
+                                          current reassignment along with the
+                                          --additional flag. The throttle rate
+                                          should be at least 1 KB/s. (default:
+                                          -1)
+--timeout <Long: timeout>               The maximum time in ms to wait for log
+                                          directory replica assignment to
+                                          begin. (default: 10000)
+--topics-to-move-json-file <String:     Generate a reassignment configuration
+  topics to reassign json file path>      to move the partitions of the
+                                          specified topics to the list of
+                                          brokers specified by the --broker-
+                                          list option. The format to use is -
+                                        {"topics":
+                                                [{"topic": "foo"},{"topic": "foo1"}],
+                                        "version":1
+                                        }
+--verify                                Verify if the reassignment completed
+                                          as specified by the --reassignment-
+                                          json-file option. If there is a
+                                          throttle engaged for the replicas
+                                          specified, and the rebalance has
+                                          completed, the throttle will be
+                                          removed
+--version                               Display Kafka version.
+
+kafka-delete-records.sh
+Use the kafka-delete-records tool to delete partition records. Use this if a topic receives bad data. Pass a JSON-formatted file that specifies the topic, partition, and offset for data deletion. Data will be deleted up to the offset specified. Example:
+bin/kafka-delete-records.sh --bootstrap-server host1:9092 --offset-json-file deleteme.json
+
+kafka-log-dirs.sh
+Use the kafka-log-dirs tool to get a list of replicas per log directory on a broker.
+This tool helps to query log directory usage on the specified brokers.
+
+------                                  -----------
+--bootstrap-server <String: The server  REQUIRED: the server(s) to use for
+  (s) to use for bootstrapping>           bootstrapping
+--broker-list <String: Broker list>     The list of brokers to be queried in
+                                          the form "0,1,2". All brokers in the
+                                          cluster will be queried if no broker
+                                          list is specified
+--command-config <String: Admin client  Property file containing configs to be
+  property file>                          passed to Admin Client.
+--describe                              Describe the specified log directories
+                                          on the specified brokers.
+--help                                  Print usage information.
+--topic-list <String: Topic list>       The list of topics to be queried in
+                                          the form "topic1,topic2,topic3". All
+                                          topics will be queried if no topic
+                                          list is specified (default: )
+--version                               Display Kafka version.
+
+kafka-replica-verification.sh
+Use the kafka-replica-verification tool to verify that all replicas of a topic contain the same data. Requires a broker-list parameter that contains a comma-separated list of <hostname:port> entries specifying the server/port to connect to.
+
+Validate that all replicas for a set of topics have the same data.
+Option                                  Description
+------                                  -----------
+--broker-list <String: hostname:        REQUIRED: The list of hostname and
+  port,...,hostname:port>                 port of the server to connect to.
+--fetch-size <Integer: bytes>           The fetch size of each request.
+                                          (default: 1048576)
+--help                                  Print usage information.
+--max-wait-ms <Integer: ms>             The max amount of time each fetch
+                                          request waits. (default: 1000)
+--report-interval-ms <Long: ms>         The reporting interval. (default:
+                                          30000)
+--time <Long: timestamp/-1(latest)/-2   Timestamp for getting the initial
+  (earliest)>                             offsets. (default: -1)
+--topic-white-list <String: Java regex  DEPRECATED use --topics-include
+  (String)>                               instead; ignored if --topics-include
+                                          specified. List of topics to verify
+                                          replica consistency. Defaults to '.
+                                          *' (all topics) (default: .*)
+--topics-include <String: Java regex    List of topics to verify replica
+  (String)>                               consistency. Defaults to '.*' (all
+                                          topics) (default: .*)
+--version                               Print version information and exit.
+
+connect-mirror-maker.sh
+Use the connect-mirror-maker tool to replicate topics from one cluster to another using the Connect framework. You must pass an an mm2.properties MM2 configuration file. For more information, see KIP-382: MirrorMaker 2.0 or Getting up to speed with MirrorMaker 2.
+
+kafka-verifiable-consumer.sh
+The kafka-verifiable-consumer tool consumes messages from a topic and emits consumer events as JSON objects to STDOUT. For example, group rebalances, received messages, and offsets committed. Intended for internal testing.
+
+kafka-verifiable-producer.sh
+The kafka-verifiable-producer tool produces increasing integers to the specified topic and prints JSON metadata to STDOUT on each send request. This tool shows which messages have been acked and which have not. This tool is intended for internal testing.
+
+kafka-producer-perf-test.sh
+The kafka-producer-perf-test tool enables you to produce a large quantity of data to test producer performance for the Kafka cluster.
+
+````
+## .sh scripts to work with Kafka
+````
+// ./kafka-topics.sh --list --zookeeper localhost:2181
+// Option zookeeper is deprecated, use --bootstrap-server instead.
+
+./kafka-topics.sh --create --topic registrations --replication-factor 1 --partitions 1 --bootstrap-server localhost:9092
+..
+Created topic registrations.
+
+./kafka-topics.sh --list --bootstrap-server localhost:9092
+..
+registrations
+
+./kafka-topics.sh --bootstrap-server=localhost:9092 --describe --topic registrations
+..    
+Topic: registrations	TopicId: 9cBL5BFJQMePGzm9dfaUtg	PartitionCount: 1	ReplicationFactor: 1	Configs: 
+Topic: registrations	Partition: 0	Leader: 0	Replicas: 0	Isr: 0
+
+./kafka-topics.sh --delete --bootstrap-server localhost:9092 --topic registrations
+
+./kafka-console-producer.sh --topic users.registrations --bootstrap-server localhost:9092
+>Hello Kafka
+>Umm
+
+./bin/kafka-console-consumer.sh --topic registrations --bootstrap-server localhost:9092
+Теперь мы, по идее, должны увидеть записанное сообщение. Но ничего не происходит.
+С этой проблемой сталкиваются многие, кто начинает использовать Кафку. Это не значит, что сообщения потерялись, или что-то не работает. Все проще: консьюмер Кафки по умолчанию начинает читать данные с конца топика в тот момент, когда он запустился (см. настройку auto.offset.reset). Поэтому, чтобы прочитать данные, записанные ДО старта консьюмера, нужно переопределить эту конфигу.
+
+Значение earliest показывает, что чтение записей будет начинаться с самого раннего доступного сообщения. Вот так:
+./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic users.registrations --consumer-property auto.offset.reset=earliest
+..
+Hello Kafka
+Umm
+Processed a total of 2 messages
+
+Shortcut --from-beginning:
+./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic users.registrations --from-beginning --max-messages 2
+..
+Hello Kafka
+Umm
+Processed a total of 2 messages
+
+// Pass the group name
+./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic users.registrations --from-beginning --max-messages 2 --group slurp
+
+./kafka-cluster.sh cluster-id --bootstrap-server localhost:9092
+..
+Cluster ID: cy984x31RQuDE_ytCIYXqA
+
+./kafka-broker-api-versions.sh --bootstrap-server localhost:9092 --version
+..
+3.6.1
+
+./kafka-transactions.sh --bootstrap-server localhost:9092 list
+..
+TransactionalId	Coordinator	ProducerId	TransactionState
+
+// Delete partition records, if topic receives bad data
+cat /tmp/offset_example.json
+..
+{"partitions":
+  [{"topic": "users.registrations", "partition": 0,
+  "offset": 1}],
+  "version":1
+}
+
+./kafka-console-consumer.sh  --bootstrap-server localhost:9092 --topic users.registrations --from-beginning
+Hello Kafka
+Umm
+Hmmm
+???
+^CProcessed a total of 4 messages
+
+./kafka-delete-records.sh --bootstrap-server localhost:9092 --offset-json-file /tmp/offset_example.json
+..
+Executing records delete operation
+Records delete operation completed:
+partition: users.registrations-0	low_watermark: 1
+
+./kafka-console-consumer.sh  --bootstrap-server localhost:9092 --topic users.registrations --from-beginning
+..
+Umm
+Hmmm
+???
+^CProcessed a total of 3 messages
+
+Но оно работает так что оффсеты не сбрасываются. Отсчёт идёт от начала, если мы удалили 1 и 2 оффсеты, чтобы потом отдельной командой после этого удалить 3 и 4 нужно будет указывать 4, а не 2. Но возможно это как то можно сбросить, отфрагментировать хз.
+
+Если указать оффсет за пределами текущих, то будет ошибка и сообщения в топике не удалятся
+Executing records delete operation
+Records delete operation completed:
+[2024-01-26 04:44:06,559] ERROR [AdminClient clientId=adminclient-1] DeleteRecords request for topic partition users.registrations-0 failed due to an unexpected error OFFSET_OUT_OF_RANGE (org.apache.kafka.clients.admin.internals.DeleteRecordsHandler)
+partition: users.registrations-0	error: org.apache.kafka.common.errors.OffsetOutOfRangeException: The requested offset is not within the range of offsets maintained by the server.
+````
