@@ -1443,5 +1443,57 @@ slurp                          users.registrations            0          30012
 А в логах кафки вот что будет, вобщем кафка сервер сам поправляет оффсет:
 INFO [UnifiedLog partition=users.registrations-0, dir=/home/kafka/kafka-logs] Incremented log start offset to 30015 due to client delete records request (kafka.log.UnifiedLog)
 Спустя 30 секунд  - Dynamic member with unknown member id joins group slurp in Empty state. Created a new member id console-consumer-95035ee3-90dc-41cd-8c84-06f4ec36d305 and request the member to rejoin with this id. (kafka.coordinator.group.GroupCoordinator)
-
 ````
+### Topic Retention
+Этот механизм служит основным способом удаления данных из Кафки. Мы можем включить его по времени или по размеру партиции. Рассмотрим retention по времени. На данном этапе в нашем топике этот механизм не настроен, поэтому данные будут храниться вечно (до тех пор, пока диск на брокере не заполнится до предела).
+
+Для начала изменим одну из настроек брокера, чтобы облегчить себе жизнь: нам будет видно, что происходит с данными после включения retention. Останавливаем брокер, если он уже запущен. Копируем конфигурационный файл, с которым мы изначально запустили этот брокер
+````
+cp server.properties slurp-server.properties
+````
+Открываем этот конфиг. Настройка, которую будем менять, называется log.retention.check.interval.ms. Она диктует частоту, с которой удаляющий данные с диска тред (LogCleaner) проверяет retention. Значение по умолчанию — 5 минут. Для production-систем это замечательно. Однако мы будем менять конфиги, поэтому нам хочется видеть отклик быстрее. Поменяем значение на 1 секунду: log.retention.check.interval.ms=1000
+
+Таким образом LogCleaner будет проверять данные для возможного удаления раз в секунду. Сохраняем файл и запускаем сервер с новой конфигурацией. Сделано.
+
+Теперь включим retention у топика, а также заальтерим одну из конфигурационных опций — retention.ms. Выставим значение 60000 (одна минута). Для этого воспользуемся скриптом 
+````
+./kafka-configs.sh --bootstrap-server localhost:9092 --entity-type topics --entity-name users.registrations --alter --add-config retention.ms=60000
+````
+Пошли логи:
+````
+Jan 26 10:07:10 kafka-01 kafka-server-start.sh[15550]: [2024-01-26 10:07:10,015] INFO [Admin Manager on Broker 0]: Updating topic users.registrations with new configuration : retention.ms -> 60000 (kafka.server.ZkAdminManager)
+Jan 26 10:07:10 kafka-01 kafka-server-start.sh[15550]: [2024-01-26 10:07:10,087] INFO Processing notification(s) to /config/changes (kafka.common.ZkNodeChangeNotificationListener)
+Jan 26 10:07:10 kafka-01 kafka-server-start.sh[15550]: [2024-01-26 10:07:10,097] INFO Processing override for entityPath: topics/users.registrations with config: HashMap(retention.ms -> 60000) (kafka.server.ZkConfigManager)
+Jan 26 10:07:14 kafka-01 kafka-server-start.sh[15550]: [2024-01-26 10:07:14,239] INFO [LocalLog partition=users.registrations-0, dir=/home/kafka/kafka-logs] Rolled new log segment at offset 30015 in 4 ms. (kafka.log.LocalLog)
+Jan 26 10:07:14 kafka-01 kafka-server-start.sh[15550]: [2024-01-26 10:07:14,239] INFO [UnifiedLog partition=users.registrations-0, dir=/home/kafka/kafka-logs] Deleting segment LogSegment(baseOffset=0, size=40957101, lastModifiedTime=1706278933455, largestRecordTimestamp=Some(1706278932449)) due to log retention time 60000ms breach based on the largest record timestamp in the segment (kafka.log.UnifiedLog)
+...
+Jan 26 10:08:14 kafka-01 kafka-server-start.sh[15550]: [2024-01-26 10:08:14,243] INFO [LocalLog partition=users.registrations-0, dir=/home/kafka/kafka-logs] Deleting segment files LogSegment(baseOffset=0, size=40957101, lastModifiedTime=1706278933455, largestRecordTimestamp=Some(1706278932449)) (kafka.log.LocalLog$)
+Jan 26 10:08:14 kafka-01 kafka-server-start.sh[15550]: [2024-01-26 10:08:14,246] INFO Deleted log /home/kafka/kafka-logs/users.registrations-0/00000000000000000000.log.deleted. (kafka.log.LogSegment)
+Jan 26 10:08:14 kafka-01 kafka-server-start.sh[15550]: [2024-01-26 10:08:14,247] INFO Deleted offset index /home/kafka/kafka-logs/users.registrations-0/00000000000000000000.index.deleted. (kafka.log.LogSegment)
+Jan 26 10:08:14 kafka-01 kafka-server-start.sh[15550]: [2024-01-26 10:08:14,247] INFO Deleted time index /home/kafka/kafka-logs/users.registrations-0/00000000000000000000.timeindex.deleted. (kafka.log.LogSegment)
+````
+Место в директории kafka-logs высвободилось.
+
+Проведем эксперимент. Скажем Кафке удалять данные из топика после 10 секунд:
+````
+./kafka-configs.sh --bootstrap-server localhost:9092 --entity-type topics --entity-name users.registrations --alter --add-config retention.ms=10000
+````
+Теперь запустим консольного продюсера, чтобы он считывал все новые лайны из файла и перекидывал их в Кафку. Скрипт такой: 
+````
+touch /tmp/data && tail -f -n0 /tmp/data | ./kafka-console-producer.sh --topic users.registrations --bootstrap-server=localhost:9092 --sync
+````
+Он создает файл /tmp/data, тейлит этот файл и передает весь output консольному продюсеру, чтобы тот писал эти сообщения в наш топик registrations. Теперь откроем другое окно и запустим еще один скрипт: 
+````
+for i in $(seq 1 3600); do echo $"{i}" >> /tmp/data; sleep 1; done
+````
+Он будет каждую секунду аппендить новые лайны в этот файл: test1, test2, test3 и так далее до 3600. Все лайны будут автоматически передаваться нашему продюсеру. Открываем третье окно и запускаем консольный консьюмер, чтобы посмотреть, какие сообщения хранятся сейчас в топике:
+````
+./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic users.registrations --from-beginning
+````
+Мы задали настройку, чтобы наши сообщения удалялись после 10 секунд. Также мы отправляем test1, test2, test3 и далее в наш топик registrations раз в секунду.
+
+Видим следующее: в топике до сих пор хранятся все сообщения, несмотря на то, что прошло уже больше 10 секунд. Более того, мы явно указали Кафке, что чекер LogCleaner-а должен проверять данные на удаление раз в секунду. Давайте запустим консьюмер еще раз. Мы снова видим все сообщения в топике. Что не так?
+
+Давайте разбираться. Нам нужно заглянуть во внутреннюю структуру данных партиции и понять: как именно Кафка сохраняет данные на диск.
+
+#### Структура партиции
