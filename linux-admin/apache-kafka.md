@@ -1278,7 +1278,7 @@ Actions:
   agent-client: Run the client which communicates with the trogdor agent.
   help: This help message.
 ````
-## .sh scripts to work with Kafka
+## Kafka CLI with examples
 ```bash
 // ./kafka-topics.sh --list --zookeeper localhost:2181
 // Option zookeeper is deprecated, use --bootstrap-server instead.
@@ -1410,3 +1410,38 @@ slurp           users.registrations 0          20012           20012           0
 Avg latency: 0.7439 ms
 Percentiles: 50th = 0, 99th = 11, 99.9th = 13
 ```
+### About offset
+````
+./bin/kafka-console-consumer.sh --topic registrations --bootstrap-server localhost:9092 --consumer-property auto.offset.reset=earliest --group slurp 
+
+После запуска консьюмера мы увидим те же записанные ранее сообщения. При этом, в логе брокера отобразится, что консьюмер подключился с группой slurm, которую мы передали. Закрываем консьюмер, перезапускаем его снова той же командой. Сообщения опять пропали!
+Почему? Консьюмер группы в Кафке может коммитить свои оффсеты (свою позицию) для какой-то партиции, которую он уже прочитал. Чтобы при перезапуске продолжить обработку с этой позиции. Именно это поведение мы здесь и наблюдаем. Хотя лучше лишний раз проверить.
+
+./kafka-consumer-groups.sh --bootstrap-server localhost:9092 --group slurp --describe
+..
+Consumer group 'slurp' has no active members.
+GROUP           TOPIC               PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
+slurp           users.registrations 0          30012           30012           0               -               -               -
+
+Сейчас ни один инстанс группы не живет, но мы все равно можем проверить ее сохраненный стейт. Мы видим, что никакого активного члена группы у нас нет (Consumer group ‘slurm’ has no active members), и это правильно. Еще мы видим, что эта группа в топике registrations в партиции 0 сохранила свою позицию на offset-е 2 (CURRENT-OFFSET). Именно этот offset является концом топика. LAG у нас 0, значит консьюмер полностью прочитал все сообщения и не лагает. Получается, что наш консольный консьюмер автоматически закоммитил свою позицию.
+
+А если законнектиться консьюмером, то его видно и всю дату по нему
+./kafka-consumer-groups.sh --bootstrap-server localhost:9092 --group slurp --describe
+..
+GROUP           TOPIC               PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                           HOST             CLIENT-ID
+slurp           users.registrations 0          30012           30012           0               console-consumer-1f4cd273-d78d-4b5f-ad2b-c27a99d97324 /192.168.122.251 console-consumer
+
+Что можно сделать? Можем сбросить позицию консьюмера на начало. Разумеется, если вы используете клиенты, у вас будет целый набор инструментов для удобного контроля позиции своего консьюмера в любой момент.
+./kafka-consumer-groups.sh --bootstrap-server localhost:9092 --group slurp --reset-offsets --to-earliest --topic users.registrations --execute
+..
+GROUP                          TOPIC                          PARTITION  NEW-OFFSET     
+slurp                          users.registrations            0          30012
+
+Надо сказать, если в топике были удалены прошлые сообщения, а после оффсетов удалённых сообщений идут "живые" сообщения, то он при reset поставит оффсет на первое "живое" с которого сможет прочитать все дальнейшие сообщеения.
+
+А если например сделать ресет, затем удалить живые сообщения, затем запустить консьюмер он поставит последний оффсет без вывода сообщений.
+А в логах кафки вот что будет, вобщем кафка сервер сам поправляет оффсет:
+INFO [UnifiedLog partition=users.registrations-0, dir=/home/kafka/kafka-logs] Incremented log start offset to 30015 due to client delete records request (kafka.log.UnifiedLog)
+Спустя 30 секунд  - Dynamic member with unknown member id joins group slurp in Empty state. Created a new member id console-consumer-95035ee3-90dc-41cd-8c84-06f4ec36d305 and request the member to rejoin with this id. (kafka.coordinator.group.GroupCoordinator)
+
+````
