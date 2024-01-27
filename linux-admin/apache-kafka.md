@@ -2165,7 +2165,7 @@ for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
     2888 — репликация данных между нодами кластера.
     3888 — выбор лидера между нодами кластера.
 
-Stop ZK, then modify config files.
+Stop ZK, then modify config files on both ZK hosts.
 
 zookeeper.properties:
 ```
@@ -2229,6 +2229,28 @@ Mode: leader
 Node count: 134
 Proposal sizes last/min/max: -1/-1/-1
 ```
+## Kafka Cluster
+Брокеры кафки координируются в кластере через ZK. ZK выступает централизованным сервисом, удерживая конфигурацию, именования, обеспечивает распределенную синхронизацию.
+
+Вот все этапы.
+
+
+
+Add your hostnames to resolvers.
+
+/etc/hosts
+```
+192.168.122.251 kafka-01
+192.168.122.250 kafka-02
+```
+
+Link Kafka hosts to your ZK cluster
+
+/opt/kafka/config/server.properties
+```
+zookeeper.connect=192.168.122.251:2181,192.168.122.250:2181
+```
+
 ## TODO
 1. Kafka Architecture and Core Concepts
 
