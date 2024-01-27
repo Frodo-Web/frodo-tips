@@ -1945,3 +1945,215 @@ for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
 }
 ```
 Заголовки также могут использовать в роутинге.
+
+## Broker-Level Configuration
+````
+    broker.id: Unique identifier for each broker in a Kafka cluster, used to distinguish brokers.
+
+    num.network.threads: The number of threads the broker uses for processing network requests, affecting network I/O performance.
+
+    num.io.threads: Number of threads dedicated to disk I/O operations, influencing the broker's ability to read from and write to log files.
+
+    socket.send.buffer.bytes: The send buffer size for socket connections, impacting network throughput.
+
+    socket.receive.buffer.bytes: The receive buffer size for socket connections, also affecting network throughput.
+
+    socket.request.max.bytes: Maximum size of a request that the broker will accept, safeguarding against out-of-memory errors.
+
+    log.dirs: Directories where the broker stores its log files. Multiple directories can spread I/O operations across disks.
+
+    num.recovery.threads.per.data.dir: Number of threads used for data recovery in each log directory, affecting recovery speed.
+
+    num.replica.fetchers: Number of threads used to replicate messages from the leader, impacting replication throughput.
+
+    offsets.topic.replication.factor: Replication factor for the offsets topic, ensuring durability of consumer offsets.
+
+    transaction.state.log.replication.factor: Replication factor for the transaction state log, critical for transactional message durability.
+
+    transaction.state.log.min.isr: Minimum number of in-sync replicas for the transaction state log, affecting transaction reliability.
+
+    log.retention.hours: Duration in hours to retain log segments before they are eligible for deletion, managing disk space usage.
+
+    log.segment.bytes: Maximum size of a log segment file, after which a new segment is created, affecting log compaction and cleanup.
+
+    log.retention.check.interval.ms: Frequency at which the broker checks for log segments to delete, impacting I/O performance.
+
+    zookeeper.connect: Connection string for Zookeeper, which Kafka uses for cluster coordination and metadata storage.
+
+    zookeeper.connection.timeout.ms: Timeout for Zookeeper connections, affecting broker resilience to Zookeeper downtime.
+
+    group.initial.rebalance.delay.ms: Initial delay before the first consumer group rebalance, optimizing rebalance performance.
+
+    inter.broker.listener.name: The listener name for inter-broker communication, crucial for broker-to-broker connectivity.
+
+    listener.security.protocol.map: Maps listener names to security protocols, essential for configuring secure communication.
+
+    listeners: List of listeners for client connections, defining how clients connect to brokers.
+
+    advertised.listeners: Listeners that the broker advertises to clients, crucial for client-broker connectivity.
+
+    controlled.shutdown.enable: Enables controlled broker shutdown, minimizing disruptions to partitions for which the broker is the leader.
+
+    controlled.shutdown.max.retries: Maximum retries for controlled shutdown attempts, affecting shutdown reliability.
+
+    controlled.shutdown.retry.backoff.ms: Backoff time between controlled shutdown retries, managing shutdown timing.
+
+    auto.create.topics.enable: Allows automatic topic creation when a non-existent topic is referenced, simplifying topic management.
+
+    auto.leader.rebalance.enable: Enables automatic rebalancing of leaders among brokers, optimizing leader distribution.
+
+    background.threads: Number of threads for background operations, such as log cleaning, affecting performance.
+
+    compression.type: Default compression type for log segments, influencing disk space usage and network throughput.
+
+    delete.topic.enable: Enables deletion of topics, allowing for topic management and cleanup.
+
+    leader.imbalance.check.interval.seconds: Frequency of leader imbalance checks, optimizing leader distribution among brokers.
+
+    leader.imbalance.per.broker.percentage: The allowed leader imbalance percentage across brokers, triggering rebalancing when exceeded.
+
+    log.cleaner.dedupe.buffer.size: Size of the deduplication buffer for log compaction, affecting memory usage.
+
+    log.cleaner.delete.retention.ms: Retention time for deleted records during log compaction, affecting data visibility.
+
+    log.cleaner.enable: Enables log cleaning and compaction, critical for maintaining topic log size and performance.
+
+    log.cleaner.io.buffer.load.factor: Load factor for log cleaner I/O buffer, affecting log cleaning performance.
+
+    log.cleaner.io.buffer.size: Size of the I/O buffer for log cleaning operations, impacting cleaning efficiency.
+
+    log.cleaner.io.max.bytes.per.second: Maximum I/O throughput for log cleaners, managing log cleaning resource usage.
+
+    log.cleaner.min.cleanable.ratio: Minimum "dirty" ratio of a log to be eligible for cleaning, balancing cleaning frequency and performance.
+
+    log.cleaner.threads: Number of threads for log cleaning, affecting the speed and efficiency of log compaction.
+
+    log.cleanup.policy: Policy for log cleanup, either "delete" or "compact", determining how old data is managed.
+
+    log.index.interval.bytes: Interval at which Kafka adds an index entry, affecting index size and log access performance.
+
+    log.index.size.max.bytes: Maximum size of the index file, impacting memory usage and startup/recovery times.
+
+    log.message.format.version: Specifies the message format version, ensuring compatibility with older clients.
+
+    log.message.timestamp.difference.max.ms: Maximum allowed timestamp difference for messages, affecting message ordering.
+
+    log.message.timestamp.type: Determines whether the message timestamp is message creation time or log append time.
+
+    log.preallocate: Enables preallocation of log segment files, potentially improving I/O performance.
+
+    max.connections.per.ip: Maximum number of connections allowed per IP address, managing resource usage.
+
+    max.connections.per.ip.overrides: Allows overriding the connection limit for specific IP addresses, offering flexibility.
+
+    message.max.bytes: Maximum size of a message the broker can receive, impacting memory and network usage.
+
+    min.insync.replicas: Minimum number of replicas that must acknowledge a write for it to be considered successful, affecting data durability.
+
+    num.partitions: Default number of partitions for a new topic, influencing parallelism and throughput.
+
+    producer.purgatory.purge.interval.requests: Interval for purging expired transactions from the producer purgatory, affecting resource management.
+````
+
+## Topic-level configuration
+````
+    cleanup.policy
+        Explanation: Determines how old data is deleted. It can be "delete" (based on time or size) or "compact" (removes duplicates and keeps the latest value for each key).
+        Default: "delete"
+
+    compression.type
+        Explanation: Specifies the compression codec for data stored in the topic. Options include "none", "gzip", "snappy", "lz4", and more recently "zstd".
+        Default: "producer" (uses the compression type specified by the producer)
+
+    delete.retention.ms
+        Explanation: For topics with "compact" cleanup policy, this setting determines the time Kafka will retain delete markers before deleting them, affecting the duration a deleted record is retained.
+        Default: 86400000 ms (24 hours)
+
+    file.delete.delay.ms
+        Explanation: The time to wait before deleting a file from the filesystem, allowing a grace period for better handling of soft failures.
+        Default: 60000 ms (1 minute)
+
+    flush.messages
+        Explanation: The number of messages accumulated on a log partition before Kafka forces an fsync to disk. Setting to "1" ensures every message is immediately written to disk.
+        Default: Long.MAX_VALUE (never forced based on message count)
+
+    flush.ms
+        Explanation: Maximum time interval between log flushes to disk, ensuring that messages are not kept in memory for longer than this duration.
+        Default: Long.MAX_VALUE (never forced based on time interval)
+
+    follower.replication.throttled.replicas
+        Explanation: Specifies a list of replicas that should be throttled when fetching data from the leader, used during reassignment to limit impact on performance.
+        Default: "" (empty string, meaning no throttling)
+
+    index.interval.bytes
+        Explanation: Interval at which Kafka adds an entry to the index file, affecting the size of the index and the speed of message lookup.
+        Default: 4096 bytes
+
+    leader.replication.throttled.replicas
+        Explanation: Specifies which replicas the leader should throttle when sending data during replication, useful for controlling replication traffic.
+        Default: "" (empty string)
+
+    max.compaction.lag.ms
+        Explanation: Maximum time a message can remain uncompacted in the log, useful in "compact" cleanup policy to ensure even long-unseen keys are compacted.
+        Default: Long.MAX_VALUE (messages can remain uncompacted indefinitely)
+
+    max.message.bytes
+        Explanation: Maximum size of a message that the topic can accept. It ensures that messages do not exceed a size that the broker configuration can handle.
+        Default: 1000012 bytes (nearly 1 MB)
+
+    message.format.version
+        Explanation: Specifies the message format version to use in the topic, enabling backward compatibility with older clients.
+        Default: Broker's log.message.format.version
+
+    message.timestamp.difference.max.ms
+        Explanation: Maximum allowed difference between the timestamp of a message and the broker's system time, preventing timestamp manipulation or misconfiguration.
+        Default: Long.MAX_VALUE
+
+    message.timestamp.type
+        Explanation: Determines whether the timestamp in the message is the time the message was produced ("CreateTime") or the time the broker appended the message to the log ("LogAppendTime").
+        Default: "CreateTime"
+
+    min.cleanable.dirty.ratio
+        Explanation: For logs with "compact" cleanup policy, the minimum ratio of dirty to clean entries before compaction is triggered. Lower values lead to more frequent compaction but cleaner logs.
+        Default: 0.5
+
+    min.compaction.lag.ms
+        Explanation: Minimum time a message will remain uncompacted in the log. Useful for ensuring that recent messages are available for consumption even in compacted topics.
+        Default: 0 ms
+
+    min.insync.replicas
+        Explanation: Minimum number of replicas that must acknowledge a write for it to be considered successful, ensuring data durability.
+        Default: 1
+
+    preallocate
+        Explanation: Determines whether Kafka should preallocate log segment files on the filesystem, potentially improving I/O performance for large log segments.
+        Default: false
+
+    retention.bytes
+        Explanation: Maximum size of log data to retain for the topic. Oldest segments are deleted first when this limit is exceeded.
+        Default: -1 (no size limit)
+
+    retention.ms
+        Explanation: Maximum time Kafka will retain log data for the topic. Oldest segments are deleted first when this time limit is exceeded.
+        Default: 604800000 ms (7 days)
+
+    segment.bytes
+        Explanation: Size of a log segment file in the topic. When this size is reached, a new segment is created.
+        Default: 1073741824 bytes (1 GB)
+
+    segment.index.bytes
+        Explanation: Maximum size of the index that maps offsets to file positions, ensuring efficient access to log data.
+        Default: 10485760 bytes (10 MB)
+
+    segment.jitter.ms
+        Explanation: Maximum random jitter subtracted from segment.ms to avoid thundering herds of segment rolling.
+        Default: 0 ms
+
+    segment.ms
+        Explanation: Time Kafka will wait before committing a log segment if not full, affecting how often new log segments are created.
+        Default: 604800000 ms (7 days)
+
+    unclean.leader.election.enable
+        Explanation: Allows a non-in-sync replica to be elected as leader if no in-sync replicas are available, trading off consistency for availability.
+        Default: false
+````
