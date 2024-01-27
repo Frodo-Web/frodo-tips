@@ -2234,7 +2234,13 @@ Proposal sizes last/min/max: -1/-1/-1
 
 Вот все этапы.
 
-
+- ZooKeeper Ensemble: When you set up a Kafka cluster, you also configure a ZooKeeper ensemble that all the brokers in the cluster connect to. The ZooKeeper ensemble keeps track of the state of the Kafka cluster.
+- Broker Registration: When a Kafka broker starts, it registers itself with the ZooKeeper ensemble. This registration includes information like the broker ID, host IP, port, and other broker metadata.
+- Cluster Membership: ZooKeeper maintains a list of all active brokers in the cluster. When a broker registers or deregisters (due to shutdown, failure, etc.), ZooKeeper updates this list, effectively tracking the membership of the Kafka cluster.
+- Leader Election: ZooKeeper is also involved in leader election for partitions. Each partition has one broker acting as the leader (handling all reads and writes for that partition) and others as followers (replicating the leader's log). ZooKeeper helps in electing the leader and handling leader re-election in case of broker failure.
+- Configuration Management: ZooKeeper stores important cluster metadata and configuration details, such as topics, partitions, and their respective leaders. Brokers and clients interact with ZooKeeper to retrieve this information.
+- Cluster Coordination: Brokers use ZooKeeper to coordinate updates to the cluster, such as changes in topic configurations or broker metadata. This ensures consistent views of the cluster state across all brokers.
+- Consumer Coordination: ZooKeeper was historically used for consumer group management and offset tracking, although newer Kafka versions (since 0.9) use Kafka itself for these purposes through internal topics like __consumer_offsets.
 
 Add your hostnames to resolvers.
 
