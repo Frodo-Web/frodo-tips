@@ -2279,7 +2279,100 @@ Check brokers availability
 ./zookeeper-shell.sh localhost:2181 get /brokers/ids/1
 ..
 {"features":{},"listener_security_protocol_map":{"PLAINTEXT":"PLAINTEXT"},"endpoints":["PLAINTEXT://kafka-02:9092"],"jmx_port":-1,"port":9092,"host":"kafka-02","version":5,"timestamp":"1706367735603"}
+
+// Топик тоже виден с обоих
+[root@kafka-01 bin]# ./kafka-topics.sh --list --bootstrap-server kafka-01:9092
+__consumer_offsets
+users.registrations
+[root@kafka-01 bin]# ./kafka-topics.sh --list --bootstrap-server kafka-02:9092
+__consumer_offsets
+users.registrations
+
+// А файлы физически только на одном, тк у нас фактор репликации 1 и партиция одна
+[root@kafka-01 bin]# ls -lh /home/kafka/kafka-logs/users.registrations-0/
+-rw-r--r--. 1 kafka kafka   0 Jan 27 05:51 00000000000000030485.log
+...
+[root@kafka-02 bin]# ls -lh /home/kafka/kafka-logs/users.registrations-0/
+ls: cannot access /home/kafka/kafka-logs/users.registrations-0/: No such file or directory
+
+Попробовал подключиться консьюмером ко второму и продюсером к первому. Сообщения идут, но файла нет. Похоже перенаправляет при отсутствии, или сам ходит и отдаёт.
+Логи появились по консьюмеру только на первом узле, где партиция физически есть, больше похоже на проксирование со второго узла на первый.
 ```
+### Tests with the cluster
+Replication factor defines how many copies of the message to be stored and Partitions allow you to parallelize a topic by splitting the data in a particular topic across multiple brokers.
+
+То есть, похоже, партиции содержат не все сообщения, а только часть, продюсеры решают как их распределять между партициями, лидера партиций выбирает ZK. А вот фактор репликации определяет сколько реальных копий будет.
+
+Вот кстати видно, инфа с хостов одинаковая, фактор репликации по всем топикам равен 1. Даже по оффсетам у консьюмеров. Если Хост с кафкой упадёт, вся инфа по оффсетам сохранившаяся пропадёт. Приложение если само не следило, не будет знать откуда начинать чтение.
+```
+./kafka-topics.sh --bootstrap-server kafka-02:9092 --describe
+..
+Topic: users.registrations	TopicId: 5RTPsbEPQpKxmOvrDsMZ3Q	PartitionCount: 1	ReplicationFactor: 1	Configs: retention.ms=200000,segment.ms=700000
+	Topic: users.registrations	Partition: 0	Leader: 0	Replicas: 0	Isr: 0
+Topic: __consumer_offsets	TopicId: SkhI6KopSmWNnPkP3KiGJw	PartitionCount: 50	ReplicationFactor: 1	Configs: compression.type=producer,cleanup.policy=compact,segment.bytes=104857600
+	Topic: __consumer_offsets	Partition: 0	Leader: 0	Replicas: 0	Isr: 0
+	Topic: __consumer_offsets	Partition: 1	Leader: 0	Replicas: 0	Isr: 0
+	Topic: __consumer_offsets	Partition: 2	Leader: 0	Replicas: 0	Isr: 0
+	Topic: __consumer_offsets	Partition: 3	Leader: 0	Replicas: 0	Isr: 0
+	Topic: __consumer_offsets	Partition: 4	Leader: 0	Replicas: 0	Isr: 0
+	Topic: __consumer_offsets	Partition: 5	Leader: 0	Replicas: 0	Isr: 0
+	Topic: __consumer_offsets	Partition: 6	Leader: 0	Replicas: 0	Isr: 0
+	Topic: __consumer_offsets	Partition: 7	Leader: 0	Replicas: 0	Isr: 0
+	Topic: __consumer_offsets	Partition: 8	Leader: 0	Replicas: 0	Isr: 0
+	Topic: __consumer_offsets	Partition: 9	Leader: 0	Replicas: 0	Isr: 0
+	Topic: __consumer_offsets	Partition: 10	Leader: 0	Replicas: 0	Isr: 0
+	Topic: __consumer_offsets	Partition: 11	Leader: 0	Replicas: 0	Isr: 0
+	Topic: __consumer_offsets	Partition: 12	Leader: 0	Replicas: 0	Isr: 0
+	Topic: __consumer_offsets	Partition: 13	Leader: 0	Replicas: 0	Isr: 0
+	Topic: __consumer_offsets	Partition: 14	Leader: 0	Replicas: 0	Isr: 0
+	Topic: __consumer_offsets	Partition: 15	Leader: 0	Replicas: 0	Isr: 0
+	Topic: __consumer_offsets	Partition: 16	Leader: 0	Replicas: 0	Isr: 0
+	Topic: __consumer_offsets	Partition: 17	Leader: 0	Replicas: 0	Isr: 0
+	Topic: __consumer_offsets	Partition: 18	Leader: 0	Replicas: 0	Isr: 0
+```
+
+```
+./kafka-topics.sh --create --bootstrap-server kafka-02:9092 --replication-factor 2 --partitions 1 --topic test_rep2_p1
+
+Ну вот на обоих узлах появилось по одной партиции
+ls -lh /home/kafka/kafka-logs/test_rep2_p1-0/
+
+Видно что лидер с ID 1, это kafka-02. RF = 2, и реплика одна. Одна партиция с ID 0
+./kafka-topics.sh --bootstrap-server kafka-01:9092 --describe --topic test_rep2_p1
+..
+Topic: test_rep2_p1	TopicId: Ni2we7ZhQX26SwO80bT9aQ	PartitionCount: 1	ReplicationFactor: 2	Configs: 
+	Topic: test_rep2_p1	Partition: 0	Leader: 1	Replicas: 1,0	Isr: 1,0
+
+Теперь такой вариант. RF = 1, Partitions = 2
+./kafka-topics.sh --create --bootstrap-server kafka-02:9092 --replication-factor 1 --partitions 2 --topic test_rep1_p2
+
+Результат такой. На обоих узлах есть по одной партиции.
+[root@kafka-01 bin]# ls -lh /home/kafka/kafka-logs/test_rep1_p2-0/
+[root@kafka-02 bin]# ls -lh /home/kafka/kafka-logs/test_rep1_p2-1/
+
+Подтверждение командой, у каждой партиции разный лидер:
+./kafka-topics.sh --bootstrap-server localhost:9092 --describe --topic test_rep1_p2
+..
+Topic: test_rep1_p2	TopicId: aTjCufqrSM2XfKcdtTQ5XQ	PartitionCount: 2	ReplicationFactor: 1	Configs: 
+	Topic: test_rep1_p2	Partition: 0	Leader: 0	Replicas: 0	Isr: 0
+	Topic: test_rep1_p2	Partition: 1	Leader: 1	Replicas: 1	Isr: 1
+
+И наконец такой вариант, RF = 2, Partitions = 2
+./kafka-topics.sh --create --bootstrap-server kafka-02:9092 --replication-factor 2 --partitions 2 --topic test_rep2_p2
+
+На обоих хостах появилось по две партиции (а не 0 на одном и 1 на другом как в случае с RF = 1, P = 2)
+test_rep2_p2-0/ test_rep2_p2-1/
+
+Видим что на брокерах с ID 0 и 1 есть реплика каждой партиции
+./kafka-topics.sh --bootstrap-server localhost:9092 --describe --topic test_rep2_p2
+..
+Topic: test_rep2_p2	TopicId: fI81HhkYQhOcUi0QRYx5DA	PartitionCount: 2	ReplicationFactor: 2	Configs: 
+	Topic: test_rep2_p2	Partition: 0	Leader: 0	Replicas: 0,1	Isr: 0,1
+	Topic: test_rep2_p2	Partition: 1	Leader: 1	Replicas: 1,0	Isr: 1,0
+
+
+```
+
 ## TODO
 1. Kafka Architecture and Core Concepts
 
