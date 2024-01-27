@@ -2242,6 +2242,17 @@ Add your hostnames to resolvers.
 ```
 192.168.122.251 kafka-01
 192.168.122.250 kafka-02
+
+При добавлении в кластер у меня кафка брокер начал ругаться что не может зарезолвить kafka-01, откуда он хостнейм узнал?
+И вот причина:
+
+# The address the socket server listens on. If not configured, the host name will be equal to the value of
+# java.net.InetAddress.getCanonicalHostName(), with PLAINTEXT listener name, and port 9092.
+#   FORMAT:
+#     listeners = listener_name://host_name:port
+#   EXAMPLE:
+#     listeners = PLAINTEXT://your.host.name:9092
+#listeners=PLAINTEXT://:9092
 ```
 
 Link Kafka hosts to your ZK cluster
