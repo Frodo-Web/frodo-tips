@@ -1837,3 +1837,9 @@ Slower acknowledgements from brokers usually decrease the throughput that can be
 
 #### Min.insync.replicas
 Min.insync.replicas is an important durability configuration, because it defines the number of replicas that have to be in sync for the broker to accept writes for the partition. This configuration impacts availability, but it does not impact end-to-end latency. The message has to be replicated to all replicas that are in sync with the leader regardless of the min.insync.replicas configuration. Thus, choosing a smaller min.insync.replicas does not reduce commit time or latency as a result.
+
+## Kafka Indexes
+Kafka allows consumers to start fetching messages from any available offset. In order to help brokers quickly locate the message for a given offset, Kafka maintains two indexes for each segment:
+
+- An offset to position index - It helps Kafka know what part of a segment to read to find a message
+- A timestamp to offset index - It allows Kafka to find messages with a specific timestamp
