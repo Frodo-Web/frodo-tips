@@ -2331,6 +2331,7 @@ Topic: __consumer_offsets	TopicId: SkhI6KopSmWNnPkP3KiGJw	PartitionCount: 50	Rep
 	Topic: __consumer_offsets	Partition: 18	Leader: 0	Replicas: 0	Isr: 0
 ```
 
+#### Поработаем с RF и Partitons number
 ```
 ./kafka-topics.sh --create --bootstrap-server kafka-02:9092 --replication-factor 2 --partitions 1 --topic test_rep2_p1
 
