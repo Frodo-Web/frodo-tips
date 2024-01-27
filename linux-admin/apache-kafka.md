@@ -2157,6 +2157,78 @@ for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
         Explanation: Allows a non-in-sync replica to be elected as leader if no in-sync replicas are available, trading off consistency for availability.
         Default: false
 ````
+## ZooKeeper Cluster
+
+Для работы Zookeeper требуется открыть порты:
+
+    2181 — для клиентских подключений.
+    2888 — репликация данных между нодами кластера.
+    3888 — выбор лидера между нодами кластера.
+
+Stop ZK, then modify config files.
+
+zookeeper.properties:
+```
+dataDir=/home/kafka/zookeeper
+clientPort=2181
+maxClientCnxns=100
+admin.enableServer=false
+tickTime=2000
+initLimit=5
+syncLimit=2
+autopurge.purgeInterval=1
+autopurge.snapRetainCount=2
+4lw.commands.whitelist=stat
+dynamicConfigFile=/opt/kafka/config/zookeeper-dynamic.properties
+```
+zookeeper-dynamic.properties:
+```
+server.1=192.168.122.251:2888:3888
+server.2=192.168.122.250:2888:3888
+```
+Set ZK Server ID
+```
+// Host kafka-01
+echo "1" > /home/kafka/zookeeper/myid && chown kafka:kafka /home/kafka/zookeeper/myid
+// Host kafka-02
+echo "2" > /home/kafka/zookeeper/myid && chown kafka:kafka /home/kafka/zookeeper/myid
+```
+
+Start ZK. Now we can see there are messages that both hosts are successfully connected.
+
+Now we can check cluster status via commandline:
+```
+[root@kafka-01 config]# echo "stat" | nc 192.168.122.251 2181
+..
+Zookeeper version: 3.8.3-6ad6d364c7c0bcf0de452d54ebefa3058098ab56, built on 2023-10-05 10:34 UTC
+Clients:
+ /192.168.122.251:33928[0](queued=0,recved=1,sent=0)
+
+Latency min/avg/max: 0/0.0/0
+Received: 2
+Sent: 1
+Connections: 1
+Outstanding: 0
+Zxid: 0x1c6
+Mode: follower
+Node count: 134
+
+[root@kafka-01 config]# echo "stat" | nc 192.168.122.250 2181
+..
+Zookeeper version: 3.8.3-6ad6d364c7c0bcf0de452d54ebefa3058098ab56, built on 2023-10-05 10:34 UTC
+Clients:
+ /192.168.122.251:39622[0](queued=0,recved=1,sent=0)
+
+Latency min/avg/max: 0/0.0/0
+Received: 3
+Sent: 2
+Connections: 1
+Outstanding: 0
+Zxid: 0x100000000
+Mode: leader
+Node count: 134
+Proposal sizes last/min/max: -1/-1/-1
+```
 ## TODO
 1. Kafka Architecture and Core Concepts
 
