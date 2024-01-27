@@ -1675,7 +1675,7 @@ total 116K
 -rw-r--r--. 1 kafka kafka  12 Jan 27 01:40 leader-epoch-checkpoint
 -rw-r--r--. 1 kafka kafka  43 Jan 26 03:14 partition.metadata
 ````
-А затем видимо отрабатывает log.retention.check.interval.ms оно чекает пометки и удаляет сегменты окончательно:
+А затем видимо отрабатывает log.retention.check.interval.ms (А НЕТ ТАМ ЕСТЬ file.delete.delay.ms) оно чекает пометки и удаляет сегменты окончательно:
 ````
 [kafka@kafka-01 users.registrations-0]$ ls -lh
 total 12K
@@ -1704,7 +1704,7 @@ Processed a total of 0 messages
 35
 36
 ````
-Странно, но как будто log.retention.check.interval.ms через заданное время удаляет только один самый старый сегмент, потому что из директории меченные .deleted исчезают по одному в 10 сек примерно
+Странно, но как будто log.retention.check.interval.ms (А НЕТ ТАМ ЕСТЬ file.delete.delay.ms) через заданное время удаляет только один самый старый сегмент, потому что из директории меченные .deleted исчезают по одному в 10 сек примерно
 
 ## Log Compaction
 Помимо функционала удаления данных по retention.ms и retention.bytes, которые мы рассмотрели выше, Кафка предоставляет еще один механизм удаления данных — log compaction или сжатие данных в партиции. Этот механизм использует ключи сообщений, чтобы решить: удалять данные или нет.
