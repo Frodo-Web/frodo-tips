@@ -2161,55 +2161,71 @@ for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
 1. Kafka Architecture and Core Concepts
 
     Brokers: Understand how Kafka brokers serve as the backbone of the system, handling storage, and serving client requests.
+   
     Topics and Partitions: Grasp how data is organized into topics, which are further divided into partitions for scalability and parallelism.
+   
     Producers and Consumers: Know how producers write data to topics and how consumers read data, including consumer groups for distributed consumption.
+   
     ZooKeeper: Learn about Kafka’s dependency on ZooKeeper for cluster management and coordination (note: Kafka is moving towards removing this dependency with KRaft mode).
 
-2. Kafka Cluster Setup
+3. Kafka Cluster Setup
 
     Installation and Configuration: Be familiar with setting up Kafka brokers, including configuring server properties for optimal performance.
+   
     Multi-Broker Setup: Understand how to configure a cluster with multiple brokers for fault tolerance and high availability.
 
-3. Data Reliability and Durability
+5. Data Reliability and Durability
 
     Replication: Know how Kafka replicates data across multiple brokers to ensure durability and fault tolerance.
+   
     Acknowledgements (ACKs): Understand the role of producer acknowledgments in ensuring data integrity.
+   
     Log Compaction: Learn about log compaction to maintain a compacted log of key-value pairs for topics.
 
-4. Performance Tuning
+7. Performance Tuning
 
     Partitioning: Grasp how to effectively partition topics for load balancing and parallel processing.
+   
     Batching and Compression: Understand the impact of message batching and compression on throughput and storage.
+   
     Hardware Considerations: Know the hardware considerations (disk, CPU, memory, network) that affect Kafka’s performance.
 
-5. Monitoring and Operations
+9. Monitoring and Operations
 
     Monitoring Tools: Be familiar with tools like JMX, Prometheus, Grafana, and Kafka’s own command-line tools for monitoring Kafka's performance and health.
+   
     Log Management: Understand how to manage log files, including retention policies and cleanup strategies.
+   
     Backup and Recovery: Learn strategies for data backup and recovery to handle failures and data loss scenarios.
 
-6. Security
+11. Security
 
     Authentication and Authorization: Know how to secure a Kafka cluster using SASL/SSL for authentication and ACLs for authorization.
+    
     Encryption: Understand how to use SSL/TLS for encrypting data in transit between clients and brokers.
 
-7. Kafka Ecosystem and Integration
+13. Kafka Ecosystem and Integration
 
     Kafka Connect: Be familiar with Kafka Connect for integrating Kafka with external systems for data import/export.
+    
     Kafka Streams: Have a basic understanding of Kafka Streams for building real-time streaming applications.
+    
     Ecosystem Tools: Know about tools and frameworks that complement Kafka, like Schema Registry for schema management, and KSQL or Kafka Streams for stream processing.
 
-8. Troubleshooting
+15. Troubleshooting
 
     Common Issues: Learn to diagnose and resolve common issues like broker failures, unbalanced partitions, and performance bottlenecks.
+    
     Disaster Recovery: Understand strategies for disaster recovery, including replicating data across data centers.
 
-9. Best Practices
+17. Best Practices
 
     Configuration Management: Learn best practices for managing Kafka configuration changes in a version-controlled manner.
+    
     Capacity Planning: Understand how to plan for capacity in terms of storage, network bandwidth, and processing power.
 
-10. Kafka Upgrades and Maintenance
+19. Kafka Upgrades and Maintenance
 
     Upgrading Kafka: Be familiar with the process for safely upgrading Kafka without downtime.
+    
     Deprecation Policy: Stay informed about Kafka’s deprecation policy and how to adapt to new versions and features.
