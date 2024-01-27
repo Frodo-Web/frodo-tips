@@ -2331,7 +2331,7 @@ Topic: __consumer_offsets	TopicId: SkhI6KopSmWNnPkP3KiGJw	PartitionCount: 50	Rep
 	Topic: __consumer_offsets	Partition: 18	Leader: 0	Replicas: 0	Isr: 0
 ```
 
-#### Поработаем с RF и Partitons number
+#### Потестируем RF и Partitions number
 ```
 ./kafka-topics.sh --create --bootstrap-server kafka-02:9092 --replication-factor 2 --partitions 1 --topic test_rep2_p1
 
@@ -2372,7 +2372,92 @@ Topic: test_rep2_p2	TopicId: fI81HhkYQhOcUi0QRYx5DA	PartitionCount: 2	Replicatio
 	Topic: test_rep2_p2	Partition: 1	Leader: 1	Replicas: 1,0	Isr: 1,0
 
 
+./kafka-console-producer.sh --topic test_rep1_p2 --bootstrap-server kafka-01:9092
+..
+>afafa
+>This is a message written by producer to kafka-01:9092, topic test_rep1_p2
+>This is a message written by producer to kafka-01:9092, topic test_rep1_p2
+>This is a message written by producer to kafka-01:9092, topic test_rep1_p2
+
+[root@kafka-01 bin]# ./kafka-console-producer.sh --topic test_rep1_p2 --bootstrap-server kafka-02:9092
+>This is a message written by producer to kafka-02:9092, topic test_rep1_p2                                        
+>This is a message written by producer to kafka-02:9092, topic test_rep1_p2
+>This is a message written by producer to kafka-02:9092, topic test_rep1_p2
+
+[2024-01-27 11:20:38,724] WARN [Producer clientId=console-producer] Error while fetching metadata with correlation id 4 : {--topic=LEADER_NOT_AVAILABLE} (org.apache.kafka.clients.NetworkClient)
+[2024-01-27 11:20:38,826] WARN [Producer clientId=console-producer] Error while fetching metadata with correlation id 5 : {--topic=LEADER_NOT_AVAILABLE} (org.apache.kafka.clients.NetworkClient)
+That error..
+It could be related to advertised.host.name setting in your server.properties.
+What could happen is that your producer is trying to find out who is the leader for a given partition, figures out its advertised.host.name and advertised.port and tries to connect. If these settings are not configured correctly it then may think that the leader is unavailable.
+
+But in my case these lines are commented out.
+
+Whoops, actually I doubled --topic in my command. But the solution per broker would be:
+port = 9092
+advertised.host.name = localhost
+
+Как я и думал..
+В зависимости от того, в какой брокер отправляем сообщение, в партицию того брокера она и будет записана ФИЗИЧЕСКИ. Если нету репликации.
+
+[root@kafka-01 bin]# ./kafka-dump-log.sh --print-data-log --files /home/kafka/kafka-logs/test_rep1_p2-0/00000000000000000000.log
+..
+Dumping /home/kafka/kafka-logs/test_rep1_p2-0/00000000000000000000.log
+Log starting offset: 0
+baseOffset: 0 lastOffset: 0 count: 1 baseSequence: 0 lastSequence: 0 producerId: 6002 producerEpoch: 0 partitionLeaderEpoch: 0 isTransactional: false isControl: false deleteHorizonMs: OptionalLong.empty position: 0 CreateTime: 1706373764425 size: 73 magic: 2 compresscodec: none crc: 2913094377 isvalid: true
+| offset: 0 CreateTime: 1706373764425 keySize: -1 valueSize: 5 sequence: 0 headerKeys: [] payload: afafa
+baseOffset: 1 lastOffset: 2 count: 2 baseSequence: 0 lastSequence: 1 producerId: 6004 producerEpoch: 0 partitionLeaderEpoch: 0 isTransactional: false isControl: false deleteHorizonMs: OptionalLong.empty position: 73 CreateTime: 1706373908733 size: 228 magic: 2 compresscodec: none crc: 268409830 isvalid: true
+| offset: 1 CreateTime: 1706373907919 keySize: -1 valueSize: 74 sequence: 0 headerKeys: [] payload: This is a message written by producer to kafka-01:9092, topic test_rep1_p2
+| offset: 2 CreateTime: 1706373908733 keySize: -1 valueSize: 74 sequence: 1 headerKeys: [] payload: This is a message written by producer to kafka-01:9092, topic test_rep1_p2
+baseOffset: 3 lastOffset: 3 count: 1 baseSequence: 2 lastSequence: 2 producerId: 6004 producerEpoch: 0 partitionLeaderEpoch: 0 isTransactional: false isControl: false deleteHorizonMs: OptionalLong.empty position: 301 CreateTime: 1706373909445 size: 144 magic: 2 compresscodec: none crc: 1824325935 isvalid: true
+| offset: 3 CreateTime: 1706373909445 keySize: -1 valueSize: 74 sequence: 2 headerKeys: [] payload: This is a message written by producer to kafka-01:9092, topic test_rep1_p2
+
+[root@kafka-02 bin]# ./kafka-dump-log.sh --print-data-log --files /home/kafka/kafka-logs/test_rep1_p2-1/00000000000000000000.log
+..
+Dumping /home/kafka/kafka-logs/test_rep1_p2-1/00000000000000000000.log
+Log starting offset: 0
+baseOffset: 0 lastOffset: 0 count: 1 baseSequence: 0 lastSequence: 0 producerId: 5001 producerEpoch: 0 partitionLeaderEpoch: 3 isTransactional: false isControl: false deleteHorizonMs: OptionalLong.empty position: 0 CreateTime: 1706373926754 size: 144 magic: 2 compresscodec: none crc: 2779149646 isvalid: true
+| offset: 0 CreateTime: 1706373926754 keySize: -1 valueSize: 74 sequence: 0 headerKeys: [] payload: This is a message written by producer to kafka-02:9092, topic test_rep1_p2
+baseOffset: 1 lastOffset: 1 count: 1 baseSequence: 1 lastSequence: 1 producerId: 5001 producerEpoch: 0 partitionLeaderEpoch: 3 isTransactional: false isControl: false deleteHorizonMs: OptionalLong.empty position: 144 CreateTime: 1706373928132 size: 144 magic: 2 compresscodec: none crc: 368712339 isvalid: true
+| offset: 1 CreateTime: 1706373928132 keySize: -1 valueSize: 74 sequence: 1 headerKeys: [] payload: This is a message written by producer to kafka-02:9092, topic test_rep1_p2
+baseOffset: 2 lastOffset: 2 count: 1 baseSequence: 2 lastSequence: 2 producerId: 5001 producerEpoch: 0 partitionLeaderEpoch: 3 isTransactional: false isControl: false deleteHorizonMs: OptionalLong.empty position: 288 CreateTime: 1706373929173 size: 144 magic: 2 compresscodec: none crc: 3711274405 isvalid: true
+| offset: 2 CreateTime: 1706373929173 keySize: -1 valueSize: 74 sequence: 2 headerKeys: [] payload: This is a message written by producer to kafka-02:9092, topic test_rep1_p2
+
+Но если присосаться консьюмером понятно они все считываются. Просто за сообщениями другой партиции он проксируется и сообщения выстраиваются по оффсетам.
+[root@kafka-02 bin]# ./kafka-console-consumer.sh --bootstrap-server kafka-02:9092 --topic test_rep1_p2 --from-beginning 
+...
+This is a message written by producer to kafka-01:9092, topic test_rep1_p2
+This is a message written by producer to kafka-01:9092, topic test_rep1_p2
+This is a message written by producer to kafka-01:9092, topic test_rep1_p2
+This is a message written by producer to kafka-02:9092, topic test_rep1_p2
+This is a message written by producer to kafka-02:9092, topic test_rep1_p2
+This is a message written by producer to kafka-02:9092, topic test_rep1_p2
+^CProcessed a total of 7 messages
+
+В случае
+./kafka-console-producer.sh --topic test_rep2_p1 --bootstrap-server kafka-02:9092
+Понятно.. Сообщения буду в независимости куда отправили, физически присутсвовать на обоих брокерах партиции с ID 0
+
+Ну и последнее.. Наверное интереснее всего
+[root@kafka-01 bin]# ./kafka-console-producer.sh --topic test_rep2_p2 --bootstrap-server kafka-01:9092
+>This is a message written by producer to kafka-01:9092, topic test_rep1_p2. MESSAGE ID 0
+>This is a message written by producer to kafka-01:9092, topic test_rep1_p2. MESSAGE ID 1
+>This is a message written by producer to kafka-01:9092, topic test_rep1_p2. MESSAGE ID 2
+>This is a message written by producer to kafka-01:9092, topic test_rep1_p2. MESSAGE ID 3
+>This is a message written by producer to kafka-01:9092, topic test_rep1_p2. MESSAGE ID 4 
+>[root@kafka-01 bin]# ./kafka-console-producer.sh --topic test_rep2_p2 --bootstrap-server kafka-02:9092
+>This is a message written by producer to kafka-02:9092, topic test_rep2_p2. MESSAGE ID 5
+>This is a message written by producer to kafka-02:9092, topic test_rep2_p2. MESSAGE ID 6
+>This is a message written by producer to kafka-02:9092, topic test_rep2_p2. MESSAGE ID 7
+>This is a message written by producer to kafka-02:9092, topic test_rep2_p2. MESSAGE ID 8
+>This is a message written by producer to kafka-02:9092, topic test_rep2_p2. MESSAGE ID 9
+
+Делаем дамп..
+./kafka-dump-log.sh --print-data-log --files /home/kafka/kafka-logs/test_rep2_p2-0/00000000000000000000.log
+И сообщения физически есть  на нулевых партициях на обоих хостах. Полностью
+На первой партиции на обоих хостах отсутствуют. Ну это уже похоже shell скрипт продюсера роллить партиции не умеет. Либы у проггеров уже умеют роллить точно, причем разнообразие методов.
+А может возможно надо настройками поджимать, либо партицию через i/o занимать чтоб вторую использовал.. хз. Вобщем она не использовалась, пустая.
 ```
+
 
 ## TODO
 1. Kafka Architecture and Core Concepts
