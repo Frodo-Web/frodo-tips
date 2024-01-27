@@ -2268,6 +2268,18 @@ Link Kafka hosts to your ZK cluster
 zookeeper.connect=192.168.122.251:2181,192.168.122.250:2181
 ```
 
+Start Kafka brokers.
+
+Check brokers availability
+```
+./zookeeper-shell.sh localhost:2181 ls /brokers/ids
+..
+[0, 1]
+
+./zookeeper-shell.sh localhost:2181 get /brokers/ids/1
+..
+{"features":{},"listener_security_protocol_map":{"PLAINTEXT":"PLAINTEXT"},"endpoints":["PLAINTEXT://kafka-02:9092"],"jmx_port":-1,"port":9092,"host":"kafka-02","version":5,"timestamp":"1706367735603"}
+```
 ## TODO
 1. Kafka Architecture and Core Concepts
 
