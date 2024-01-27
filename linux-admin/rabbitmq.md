@@ -874,14 +874,23 @@ print(' [*] Waiting for messages. To exit, press CTRL+C')
 channel.start_consuming()
 ````
 ### TODO
-- Configuration Files. Be familiar with RabbitMQ configuration files and the settings that impact performance and behavior.
-- Resource Management. Optimize resource usage by tuning parameters such as memory, file descriptors, and Erlang VM settings. RabbitMQ + Cluster + Erlang VM + Host settings.
-- Connection Pooling. Implement connection pooling to efficiently manage connections and reduce overhead.
-- Prefetch Count. Adjust the prefetch count to optimize the balance between message throughput and consumer efficiency.
-- Backup and Restore
-- Plugins. Explore and use RabbitMQ plugins to extend functionality based on specific use cases.
-- Message TTL and Dead Letter Exchanges
-- Depending on your use case, consider sharding queues or topics to distribute load across multiple RabbitMQ instances.
+Quorum Queues: Use quorum queues for highly available and consistent queues, which are an improvement over mirrored queues.
+
+Load Balancing: Implement load balancers in front of RabbitMQ nodes for equal distribution of client connections.
+
+Flow Control: Understand RabbitMQ's flow control mechanisms to prevent memory and disk overloads.
+
+Authentication and Authorization: Use RabbitMQ's internal database or integrate with external authentication mechanisms (LDAP) for managing user access.
+
+Disaster Recovery Plan: Have a disaster recovery plan in place, including procedures for restoring from backups and switching to a standby setup if necessary.
+
+Dead Letter Exchanges: Utilize dead letter exchanges to handle undeliverable messages properly.
+
+Queue Length and Message TTL: Set appropriate queue lengths and message TTLs to avoid excessive memory usage and ensure timely processing.
+
+Consumer Scaling: Scale your consumers adequately to handle the workload without causing backlogs in the queues.
+
+Staying Updated: Keep RabbitMQ and Erlang/OTP up to date with the latest stable versions to benefit from performance improvements and bug fixes.
 ## RabbitMQ configuration files
 
     rabbitmq.conf: This is the main configuration file for RabbitMQ. It is typically located in the etc/rabbitmq directory. The file may not exist by default, but you can create it to override default settings.
