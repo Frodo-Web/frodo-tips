@@ -1484,7 +1484,7 @@ touch /tmp/data && tail -f -n0 /tmp/data | ./kafka-console-producer.sh --topic u
 ````
 Он создает файл /tmp/data, тейлит этот файл и передает весь output консольному продюсеру, чтобы тот писал эти сообщения в наш топик registrations. Теперь откроем другое окно и запустим еще один скрипт: 
 ````
-for i in $(seq 1 3600); do echo $"{i}" >> /tmp/data; sleep 1; done
+for i in $(seq 1 3600); do echo "test${i}" >> /tmp/data; sleep 1; done
 ````
 Он будет каждую секунду аппендить новые лайны в этот файл: test1, test2, test3 и так далее до 3600. Все лайны будут автоматически передаваться нашему продюсеру. Открываем третье окно и запускаем консольный консьюмер, чтобы посмотреть, какие сообщения хранятся сейчас в топике:
 ````
@@ -1570,3 +1570,125 @@ ls -lh ~/kafka-logs/users.registrations-0/
 
 Теперь переходим к борьбе с проблемой неудаляющихся данных, с которой столкнулись ранее.
 
+Снова открываем консольный консьюмер (--topic registrations), останавливая при этом продюсер. Через 15 секунд все сообщения из топика будут удалены. Мы знаем, как хранятся файлы, поэтому давайте заглянем в папку и узнаем, что там лежит. По умолчанию хранение происходит в папке /tmp/kafka-logs/. Здесь куча разных папок, но нас интересует registrations 0 (топик registrations, партиция 0). 
+````
+ls -la /tmp/kafka-logs/registrations-0
+````
+Здесь есть только 1 файл, но он абсолютно пустой, потому что все данные из него были удалены.
+
+Приступим к настройке. В первую очередь, поменяем segment.ms у нашего топика: зададим override и скажем, что хотим роллапить сегменты для этого топика раз в 10 секунд. Для этого воспользуемся командой:
+````
+./kafka-configs.sh --bootstrap-server localhost:9092 --entity-type topics --entity-name registrations --alter --add-config segment.ms=10000
+````
+После этого запускаем консольного продюсера, который тейлит файл tmp/data, а затем — форлуп, который генерит сообщения раз в секунду. Запись началась!
+
+Прежде чем запускать консольного консьюмера, заглянем в папку /tmp/kafka-logs/ и увидим, что динамика есть. Файлы роллапятся. Файл с самым большим оффсетом — наш головной сегмент. Процесс идет таким образом: старые сегменты закрываются, новые открываются. Старые сегменты при этом помечаются как deleted, затем еще один бэкграунд тред полностью удаляет их с диска.
+````
+[kafka@kafka-01 users.registrations-0]$ ls -lh
+total 84K
+-rw-r--r--. 1 kafka kafka   0 Jan 27 01:33 00000000000000030159.index
+-rw-r--r--. 1 kafka kafka 710 Jan 27 01:33 00000000000000030159.log
+-rw-r--r--. 1 kafka kafka  12 Jan 27 01:33 00000000000000030159.timeindex
+-rw-r--r--. 1 kafka kafka   0 Jan 27 01:33 00000000000000030169.index
+-rw-r--r--. 1 kafka kafka 710 Jan 27 01:33 00000000000000030169.log
+-rw-r--r--. 1 kafka kafka  56 Jan 27 01:33 00000000000000030169.snapshot
+-rw-r--r--. 1 kafka kafka  12 Jan 27 01:33 00000000000000030169.timeindex
+-rw-r--r--. 1 kafka kafka   0 Jan 27 01:34 00000000000000030179.index
+-rw-r--r--. 1 kafka kafka 710 Jan 27 01:34 00000000000000030179.log
+-rw-r--r--. 1 kafka kafka  56 Jan 27 01:33 00000000000000030179.snapshot
+-rw-r--r--. 1 kafka kafka  12 Jan 27 01:34 00000000000000030179.timeindex
+-rw-r--r--. 1 kafka kafka   0 Jan 27 01:34 00000000000000030189.index
+-rw-r--r--. 1 kafka kafka 710 Jan 27 01:34 00000000000000030189.log
+-rw-r--r--. 1 kafka kafka  56 Jan 27 01:34 00000000000000030189.snapshot
+-rw-r--r--. 1 kafka kafka  12 Jan 27 01:34 00000000000000030189.timeindex
+-rw-r--r--. 1 kafka kafka   0 Jan 27 01:34 00000000000000030199.index
+-rw-r--r--. 1 kafka kafka 710 Jan 27 01:34 00000000000000030199.log
+-rw-r--r--. 1 kafka kafka  56 Jan 27 01:34 00000000000000030199.snapshot
+-rw-r--r--. 1 kafka kafka  12 Jan 27 01:34 00000000000000030199.timeindex
+-rw-r--r--. 1 kafka kafka   0 Jan 27 01:34 00000000000000030209.index
+-rw-r--r--. 1 kafka kafka 710 Jan 27 01:34 00000000000000030209.log
+-rw-r--r--. 1 kafka kafka  56 Jan 27 01:34 00000000000000030209.snapshot
+-rw-r--r--. 1 kafka kafka  12 Jan 27 01:34 00000000000000030209.timeindex
+-rw-r--r--. 1 kafka kafka 10M Jan 27 01:34 00000000000000030219.index
+-rw-r--r--. 1 kafka kafka 355 Jan 27 01:34 00000000000000030219.log
+-rw-r--r--. 1 kafka kafka  56 Jan 27 01:34 00000000000000030219.snapshot
+-rw-r--r--. 1 kafka kafka 10M Jan 27 01:34 00000000000000030219.timeindex
+-rw-r--r--. 1 kafka kafka  12 Jan 27 01:16 leader-epoch-checkpoint
+-rw-r--r--. 1 kafka kafka  43 Jan 26 03:14 partition.metadata
+````
+Затем я останавливаю продюсер...
+
+У меня был выставлен большой retention.ms, я поправил на 10 секунд (retention.ms=10000) и увидел эту пометку 
+````
+[kafka@kafka-01 users.registrations-0]$ ls -lh
+total 116K
+-rw-r--r--. 1 kafka kafka   0 Jan 27 01:33 00000000000000030159.index.deleted
+-rw-r--r--. 1 kafka kafka 710 Jan 27 01:33 00000000000000030159.log.deleted
+-rw-r--r--. 1 kafka kafka  12 Jan 27 01:33 00000000000000030159.timeindex.deleted
+-rw-r--r--. 1 kafka kafka   0 Jan 27 01:33 00000000000000030169.index.deleted
+-rw-r--r--. 1 kafka kafka 710 Jan 27 01:33 00000000000000030169.log.deleted
+-rw-r--r--. 1 kafka kafka  56 Jan 27 01:33 00000000000000030169.snapshot.deleted
+-rw-r--r--. 1 kafka kafka  12 Jan 27 01:33 00000000000000030169.timeindex.deleted
+-rw-r--r--. 1 kafka kafka   0 Jan 27 01:34 00000000000000030179.index.deleted
+-rw-r--r--. 1 kafka kafka 710 Jan 27 01:34 00000000000000030179.log.deleted
+-rw-r--r--. 1 kafka kafka  56 Jan 27 01:33 00000000000000030179.snapshot.deleted
+-rw-r--r--. 1 kafka kafka  12 Jan 27 01:34 00000000000000030179.timeindex.deleted
+-rw-r--r--. 1 kafka kafka   0 Jan 27 01:34 00000000000000030189.index.deleted
+-rw-r--r--. 1 kafka kafka 710 Jan 27 01:34 00000000000000030189.log.deleted
+-rw-r--r--. 1 kafka kafka  56 Jan 27 01:34 00000000000000030189.snapshot.deleted
+-rw-r--r--. 1 kafka kafka  12 Jan 27 01:34 00000000000000030189.timeindex.deleted
+-rw-r--r--. 1 kafka kafka   0 Jan 27 01:34 00000000000000030199.index.deleted
+-rw-r--r--. 1 kafka kafka 710 Jan 27 01:34 00000000000000030199.log.deleted
+-rw-r--r--. 1 kafka kafka  56 Jan 27 01:34 00000000000000030199.snapshot.deleted
+-rw-r--r--. 1 kafka kafka  12 Jan 27 01:34 00000000000000030199.timeindex.deleted
+-rw-r--r--. 1 kafka kafka   0 Jan 27 01:34 00000000000000030209.index.deleted
+-rw-r--r--. 1 kafka kafka 710 Jan 27 01:34 00000000000000030209.log.deleted
+-rw-r--r--. 1 kafka kafka  56 Jan 27 01:34 00000000000000030209.snapshot.deleted
+-rw-r--r--. 1 kafka kafka  12 Jan 27 01:34 00000000000000030209.timeindex.deleted
+-rw-r--r--. 1 kafka kafka   0 Jan 27 01:34 00000000000000030219.index.deleted
+-rw-r--r--. 1 kafka kafka 710 Jan 27 01:34 00000000000000030219.log.deleted
+-rw-r--r--. 1 kafka kafka  56 Jan 27 01:34 00000000000000030219.snapshot.deleted
+-rw-r--r--. 1 kafka kafka  12 Jan 27 01:34 00000000000000030219.timeindex.deleted
+-rw-r--r--. 1 kafka kafka   0 Jan 27 01:34 00000000000000030229.index.deleted
+-rw-r--r--. 1 kafka kafka 710 Jan 27 01:34 00000000000000030229.log.deleted
+-rw-r--r--. 1 kafka kafka  56 Jan 27 01:34 00000000000000030229.snapshot.deleted
+-rw-r--r--. 1 kafka kafka  12 Jan 27 01:34 00000000000000030229.timeindex.deleted
+-rw-r--r--. 1 kafka kafka   0 Jan 27 01:40 00000000000000030239.index.deleted
+-rw-r--r--. 1 kafka kafka 497 Jan 27 01:35 00000000000000030239.log.deleted
+-rw-r--r--. 1 kafka kafka  56 Jan 27 01:34 00000000000000030239.snapshot.deleted
+-rw-r--r--. 1 kafka kafka  12 Jan 27 01:40 00000000000000030239.timeindex.deleted
+-rw-r--r--. 1 kafka kafka   0 Jan 27 01:40 00000000000000030246.log
+-rw-r--r--. 1 kafka kafka  56 Jan 27 01:40 00000000000000030246.snapshot
+-rw-r--r--. 1 kafka kafka  12 Jan 27 01:40 leader-epoch-checkpoint
+-rw-r--r--. 1 kafka kafka  43 Jan 26 03:14 partition.metadata
+````
+А затем видимо отрабатывает log.retention.check.interval.ms оно чекает пометки и удаляет сегменты окончательно:
+````
+[kafka@kafka-01 users.registrations-0]$ ls -lh
+total 12K
+-rw-r--r--. 1 kafka kafka   0 Jan 27 01:40 00000000000000030246.log
+-rw-r--r--. 1 kafka kafka  56 Jan 27 01:40 00000000000000030246.snapshot
+-rw-r--r--. 1 kafka kafka 10M Jan 27 01:40 00000000000000030246.timeindex
+-rw-r--r--. 1 kafka kafka  12 Jan 27 01:40 leader-epoch-checkpoint
+-rw-r--r--. 1 kafka kafka  43 Jan 26 03:14 partition.metadata
+````
+Открываем консольный консьюмер, чтобы проверить, что данные удаляются согласно заданным настройкам. Мы перезапустили форлуп, поэтому при неполадках видели бы сообщения test1, test2 и т. д. Если все происходит правильно, видим, что сообщения уже идут какое-то время (в нашем случае — test101, test102 и далее). Более ранних сообщений в этом топике нет, поскольку все роллапится согласно заданным правилам. Перезапускаем консьюмер еще раз, чтобы убедиться наверняка. Видим сообщения test121, test122 и т. д.
+
+Я же останавливал продюсер, поэтому старые сегменты с сообщениями уже были удалены и роллапнулось на пустой, консьюмером нет сообщений
+````
+./kafka-console-consumer.sh  --bootstrap-server localhost:9092 --topic users.registrations --from-beginning --group slurp
+..
+Processed a total of 0 messages
+````
+А если всё запустить и подсоединиться консьюмером спустя время то действительно начинает не с нуля, тк сегменты ролапнулись и удалились
+````
+./kafka-console-consumer.sh  --bootstrap-server localhost:9092 --topic users.registrations --from-beginning --group slurp
+..
+31
+32
+33
+34
+35
+36
+````
+Странно, но как будто log.retention.check.interval.ms через заданное время удаляет только один самый старый сегмент, потому что из директории меченные .deleted исчезают по одному в 10 сек примерно
