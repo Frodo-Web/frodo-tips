@@ -1779,3 +1779,13 @@ numChildren = 0
 ls /brokers/ids
 ````
 В основном, данными из ZooKeeper пользуется контроллер ноды в кластере Кафки. Именно она манипулирует здесь данными, смотрит на список активных брокеров, выбирает новых лидеров партиции. Затем через API самой Кафки и request-response между брокерами она распределяет полученную информацию и отсылает ее своим «подчиненным» в кластере.
+
+## Understanding Kafka end-to-end latency
+End-to-end latency is the time between when the application logic produces a record via KafkaProducer.send() to when the record can be consumed by the application logic via KafkaConsumer.poll(). 
+![](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/images/kafka_end_to_end_latency.png)
+
+    Produce time: processing the record and batching with other records in the internal Kafka producer
+    Publish time: sending the record from Kafka producer to broker and appending the record to the leader replica log
+    Commit time: replicating the record to follower replicas for fault tolerance
+    Catch-up time: catching up to the record’s offset in the log
+    Fetch time: fetching the record from the broker
