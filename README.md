@@ -14,6 +14,7 @@ Useful commands, combinations, advices, etc...
 [Multiboot. Enable os-prober to add more systems to the boot menu on update-grub](https://github.com/Frodo-Web/frodo-tips/blob/main/enable-os-prober-to-detect-more-systems-on-update-grub.md) <br>
 [Mount: NTFS signature is missing when mounting Windows 11 partition](https://github.com/Frodo-Web/frodo-tips/blob/main/mount-NTFS-signature-is-missing-windows-11.md) <br>
 [Jira queries](https://github.com/Frodo-Web/frodo-tips/blob/main/All/Jira.md) <br>
+[Ventoy](https://github.com/Frodo-Web/frodo-tips/blob/main/All/Ventoy.md) <br>
 [OpenSUSE TumbleWeed + i3wm](https://github.com/Frodo-Web/frodo-tips/blob/main/All/i3wm-opensuse.md) <br>
 ## Linux Admin
 [GRUB](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/grub.md) <br>
