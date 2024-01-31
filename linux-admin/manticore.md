@@ -12,6 +12,11 @@ Manticore's data types can be split into two categories: full-text fields and at
 - original document's content can be used for highlighting
 
 Full-text fields are represented by the data type text. All other data types are called "attributes".
+
+Text fields: These are the primary data types used for full-text search. The content of text fields is processed, tokenized, and indexed to enable full-text search capabilities. Text fields are used to store the main body of content you wish to search through, such as article contents, product descriptions, etc.
+
+Text is passed through an analyzer pipeline that converts the text to words, applies morphology transformations, etc. Eventually, a full-text table (a special data structure that enables quick searches for a keyword) gets built from that text.
+
 #### Attributes
 Attributes are non-full-text values associated with each document that can be used to perform non-full-text filtering, sorting and grouping during a search.
 
@@ -27,6 +32,27 @@ This example shows running a full-text query filtered by author_id, forum_id and
 ```sql
 select * from forum where author_id=123 and forum_id in (1,3,7) order by post_date desc
 ```
+
+#### Character data types
+string|text [stored|attribute] [indexed]
+
+- indexed - full-text indexed (can be used in full-text queries)
+- stored - stored in a docstore (stored on disk, not in RAM, lazy read)
+- attribute - makes it a string attribute (can sort/group by it)
+
+Specifying at least one property overrides all the default ones (see below), i.e., if you decide to use a custom combination of properties, you need to list all the properties you want.
+
+- Integer Types: Attributes can be of various integer types (signed or unsigned), including BIGINT, which is useful for storing large numbers. Integer attributes can be used for filtering, sorting, and grouping in search queries.
+- Floating-Point: FLOAT is supported for decimal numbers, allowing for more precision in numerical data that requires fractional values.
+- Boolean: Although not a distinct type in Manticore, booleans can be represented using integer types, with 0 for false and 1 for true.
+- String: Manticore supports string attributes for non-full-text query operations like filtering and grouping. String attributes are not tokenized and indexed in the same way as text fields. Unlike full-text fields, string attributes (just string or string/text attribute) are stored as they are received and cannot be used in full-text searches. Instead, they are returned in results, can be used in the WHERE clause for comparison filtering or REGEX, and can be used for sorting and aggregation. In general, it's not recommended to store large texts in string attributes, but use string attributes for metadata like names, titles, tags, keys.
+- Multi-Value Attributes (MVA): MVAs allow an attribute to have a set of values for each document. This is useful for representing many-to-one relationships, such as tags or categories for an article.
+```sql
+CREATE TABLE products(title text, product_codes multi);
+select * from products where any(product_codes)=3
+select least(product_codes) l from products order by l asc
+```
+- JSON: Manticore Search supports indexing JSON attributes, enabling the storage and querying of structured data. This allows for complex data structures to be indexed and searched.
 
 #### Row-wise and columnar attribute storages
 Manticore supports two types of attribute storages:
