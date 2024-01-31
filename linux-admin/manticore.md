@@ -336,7 +336,20 @@ sudo systemctl start manticore
 ```
 ### Replication
 
+## Perfomance recommendations
+- For the fastest search response time and ample memory availability, use row-wise attributes and lock them in memory using mlock. Additionally, use mlock for doclists/hitlists.
+- If you prioritize can't afford lower performance after start and are willing to sacrifice longer startup time, use the --force-preread. option. If you desire faster searchd restart, stick to the default mmap_preread option.
+- If you are looking to conserve memory, while still having enough memory for all attributes, skip the use of mlock. The operating system will determine what should be kept in memory based on frequent disk reads.
+- If row-wise attributes do not fit into memory, opt for columnar attributes
+- If full-text search performance is not a concern, and you wish to save memory, use access_doclists/access_hitlists=file
 
+The default mode offers a balance of:
+- mmap,
+- Prereading non-columnar attributes,
+- Seeking and reading columnar attributes with no preread,
+- Seeking and reading doclists/hitlists with no preread.
+
+This provides a decent search performance, optimal memory utilization, and faster searchd restart in most scenarios.
 ## Optimizations
 Index Optimization
 
