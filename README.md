@@ -30,6 +30,7 @@ Useful commands, combinations, advices, etc...
 [RabbitMQ](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/rabbitmq.md) <br>
 [Apache Kafka](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/apache-kafka.md) <br>
 [Message brokers General](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/message-brokers.md) <br>
+[Manticore](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/manticore.md) <br>
 # DevOps
 [Ansible](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/ansible.md) <br>
 [Jenkins](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/jenkins.md) <br>
