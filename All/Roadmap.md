@@ -14,4 +14,5 @@ The list to learn in the future
 12. Системы виртуализации: Proxmox, Vagrant
 13. JVM, Java, Wildfly. Дебаг работы JVM. Знакомство с Spring
 14. Ceph
-15. 
+15. Logrotate
+16. 
