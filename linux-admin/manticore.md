@@ -109,7 +109,19 @@ CREATE TABLE products(title text, meta json) type='pq';
 #### Real-Time (RT) table
 In Manticore Search, a "real-time" (RT) table is a type of table that allows for on-the-fly data indexing without the need for a predefined data source or a delayed indexing process. Real-time tables are designed to support immediate data ingestion, enabling you to add, update, or delete documents in the index instantly, making the changes searchable right away. This is in contrast to traditional indexing methods that require batch processing of data and rebuilding of the index to reflect new or updated content.
 
+Real-time mode requires no table definition in the configuration file. However, the data_dir directive in the searchd section is mandatory. Index files are stored inside the data_dir.
+
 A Real-time table is a main type of table in Manticore, allowing you to add, update, and delete documents with immediate availability of the changes. The settings for a Real-time Table can be defined in a configuration file or online using CREATE/UPDATE/DELETE/ALTER commands.
+
+#### Table types and modes
+
+| Table type    | RT mode       | Plain mode |
+| ------------- | ------------- | -----------|
+| Real-time     | supported     |  supported |
+| Plain         | not supported |  supported |
+| Percolate     | supported     |  supported |
+| Distributed   | supported     |  supported |
+| Template      | not supported |  supported |
 
 ##### Chunks
 A Real-time Table is comprised of one or multiple plain tables called chunks. There are two types of chunks:
