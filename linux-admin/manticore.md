@@ -335,3 +335,104 @@ sudo apt install manticore manticore-columnar-lib
 sudo systemctl start manticore
 ```
 ### Replication
+
+
+## Optimizations
+Index Optimization
+
+    Selective Indexing: Index only the necessary text fields and attributes to reduce index size and improve search performance.
+    Batch Indexing: For Plain indexes, perform indexing in batches during off-peak hours to minimize the impact on search performance.
+    Use RT Indexes Wisely: Real-time indexes are more flexible but can be less efficient than Plain indexes for static data sets. Use them where real-time updates are crucial.
+
+Query Optimization
+
+    Refine Queries: Simplify and refine queries to minimize complexity. Use filters and field weights wisely to speed up query processing.
+    Avoid Large Offset: High offset values in pagination can slow down queries. Consider alternative approaches for deep pagination.
+    Precompute Facets: If possible, precompute frequently used facets or aggregations to reduce the load on Manticore during query time.
+
+Configuration Tuning
+
+    Memory Management: Adjust the memory settings, like mem_limit for indexing and max_children for search queries, to optimize memory usage without exceeding system limits.
+    Index Settings: Tune index settings such as min_infix_len and min_word_len to balance between search flexibility and index size/performance.
+    Merge Strategies: Regularly merge delta indexes into the main index (for Plain indexes) to keep the index size manageable and search performance optimal.
+
+Schema Design
+
+    Attribute Types: Choose the most efficient attribute types (e.g., use integers instead of strings when possible) to reduce memory usage and speed up filtering/sorting operations.
+    Normalize Data: Normalize repetitive text data into attributes when possible to reduce index size and improve search performance.
+
+Infrastructure and Hardware
+
+    SSD Storage: Use SSDs for storing indexes to significantly improve read/write speeds compared to traditional HDDs.
+    Adequate RAM: Ensure there's enough RAM to hold frequently accessed data in memory, reducing disk I/O.
+    Load Balancing: Distribute search queries across multiple Manticore instances to balance the load and improve response times.
+
+High Availability and Scaling
+
+    Replication: Use Manticore's replication features to distribute data across multiple nodes, improving search performance and fault tolerance.
+    Sharding: Break down large indexes into smaller, more manageable shards to distribute the data and improve search performance.
+
+Monitoring and Maintenance
+
+    Monitoring: Implement monitoring tools to track Manticore's performance, resource usage, and query times. Use this data to identify bottlenecks and areas for improvement.
+    Regular Maintenance: Perform regular maintenance tasks such as optimizing indexes, cleaning up old data, and updating statistics to maintain optimal performance.
+
+Advanced Features
+
+    Per-Column Compression: Use per-column string compression to reduce the index size for string attributes, improving I/O performance.
+    Hitless Rotation: Use seamless index rotation to update indexes without interrupting search operations, ensuring continuous availability.
+
+Keep Up-to-Date
+
+    Manticore Updates: Stay updated with the latest Manticore Search releases and updates, as they often include performance improvements, new features, and bug fixes.
+
+Customization and Testing
+
+    Custom Ranking: Customize ranking algorithms to suit your specific needs, which can sometimes lead to performance improvements.
+    Benchmarking: Regularly benchmark your Manticore setup under various loads and query patterns to identify performance issues and validate optimization efforts.
+## TODO
+
+1. Understand the Basics of Search Engines
+
+    Conceptual Foundation: Start with the basics of search engines, including how they index data, process queries, and rank results. Understanding these concepts will help you grasp how Manticore Search operates.
+    Manticore Search Overview: Familiarize yourself with Manticore Search, its origins from Sphinx, and its specific features and advantages.
+
+2. Install and Configure Manticore Search
+
+    Installation: Follow the official documentation to install Manticore Search on your preferred platform (Linux, Docker, etc.).
+    Configuration Basics: Learn how to configure Manticore Search, including setting up indexes, data sources, and other essential parameters.
+
+3. Dive into Index Types
+
+    Understand the differences between Real-Time (RT) indexes and Plain indexes, including their use cases, advantages, and limitations.
+    Practice creating both RT and Plain indexes, and experiment with adding, updating, and deleting data in RT indexes.
+
+4. Querying and Data Manipulation
+
+    Query Language: Get comfortable with Manticore's querying language, which is similar to SQL. Practice writing queries to search, filter, and aggregate data.
+    Advanced Features: Explore full-text search capabilities, attribute filtering, and faceted search.
+
+5. Integration and Data Pipelines
+
+    Learn how to integrate Manticore Search with existing applications and data sources. This may involve setting up data ingestion pipelines, using APIs, or connecting to databases.
+    Explore Manticore's support for various data formats and sources, and practice setting up data synchronization.
+
+6. Scaling and Performance Optimization
+
+    Understand the scalability options available with Manticore Search, including sharding, replication, and load balancing.
+    Learn about performance tuning, including index optimization, query optimization, and hardware considerations.
+
+7. High Availability and Disaster Recovery
+
+    Set up a high-availability configuration for Manticore Search to ensure service continuity.
+    Plan and implement backup and recovery strategies for Manticore Search data and configurations.
+
+8. Monitoring and Maintenance
+
+    Implement monitoring solutions to track Manticore Search performance, resource usage, and operational health.
+    Learn about routine maintenance tasks, including index rotation, cleanup, and performance audits.
+
+9. Advanced Topics
+
+    Explore advanced features like percolate queries, JSON attributes, and custom ranking algorithms.
+    Stay updated with Manticore Search's release notes and community forums for new features and best practices.
