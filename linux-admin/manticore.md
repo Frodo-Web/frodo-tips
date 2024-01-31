@@ -1,6 +1,70 @@
 # Manticore
 Manticore Search is a high-performance, open-source search engine designed to offer fast and precise full-text searches, along with other search-related functionalities. It originated as a fork of the Sphinx Search engine and has evolved to include features like full-text search, real-time indexing, and support for various data sources such as MySQL, PostgreSQL, ODBC, and CSV files. Manticore Search is known for its cost-efficiency, scalability, and SQL-like query language, making it a viable alternative to other search engines like Elasticsearch. It also supports advanced features such as replication, load balancing, and data backup, catering to the needs of modern, data-driven applications​.
 ## Terms
+#### Data types
+#### Full-text fields and attributes
+Manticore's data types can be split into two categories: full-text fields and attributes.
+#### Full-text fields
+
+- can be indexed with natural language processing algorithms, therefore can be searched for keywords
+- cannot be used for sorting or grouping
+- original document's content can be retrieved
+- original document's content can be used for highlighting
+
+Full-text fields are represented by the data type text. All other data types are called "attributes".
+#### Attributes
+Attributes are non-full-text values associated with each document that can be used to perform non-full-text filtering, sorting and grouping during a search.
+
+It is often desired to process full-text search results based not only on matching document ID and its rank, but also on a number of other per-document values. For example, one might need to sort news search results by date and then relevance, or search through products within a specified price range, or limit a blog search to posts made by selected users, or group results by month. To do this efficiently, Manticore enables not only full-text fields, but also additional attributes to be added to each document. These attributes can be used to filter, sort, or group full-text matches, or to search only by attributes.
+
+The attributes, unlike full-text fields, are not full-text indexed. They are stored in the table, but it is not possible to search them as full-text.
+
+A good example for attributes would be a forum posts table. Assume that only the title and content fields need to be full-text searchable - but that sometimes it is also required to limit search to a certain author or a sub-forum (i.e., search only those rows that have some specific values of author_id or forum_id); or to sort matches by post_date column; or to group matching posts by month of the post_date and calculate per-group match counts.
+```sql
+CREATE TABLE forum(title text, content text, author_id int, forum_id int, post_date timestamp);
+```
+This example shows running a full-text query filtered by author_id, forum_id and sorted by post_date.
+```sql
+select * from forum where author_id=123 and forum_id in (1,3,7) order by post_date desc
+```
+
+#### Row-wise and columnar attribute storages
+Manticore supports two types of attribute storages:
+- row-wise - traditional storage available in Manticore Search out of the box
+- columnar - provided by Manticore Columnar Library
+
+As can be understood from their names, they store data differently. The traditional row-wise storage:
+- stores attributes uncompressed
+- all attributes of the same document are stored in one row close to each other
+- rows are stored one by one
+- accessing attributes is basically done by just multiplying the row ID by the stride (length of a single vector) and getting the requested attribute from the calculated memory location. It gives very low random access latency.
+- attributes have to be in memory to get acceptable performance, otherwise due to the row-wise nature of the storage Manticore may have to read from disk too much unneeded data which is in many cases suboptimal.
+
+With the columnar storage:
+- each attribute is stored independently of all other attributes in its separate "column"
+- storage is split into blocks of 65536 entries
+- the blocks are stored compressed. This often allows storing just a few distinct values instead of storing all of them like in the row-wise storage. High compression ratio allows reading from disk faster and makes the memory requirement much lower
+- when data is indexed, storage scheme is selected for each block independently. For example, if all values in a block are the same, it gets "const" storage and only one value is stored for the whole block. If there are less than 256 unique values per block, it gets "table" storage and stores indexes to a table of values instead of the values themselves
+- search in a block can be early rejected if it's clear the requested value is not present in the block.
+
+#### How to switch between the storages
+The traditional row-wise storage is the default, so if you want everything to be stored in a row-wise fashion, you don't need to do anything when you create a table.
+
+To enable the columnar storage you need to:
+
+- specify engine='columnar' in CREATE TABLE to make all attributes of the table columnar. Then, if you want to keep a specific attribute row-wise, you need to add engine='rowwise' when you declare it. For example:
+```sql
+create table tbl(title text, type int, price float engine='rowwise') engine='columnar'
+```
+- specify engine='columnar' for a specific attribute in CREATE TABLE to make it columnar. For example:
+```sql
+create table tbl(title text, type int, price float engine='columnar');
+
+or
+
+create table tbl(title text, type int, price float engine='columnar') engine='rowwise';
+```
+- in the plain mode you need to list attributes you want to be columnar in columnar_attrs.
 #### Percolate
 In Manticore Search, the concept of "percolate" is used in a somewhat different context compared to traditional search operations.
 #### Percolate Queries
