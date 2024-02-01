@@ -198,6 +198,39 @@ At the word level, the base setting is the min_word_len which defines the minimu
 Going further, we might want a word to be matched as another one because they are synonyms. For this, the word forms feature can be used, which allows one or more words to be mapped to another one.
 
 Very common words can have some unwanted effects on searching, mostly because of their frequency they require lots of computing to process their doc/hit lists. They can be blacklisted with the stop words functionality. This helps not only in speeding up queries but also in decreasing the index size.
+#### Distributed table
+Manticore allows for the creation of distributed tables, which act like regular plain or real-time tables, but are actually a collection of child tables used for searching. When a query is sent to a distributed table, it is distributed among all tables in the collection. The server then collects and processes the responses to sort and recalculate values of aggregates, if necessary.
+
+Distributed tables can be composed of any combination of tables, including:
+- Local storage tables (plain table and Real-Time)
+- Remote tables
+- A combination of local and remote tables
+- Percolate tables (local, remote, or a combination)
+- Single local and multiple remote tables, or any other combination
+
+Mixing percolate and template tables with plain and real-time tables is not recommended.
+
+```
+table foo {
+    type = distributed
+    local = bar
+    local = bar1, bar2
+    agent = 127.0.0.1:9312:baz
+    agent = host1|host2:tbl
+    agent = host1:9301:tbl1|host2:tbl2 [ha_strategy=random retry_count=10]
+    ...
+}
+```
+Or
+```sql
+CREATE TABLE distributed_index type='distributed' local='local_index' agent='127.0.0.1:9312:remote_index'
+```
+#### Manticore cluster
+Manticore Search is a highly distributed system that provides all the necessary components to create a highly available and scalable database for search. This includes:
+- distributed table for sharding
+- Mirroring for high availability
+- Load balancing for scalability
+- Replication for data safety
 ### Overview
 
 By default Manticore is waiting for your connections on:
