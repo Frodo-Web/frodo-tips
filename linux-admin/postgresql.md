@@ -62,7 +62,7 @@ sudo -u postgres createdb manticore
 To log in with ident based authentication, you’ll need a Linux user with the same name as your Postgres role and database.
 ```
 adduser manticore
-sudo -u sammy psql
+sudo -u manticore psql
 
 manticore=> \conninfo
 You are connected to database "manticore" as user "manticore" via socket in "/var/run/postgresql" at port "5432".
