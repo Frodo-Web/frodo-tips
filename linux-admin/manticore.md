@@ -363,6 +363,19 @@ mysql> call pq('t', '[{"f": "abc def", "j": {"a": 1}}, {"f": "abc ghi"}, {"j": {
 | 8215503050178035714 | abc   |      | j.a=1   |
 +---------------------+-------+------+---------+
 ```
+### Шардинг и распределённые таблицы (индексы)
+```sql
+create table user1(name text, email string, description text, age int, active int);
+insert into user1(name) values('John');
+create table user2 like user1;
+insert into user2(name) values('Mary');
+
+create table user type='distributed' local='user1' local='user2';
+select * from user;
+..
+John
+Mary
+```
 ## Optimizations
 Index Optimization
 
