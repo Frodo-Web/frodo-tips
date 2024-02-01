@@ -350,6 +350,19 @@ The default mode offers a balance of:
 - Seeking and reading doclists/hitlists with no preread.
 
 This provides a decent search performance, optimal memory utilization, and faster searchd restart in most scenarios.
+
+## Examples
+### Percolate index
+```sql
+mysql> create table t(f text, j json) type='percolate';
+mysql> insert into t(query,filters) values('abc', 'j.a=1');
+mysql> call pq('t', '[{"f": "abc def", "j": {"a": 1}}, {"f": "abc ghi"}, {"j": {"a": 1}}]', 1 as query);
++---------------------+-------+------+---------+
+| id                  | query | tags | filters |
++---------------------+-------+------+---------+
+| 8215503050178035714 | abc   |      | j.a=1   |
++---------------------+-------+------+---------+
+```
 ## Optimizations
 Index Optimization
 
