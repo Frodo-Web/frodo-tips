@@ -186,6 +186,18 @@ Manticore Search works in two modes:
   
         when you have to make your data schema portable (e.g. for easier deployment of it on a new server)
 
+#### Data tokenization
+Manticore doesn't store text as is for performing full-text searching on it. Instead, it extracts words and creates several structures that allow fast full-text searching. From the found words, a dictionary is built, which allows a quick look to discover if the word is present or not in the index. In addition, other structures record the documents and fields in which the word was found (as well as the position of it inside a field). All these are used when a full-text match is performed.
+
+The process of demarcating and classifying words is called tokenization. The tokenization is applied at both indexing and searching, and it operates at the character and word level.
+
+On the character level, the engine allows only certain characters to pass. This is defined by the charset_table. Anything else is replaced with a whitespace (which is considered the default word separator). The charset_table also allows mappings, such as lowercasing or simply replacing one character with another. Besides that, characters can be ignored, blended, defined as a phrase boundary. 
+
+At the word level, the base setting is the min_word_len which defines the minimum word length in characters to be accepted in the index. A common request is to match singular with plural forms of words. For this, morphology processors can be used. 
+
+Going further, we might want a word to be matched as another one because they are synonyms. For this, the word forms feature can be used, which allows one or more words to be mapped to another one.
+
+Very common words can have some unwanted effects on searching, mostly because of their frequency they require lots of computing to process their doc/hit lists. They can be blacklisted with the stop words functionality. This helps not only in speeding up queries but also in decreasing the index size.
 ### Overview
 
 By default Manticore is waiting for your connections on:
