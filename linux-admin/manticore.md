@@ -533,6 +533,14 @@ mysql> SELECT * FROM cakes_realtime;
 |    3 | Queen Cake     | The most expensive cake |   20 |
 |    1 | Chrismas cake  | You love them           |   10 |
 +------+----------------+-------------------------+------+
+
+// Убрать таблицу из кластера. Она станет только локальной на ОБОИХ узлах
+ALTER CLUSTER cakes DROP cakes_realtime;
+//  Например если сделать локальные записи независимые в одну и ту же таблицу, затем её добавить в кластер. То оно будет в том состоянии как на узле с которого добавлялась и другие изменения будут потеряны.
+
+// Удалит кластер но таблицы останутся локально
+DELETE CLUSTER cakes;
+SHOW STATUS LIKE 'cluster%';
 ```
 ## Perfomance recommendations
 - For the fastest search response time and ample memory availability, use row-wise attributes and lock them in memory using mlock. Additionally, use mlock for doclists/hitlists.
