@@ -385,7 +385,155 @@ rpm -ivh --nodeps --force mysql-community-client-8.2.0-1.el7.x86_64.rpm
 mysql -h0 -P9306
 ```
 ### Replication
+/etc/manticoresearch/manticore.conf
+```
+// manticore-01
 
+searchd {
+    listen = 127.0.0.1:9312
+    listen = 127.0.0.1:9306:mysql
+    listen = 127.0.0.1:9308:http
+    listen = 127.0.0.1:9350-9359:replication
+    log = /var/log/manticore/searchd.log
+    query_log = /var/log/manticore/query.log
+    pid_file = /run/manticore/searchd.pid
+    data_dir = /var/lib/manticore
+    server_id = 1
+}
+
+// manticore-02
+
+searchd {
+    ..
+    server_id = 2
+}
+```
+Creating new cluster
+```sql
+// On manticore-01
+mysql -P 9306 -h0
+
+CREATE CLUSTER cakes;
+mysql> SHOW STATUS LIKE 'cluster%';
++------------------------------------------+----------------------------------------------+
+| Counter                                  | Value                                        |
++------------------------------------------+----------------------------------------------+
+| cluster_name                             | cakes                                        |
+| cluster_cakes_state_uuid                 | 78594f32-c0fb-11ee-9cf9-2aad9078ce9c         |
+| cluster_cakes_conf_id                    | 1                                            |
+| cluster_cakes_status                     | primary                                      |
+| cluster_cakes_size                       | 1                                            |
+| cluster_cakes_local_index                | 0                                            |
+| cluster_cakes_node_state                 | synced                                       |
+| cluster_cakes_nodes_set                  |                                              |
+| cluster_cakes_nodes_view                 | 127.0.0.1:9312,127.0.0.1:9350:replication    |
+| cluster_cakes_indexes_count              | 0                                            |
+| cluster_cakes_indexes                    |                                              |
+| cluster_cakes_local_state_uuid           | 78594f32-c0fb-11ee-9cf9-2aad9078ce9c         |
+| cluster_cakes_protocol_version           | 9                                            |
+| cluster_cakes_last_applied               | 0                                            |
+| cluster_cakes_last_committed             | 0                                            |
+| cluster_cakes_replicated                 | 0                                            |
+| cluster_cakes_replicated_bytes           | 0                                            |
+| cluster_cakes_repl_keys                  | 0                                            |
+| cluster_cakes_repl_keys_bytes            | 0                                            |
+| cluster_cakes_repl_data_bytes            | 0                                            |
+| cluster_cakes_repl_other_bytes           | 0                                            |
+| cluster_cakes_received                   | 2                                            |
+| cluster_cakes_received_bytes             | 184                                          |
+| cluster_cakes_local_commits              | 0                                            |
+| cluster_cakes_local_cert_failures        | 0                                            |
+| cluster_cakes_local_replays              | 0                                            |
+| cluster_cakes_local_send_queue           | 0                                            |
+| cluster_cakes_local_send_queue_max       | 1                                            |
+| cluster_cakes_local_send_queue_min       | 0                                            |
+| cluster_cakes_local_send_queue_avg       | 0.000000                                     |
+| cluster_cakes_local_recv_queue           | 0                                            |
+| cluster_cakes_local_recv_queue_max       | 2                                            |
+| cluster_cakes_local_recv_queue_min       | 0                                            |
+| cluster_cakes_local_recv_queue_avg       | 0.500000                                     |
+| cluster_cakes_local_cached_downto        | 0                                            |
+| cluster_cakes_flow_control_paused_ns     | 0                                            |
+| cluster_cakes_flow_control_paused        | 0.000000                                     |
+| cluster_cakes_flow_control_sent          | 0                                            |
+| cluster_cakes_flow_control_recv          | 0                                            |
+| cluster_cakes_flow_control_interval      | [ 100, 100 ]                                 |
+| cluster_cakes_flow_control_interval_low  | 100                                          |
+| cluster_cakes_flow_control_interval_high | 100                                          |
+| cluster_cakes_flow_control_status        | OFF                                          |
+| cluster_cakes_cert_deps_distance         | 0.000000                                     |
+| cluster_cakes_apply_oooe                 | 0.000000                                     |
+| cluster_cakes_apply_oool                 | 0.000000                                     |
+| cluster_cakes_apply_window               | 0.000000                                     |
+| cluster_cakes_commit_oooe                | 0.000000                                     |
+| cluster_cakes_commit_oool                | 0.000000                                     |
+| cluster_cakes_commit_window              | 0.000000                                     |
+| cluster_cakes_local_state                | 4                                            |
+| cluster_cakes_local_state_comment        | Synced                                       |
+| cluster_cakes_cert_index_size            | 0                                            |
+| cluster_cakes_cert_bucket_count          | 2                                            |
+| cluster_cakes_gcache_pool_size           | 1320                                         |
+| cluster_cakes_causal_reads               | 0                                            |
+| cluster_cakes_cert_interval              | 0.000000                                     |
+| cluster_cakes_open_transactions          | 0                                            |
+| cluster_cakes_open_connections           | 0                                            |
+| cluster_cakes_ist_receive_status         |                                              |
+| cluster_cakes_ist_receive_seqno_start    | 0                                            |
+| cluster_cakes_ist_receive_seqno_current  | 0                                            |
+| cluster_cakes_ist_receive_seqno_end      | 0                                            |
+| cluster_cakes_incoming_addresses         | 127.0.0.1:9312,127.0.0.1:9350:replication    |
+| cluster_cakes_cluster_weight             | 1                                            |
+| cluster_cakes_desync_count               | 0                                            |
+| cluster_cakes_evs_delayed                |                                              |
+| cluster_cakes_evs_evict_list             |                                              |
+| cluster_cakes_evs_repl_latency           | 1.661e-06/3.2232e-06/8.374e-06/2.58027e-06/5 |
+| cluster_cakes_evs_state                  | OPERATIONAL                                  |
+| cluster_cakes_gcomm_uuid                 | 7855b279-c0fb-11ee-9dab-aa9faec0eab5         |
++------------------------------------------+----------------------------------------------+
+71 rows in set (0.00 sec)
+
+CREATE TABLE cakes_realtime (title text, content text, gid uint);
+
+mysql> INSERT INTO cakes_realtime VALUES(1,'Chrismas cake','You love them',10);
+mysql> SELECT * FROM cakes_realtime;
++------+---------------+---------------+------+
+| id   | title         | content       | gid  |
++------+---------------+---------------+------+
+|    1 | Chrismas cake | You love them |   10 |
++------+---------------+---------------+------+
+
+ALTER CLUSTER cakes ADD cakes_realtime;
+SHOW STATUS LIKE 'cluster_cakes_indexes';
++-----------------------+----------------+
+| Counter               | Value          |
++-----------------------+----------------+
+| cluster_cakes_indexes | cakes_realtime |
++-----------------------+----------------+
+
+INSERT INTO cakes:cakes_realtime VALUES(2,'Delicious cake','Yum!',10);
+mysql> SELECT * FROM cakes_realtime;
++------+----------------+---------------+------+
+| id   | title          | content       | gid  |
++------+----------------+---------------+------+
+|    2 | Delicious cake | Yum!          |   10 |
+|    1 | Chrismas cake  | You love them |   10 |
++------+----------------+---------------+------+
+
+// On manticore-02
+mysql -P 9306 -h0
+
+INSERT INTO cakes:cakes_realtime VALUES(3,'Queen Cake','The most expensive cake',20);
+
+// On both nodes
+mysql> SELECT * FROM cakes_realtime;
++------+----------------+-------------------------+------+
+| id   | title          | content                 | gid  |
++------+----------------+-------------------------+------+
+|    2 | Delicious cake | Yum!                    |   10 |
+|    3 | Queen Cake     | The most expensive cake |   20 |
+|    1 | Chrismas cake  | You love them           |   10 |
++------+----------------+-------------------------+------+
+```
 ## Perfomance recommendations
 - For the fastest search response time and ample memory availability, use row-wise attributes and lock them in memory using mlock. Additionally, use mlock for doclists/hitlists.
 - If you prioritize can't afford lower performance after start and are willing to sacrifice longer startup time, use the --force-preread. option. If you desire faster searchd restart, stick to the default mmap_preread option.
