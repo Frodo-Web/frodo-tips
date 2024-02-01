@@ -547,6 +547,88 @@ ALTER CLUSTER cakes DROP cakes_realtime;
 DELETE CLUSTER cakes;
 SHOW STATUS LIKE 'cluster%';
 ```
+## Configure PostgreSQL datasource with cluster replication
+#### manticore-01
+1. Install postgreSQL and configure it (Create roles, users, test tables)
+2. Configure manticore.conf for postgreSQL datasource
+```
+searchd {
+    listen = 192.168.122.249:9312
+    listen = 127.0.0.1:9306:mysql
+    listen = 127.0.0.1:9308:http
+    listen = 192.168.122.249:9350-9359:replication
+    log = /var/log/manticore/searchd.log
+    query_log = /var/log/manticore/query.log
+    pid_file = /run/manticore/searchd.pid
+// You can't use data_dir together with path in index declarations
+#    data_dir = /var/lib/manticore
+    server_id = 1
+}
+source postgresql_source_1 {
+    type        	= pgsql
+#    sql_sock		= /var/run/postgresql/.s.PGSQL.5432
+    sql_host		= localhost
+    sql_port		= 5432
+    sql_user    	= manticore
+    sql_pass		= test
+    sql_db      	= manticore
+    sql_query		= SELECT equip_id, location, install_date FROM playground
+    sql_attr_uint	= equip_id
+    sql_attr_timestamp	= install_date
+}
+index postgresql_index_1 {
+    source		= postgresql_source_1
+// You should create those dirs with manticore owner
+    path               = /var/lib/manticore/postgresql_index_1
+    morphology		= stem_en
+    min_word_len	= 3
+    html_strip		= 1
+    ignore_chars	= U+00AD
+}
+```
+3. Run manticore service. If you have any trouble debug it running like
+```
+sudo -u manticore searchd --config /etc/manticoresearch/manticore.conf --console --logdebug --logreplication
+```
+You can change loglevel.
+If you have postgreSQL authorizations troubles, read logs, for example /var/lib/pgsql/12/data/log/postgresql-Thu.log
+All directories must be owned by manticore user:
+```
+ls -alh /run/manticore/searchd.pid
+ls -alh /var/lib/manticore/
+```
+4. Run indexer
+```
+sudo -u manticore indexer --config /etc/manticoresearch/manticore.conf --all --rotate
+```
+5. Verify indexes appeared
+```sql
+mysql -P 9306 -h0
+
+mysql> SHOW TABLES;
++--------------------+-------+
+| Index              | Type  |
++--------------------+-------+
+| postgresql_index_1 | local |
++--------------------+-------+
+
+SELECT * FROM postgresql_index_1;
++------+-----------+--------------+
+| id   | location  | install_date |
++------+-----------+--------------+
+|    1 | south     |         2017 |
+|    2 | northwest |         2018 |
++------+-----------+--------------+
+```
+Then create a cluster and add this table to cluster
+```sql
+
+```
+#### manticore-02
+Join second node to cluster
+```sql
+mysql -P 9306 -h0
+```
 ## Perfomance recommendations
 - For the fastest search response time and ample memory availability, use row-wise attributes and lock them in memory using mlock. Additionally, use mlock for doclists/hitlists.
 - If you prioritize can't afford lower performance after start and are willing to sacrifice longer startup time, use the --force-preread. option. If you desire faster searchd restart, stick to the default mmap_preread option.
