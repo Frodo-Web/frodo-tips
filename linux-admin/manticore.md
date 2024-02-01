@@ -378,6 +378,11 @@ sudo apt update
 sudo apt install manticore manticore-columnar-lib
 
 sudo systemctl start manticore
+
+// Dirty mysql client installation
+curl -L -O https://downloads.mysql.com/archives/get/p/23/file/mysql-community-client-8.2.0-1.el7.x86_64.rpm
+rpm -ivh --nodeps --force mysql-community-client-8.2.0-1.el7.x86_64.rpm
+mysql -h0 -P9306
 ```
 ### Replication
 
