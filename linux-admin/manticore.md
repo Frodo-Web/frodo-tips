@@ -390,10 +390,10 @@ mysql -h0 -P9306
 // manticore-01
 
 searchd {
-    listen = 127.0.0.1:9312
+    listen = 192.168.122.249:9312
     listen = 127.0.0.1:9306:mysql
     listen = 127.0.0.1:9308:http
-    listen = 127.0.0.1:9350-9359:replication
+    listen = 192.168.122.249:9350-9359:replication
     log = /var/log/manticore/searchd.log
     query_log = /var/log/manticore/query.log
     pid_file = /run/manticore/searchd.pid
@@ -404,6 +404,11 @@ searchd {
 // manticore-02
 
 searchd {
+    ..
+    listen = 192.168.122.248:9312
+    listen = 127.0.0.1:9306:mysql
+    listen = 127.0.0.1:9308:http
+    listen = 192.168.122.248:9350-9359:replication
     ..
     server_id = 2
 }
