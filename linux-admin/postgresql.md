@@ -67,3 +67,46 @@ sudo -u manticore psql
 manticore=> \conninfo
 You are connected to database "manticore" as user "manticore" via socket in "/var/run/postgresql" at port "5432".
 ```
+### Creating table
+```sql
+CREATE TABLE playground (
+    equip_id serial PRIMARY KEY,
+    type varchar (50) NOT NULL,
+    color varchar (25) NOT NULL,
+    location varchar(25) check (location in ('north', 'south', 'west', 'east', 'northeast', 'southeast', 'southwest', 'northwest')),
+    install_date date
+);
+
+manticore=> \d
+                    List of relations
+ Schema |          Name           |   Type   |   Owner   
+--------+-------------------------+----------+-----------
+ public | playground              | table    | manticore
+ public | playground_equip_id_seq | sequence | manticore
+```
+Your playground table is here, but there’s also something called playground_equip_id_seq that is of the type sequence. This is a representation of the serial type that you gave your equip_id column. This keeps track of the next number in the sequence and is created automatically for columns of this type.
+
+If you want to see just the table without the sequence, you can type:
+```sql
+
+manticore=> \dt
+            List of relations
+ Schema |    Name    | Type  |   Owner   
+--------+------------+-------+-----------
+ public | playground | table | manticore
+```
+Adding and querying data
+```sql
+manticore=> INSERT INTO playground (type, color, location, install_date) VALUES ('slide', 'blue', 'south', '2017-04-28');
+INSERT 0 1
+
+manticore=> INSERT INTO playground (type, color, location, install_date) VALUES ('swing', 'yellow', 'northwest', '2018-08-16');
+INSERT 0 1
+
+manticore=> SELECT * FROM playground;
+ equip_id | type  | color  | location  | install_date 
+----------+-------+--------+-----------+--------------
+        1 | slide | blue   | south     | 2017-04-28
+        2 | swing | yellow | northwest | 2018-08-16
+```
+Another thing to keep in mind is that you do not enter a value for the equip_id column. This is because this is automatically generated whenever a new row in the table is created.
