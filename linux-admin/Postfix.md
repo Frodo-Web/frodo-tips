@@ -51,7 +51,7 @@ cat /var/spool/mail/frodo
 If the email is not delivered, check Postfix's mail log for errors. The mail log is usually located at /var/log/mail.log or /var/log/maillog.
 Ensure that Postfix is running: sudo systemctl status postfix.
 
-### Postfix spamming to root user about message delivery error
+### Postfix is spamming to root user about message delivery error
 Postfix sending frequent error messages to the root user about message delivery failures can be both annoying and indicative of an underlying issue that needs to be addressed.
 
 1. Identify the Cause
