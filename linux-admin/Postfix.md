@@ -100,3 +100,23 @@ Reload Postfix to apply the changes:
 ```
 sudo postfix reload
 ```
+
+## Clear mailbox
+#### For Systems Using Maildir Format
+If your system stores emails in the Maildir format (individual files for each message), you can find the mailbox directories under the user's home directory or another specified path. To clear a mailbox:
+```
+rm -rf /var/mail/username/new/*
+rm -rf /var/mail/username/cur/*
+```
+For Systems Using mbox Format
+If your system uses the mbox format (a single file for all messages), the mailbox is usually a single file under /var/mail/ or /var/spool/mail/.
+```
+> /var/mail/username
+or
+cat /dev/null > /var/mail/username
+```
+```
+sudo systemctl restart postfix
+```
+### Delete messages automatically
+Postfix itself does not have a built-in feature to automatically delete messages after a specific time period, as its primary role is to handle the sending and receiving of emails, not mailbox management. However, you can achieve this functionality by using additional tools or scripts in conjunction with Postfix, especially if you're using a mail delivery agent (MDA) like Dovecot or Procmail that stores and manages the mailboxes.
