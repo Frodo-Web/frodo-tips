@@ -50,3 +50,53 @@ cat /var/spool/mail/frodo
 
 If the email is not delivered, check Postfix's mail log for errors. The mail log is usually located at /var/log/mail.log or /var/log/maillog.
 Ensure that Postfix is running: sudo systemctl status postfix.
+
+### Postfix spamming to root user about message delivery error
+Postfix sending frequent error messages to the root user about message delivery failures can be both annoying and indicative of an underlying issue that needs to be addressed.
+
+1. Identify the Cause
+First, you need to understand why Postfix is generating these error messages. Check the content of the messages to identify common patterns or specific errors that are being reported. Common issues include:
+- Configuration errors
+- DNS resolution problems
+- Network connectivity issues
+- Problems with recipient addresses
+
+2. Check the Mail Queue
+Inspect the mail queue to see if there are messages that are stuck and causing these notifications
+```
+postqueue -p
+or
+mailq
+```
+This command will list all emails currently in the queue. Look for any messages that are repeatedly failing to be delivered.
+
+3. 1 Redirect Root Emails
+If specific errors can't be immediately resolved or you're receiving too many notifications, consider redirecting emails addressed to the root user to another email address where they can be reviewed more conveniently. Edit the /etc/aliases file:
+```
+sudo vim /etc/aliases
+```
+And add or modify a line to redirect root's mail:
+```
+root: your-email@example.com
+```
+Replace your-email@example.com with the address where you want the messages to go. Then, run the newaliases command to rebuild the alias database:
+```
+sudo newaliases
+```
+3. 2  Suppress Non-Delivery Reports (NDRs) for Certain Emails
+If certain emails are known to cause issues and don't need to be delivered, you can configure Postfix to discard them or redirect them to a specific address. This involves setting up header checks or transport maps. For example, to discard messages, edit the /etc/postfix/header_checks file:
+```
+sudo vim /etc/postfix/header_checks
+```
+And add a rule like:
+```
+/^Subject:.*error message subject here/ DISCARD
+```
+Replace error message subject here with a pattern that matches the error emails you're receiving. Then, tell Postfix to use this file by adding the following line to /etc/postfix/main.cf:
+```
+header_checks = regexp:/etc/postfix/header_checks
+```
+Reload Postfix to apply the changes:
+```
+sudo postfix reload
+```
