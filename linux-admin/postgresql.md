@@ -31,12 +31,12 @@ You have to create a new PostgreSQL database cluster before you can use your Pos
 
 The template1 database is needed to create a new database. Everything that is stored in it will be placed in a new database when it is created. A postgres database is a default database designed for use by users, utilities, and third-party applications.
 ```
-/usr/pgsql-12/bin/postgresql-12-setup initdb
+/usr/pgsql-15/bin/postgresql-15-setup initdb
 ..
 Initializing database ... OK
 
-systemctl start postgresql-12
-systemctl enable postgresql-12
+systemctl start postgresql-15
+systemctl enable postgresql-15
 ```
 ### Creating a new Role
 By default, Postgres uses a concept called roles to handle in authentication and authorization. These are, in some ways, similar to regular Unix-style accounts, but Postgres does not distinguish between users and groups and instead prefers the more flexible term role.
