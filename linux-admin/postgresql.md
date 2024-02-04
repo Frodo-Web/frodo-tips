@@ -17,10 +17,14 @@ exclude=postgresql*
 ```
 Install official postgresql repo and install postgresql you need
 ```
+// Install dependency
+yum install epel-release
+yum -y install libzstd-devel
+
 yum install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 yum list postgresql*
 
-yum install postgresql12-server.x86_64
+yum install postgresql15-server.x86_64
 ```
 ### Configure PostgreSQL after install
 You have to create a new PostgreSQL database cluster before you can use your Postgres database. A database cluster is a collection of databases that are managed by a single server instance. Creating a database cluster consists of creating the directories in which the database data will be placed, generating the shared catalog tables, and creating the template1 and postgres databases.
