@@ -114,3 +114,85 @@ manticore=> SELECT * FROM playground;
         2 | swing | yellow | northwest | 2018-08-16
 ```
 Another thing to keep in mind is that you do not enter a value for the equip_id column. This is because this is automatically generated whenever a new row in the table is created.
+### Конспект dump
+```sql
+\l -list databases
+\c - switch database
+\dt - list tables
+\dn - list schemas
+\copy (select * from db) to '/home/user/file.csv' (format csv, delimiter ';'); - экспорт запроса в csv
+\copy table(id,name,value) FROM '/home/user/file.csv' DELIMITER ',' CSV - импорт
+\i /path/to/file - выполнить строки из файла
+\o /path/to/file - записать выборку в файл
+\sf - смотреть user-defined функции
+
+SELECT * FROM pg_roles;
+rolname | rolsuper | rolinherit | rolcreaterole | rolcreatedb | rolcatupdate | rolcanlogin | rolreplication | rolconnlimit | rolpassword | rolvaliduntil
+ | rolconfig | rolresqueue | oid | rolcreaterextgpfd | rolcreaterexthttp | rolcreatewextgpfd | rolresgroup 
+---------+----------+------------+---------------+-------------+--------------+-------------+----------------+--------------+-------------+--------------
+-+-----------+-------------+-----+-------------------+-------------------+-------------------+-------------
+ gpadmin | t        | t          | t             | t           | t            | t           | t              |           -1 | ********    |              
+ |           |        6055 |  10 | t                 | t                 | t                 |        6438
+
+postgres=# \conninfo
+You are connected to database "postgres" as user "gpadmin" via socket in "/tmp" at port "5432".
+
+postgres=# SELECT pg_reload_conf();
+ pg_reload_conf 
+----------------
+ t
+(1 row)
+
+\di+ i_asset_
+-[ RECORD 1 ]----------------------
+Schema      | public
+Name        | i_asset_
+Type        | index
+Owner       | nikolay
+Table       | asset
+Size        | 13 MB
+Description |
+
+ERROR: permission denied for relation mnp_data_history
+GRANT SELECT ON TABLE data_history TO zabbix_script; Дать права на SELECT на опред таблицу опред юзеру
+
+
+sync_db=# \sf usr.truncate_empty
+CREATE OR REPLACE FUNCTION usr.truncate_empty()
+ RETURNS integer
+ LANGUAGE plpgsql
+AS $function$
+...
+$function$
+
+select * from pg_namespace where nspname='public';
+ nspname | nspowner |              nspacl              
+---------+----------+----------------------------------
+ public  |       10 | {gpadmin=UC/gpadmin,=UC/gpadmin}
+(1 row)
+
+List all schemas from current database:
+zabbix=# select * from information_schema.schemata;
+  catalog_name   |      schema_name       |      schema_owner      | default_character_set_catalog | default_character_set_schema | default_character_set_name | sql_path 
+-----------------+------------------------+------------------------+-------------------------------+------------------------------+----------------------------+----------
+                         |                            | 
+ zabbix_external | usr                    | user                  |                               |                              |                            | 
+ zabbix_external | user                  | user                  |                               |                              |                            | 
+ zabbix_external | activemq               | activemq                   |                               |                              |                            | 
+
+
+select * from pg_catalog.pg_stat_activity LIMIT 10; # Таблица с отслеживание статистики по процессам (запросы, транзакции)
+select * from pg_catalog.pg_namespace LIMIT 10;  # Also lists schemas
+
+SELECT * FROM pg_stat_activity WHERE state = 'idle in transaction' AND now()-query_start > '10m'::interval;
+```
+### Roadmap
+```
+1. User-defined functions, shemas
+2. Indexes
+3. WAL
+4. Replication
+5. Vacuum
+6. Backup (pgbackrest?)
+
+```
