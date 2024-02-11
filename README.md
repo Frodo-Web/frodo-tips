@@ -16,6 +16,7 @@ Useful commands, combinations, advices, etc...
 [Jira queries](https://github.com/Frodo-Web/frodo-tips/blob/main/All/Jira.md) <br>
 [Ventoy](https://github.com/Frodo-Web/frodo-tips/blob/main/All/Ventoy.md) <br>
 [OpenSUSE TumbleWeed + i3wm](https://github.com/Frodo-Web/frodo-tips/blob/main/All/i3wm-opensuse.md) <br>
+[Hardware](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/hardware.md) <br>
 ## Linux Admin
 [GRUB](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/grub.md) <br>
 [LVM demonstration](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/lvm.md) <br>
