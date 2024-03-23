@@ -19,4 +19,6 @@ helm show chart bitnami/redis
 helm install sentry-redis bitnami/redis --namespace sentry -f redis-values.yaml
 helm upgrade sentry-kafka bitnami/kafka --namespace sentry  -f kafka-values.yaml
 helm get values sentry-kafka -n sentry
+helm get manifest sentry -n sentry
+helm template sentry -n sentry
 ````
