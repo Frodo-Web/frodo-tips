@@ -40,6 +40,7 @@ Useful commands, combinations, advices, etc...
 [Maven](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/maven.md) <br>
 [K3S](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/k3s.md) <br>
 [GitLab](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/gitlab.md) <br>
+[K8S, Helm](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/k8s-helm.md) <br>
 ## Roadmap
 [Roadmap](https://github.com/Frodo-Web/frodo-tips/blob/main/All/Roadmap.md) <br>
 ## SSH
