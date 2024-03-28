@@ -1422,6 +1422,10 @@ slurp           users.registrations 0          20012           20012           0
 9000	0.25577099999999997
 Avg latency: 0.7439 ms
 Percentiles: 50th = 0, 99th = 11, 99.9th = 13
+
+# Get consumer groups and describe them
+kafka-consumer-groups.sh --bootstrap-server 10.10.10.10:9092 --list
+kafka-consumer-groups.sh --bootstrap-server 10.10.10.10:9092 --describe --group logstash-testing
 ```
 ### About offset
 ````
