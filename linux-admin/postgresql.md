@@ -114,6 +114,11 @@ manticore=> SELECT * FROM playground;
         2 | swing | yellow | northwest | 2018-08-16
 ```
 Another thing to keep in mind is that you do not enter a value for the equip_id column. This is because this is automatically generated whenever a new row in the table is created.
+### PostgreSQL dump examples
+```
+pg_dump -c -Fc -d postgres --exclude-table=nodestore_node > /tmp/sentry1.dmp
+pg_restore -c --if-exists -h 10.228.228.228 --port=5000 -U sentry -d sentry -W < /tmp/sentry.dmp
+```
 ### Конспект dump
 ```sql
 \l -list databases
