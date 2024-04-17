@@ -73,3 +73,21 @@ Add insecure-registries to /etc/docker/daemon.json:
         ```
 }
 ```
+### Create a container which can access global internet only via proxy
+```
+# Run the container
+docker run  -d golang:1.19.10-bookworm tail -f /dev/null
+# Check its ip
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' 589ab32a1e1d
+..
+172.17.0.2
+# Add iptables rules on the host
+ sudo iptables -F DOCKER-USER
+ sudo iptables -F DOCKER-USER -s 172.17.0.2 -d 10.xxx.247.xxx -j ACCEPT
+ sudo iptables -F DOCKER-USER
+ sudo iptables -A DOCKER-USER -s 172.17.0.2 -d 10.xxx.247.xxx -j ACCEPT
+ sudo iptables -A DOCKER-USER -s 172.17.0.2 -j DROP
+ sudo iptables -A DOCKER-USER -j RETURN
+# Check if it works in the container
+curl -vvv -L -o - google.com
+curl -vvv -L -o - -x http://10.xxx.247.xxx:1234 google.com
