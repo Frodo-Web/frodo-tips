@@ -8,6 +8,8 @@ kubectl get secret --namespace sentry sentry-redis -o jsonpath="{.data.redis-pas
 kubectl get all -n sentry
 kubectl top pod --namespace=sentry
 kubectl exec -it ubuntu-pod -n sentry -- /bin/bash
+// Edit deployment, like exposed ports on pods etc.. There will be redeploy after that
+kubectl edit deployment distribution-admin -n development
 ````
 ## Helm
 ````
