@@ -10,6 +10,12 @@ kubectl top pod --namespace=sentry
 kubectl exec -it ubuntu-pod -n sentry -- /bin/bash
 // Edit deployment, like exposed ports on pods etc.. There will be redeploy after that
 kubectl edit deployment distribution -n development
+
+// Ingress logs
+kubectl -n kube-system logs daemonsets/rke2-ingress-nginx-controller
+
+// Watch all logs on the deployment
+kubectl logs -n development --follow deployments/application-admin
 ````
 ## Helm
 ````
