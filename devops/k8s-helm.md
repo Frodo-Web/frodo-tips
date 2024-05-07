@@ -16,6 +16,39 @@ kubectl -n kube-system logs daemonsets/rke2-ingress-nginx-controller
 
 // Watch all logs on the deployment
 kubectl logs -n development --follow deployments/application-admin
+
+// Inspecting Flows and Outputs
+kubectl get ClusterOutput -n cattle-logging-system
+kubectl describe ClusterOutput kafka-broker-logs-DC -n cattle-logging-system
+kubectl get Output -n development
+kubectl get Flows -n development
+kubectl get ClusterFlows -n cattle-logging-system
+kubectl describe Flows application-backend -n development
+...
+Name:         application-backend
+Namespace:    development
+Labels:       app.kubernetes.io/managed-by=Helm
+Annotations:  meta.helm.sh/release-name: application-backend
+              meta.helm.sh/release-namespace: development
+API Version:  logging.banzaicloud.io/v1beta1
+Kind:         Flow
+Metadata:
+  Creation Timestamp:  2024-01-10T13:45:34Z
+  Generation:          2
+  Resource Version:    725358702
+  UID:                 d99fb765-db24-4559-9098-ff7570f0c334
+Spec:
+  Global Output Refs:
+    kafka-broker-app
+  Match:
+    Select:
+      container_names:
+        backend
+      Labels:
+        app.role:  application-backend
+Status:
+  Active:  true
+Events:    <none>
 ````
 ## Helm
 ````
