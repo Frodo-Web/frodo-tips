@@ -20,6 +20,34 @@ kubectl logs -n development --follow deployments/application-admin
 // Inspecting Flows and Outputs
 kubectl get ClusterOutput -n cattle-logging-system
 kubectl describe ClusterOutput kafka-broker-logs-DC -n cattle-logging-system
+..
+Name:         kafka-broker-logs-DC
+Namespace:    cattle-logging-system
+Labels:       app.kubernetes.io/managed-by=Helm
+              objectset.rio.cattle.io/hash=eb144977a6e6a2bacddb574707e5ea19af81c705
+Annotations:  meta.helm.sh/release-name: logging-resources
+              meta.helm.sh/release-namespace: cattle-logging-system
+              objectset.rio.cattle.io/id: default-rancher-core-logging-logging-resources
+API Version:  logging.banzaicloud.io/v1beta1
+Kind:         ClusterOutput
+Metadata:
+  Creation Timestamp:  2023-12-27T20:58:16Z
+  Generation:          1
+  Resource Version:    658456668
+  UID:                 6ea7629c-69d7-4525-8be4-4f0e95601d5b
+Spec:
+  Kafka:
+    Brokers:  10.88.88.88:9092,10.89.89.89:9092,10.68.68.68:9092
+    Buffer:
+      chunk_limit_size:  512KB
+      retry_forever:     true
+    default_topic:       k8s-DC
+    Format:
+      Type:  json
+Status:
+  Active:  true
+Events:    <none>
+
 kubectl get Output -n development
 kubectl get Flows -n development
 kubectl get ClusterFlows -n cattle-logging-system
