@@ -16,7 +16,9 @@ kubectl -n kube-system logs daemonsets/rke2-ingress-nginx-controller
 
 // Watch all logs on the deployment
 kubectl logs -n development --follow deployments/application-admin
-
+````
+## K8S Inspecting Flows and Outputs
+````
 // Inspecting Flows and Outputs
 kubectl get ClusterOutput -n cattle-logging-system
 kubectl describe ClusterOutput kafka-broker-logs-DC -n cattle-logging-system
