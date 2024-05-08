@@ -79,6 +79,35 @@ Spec:
 Status:
   Active:  true
 Events:    <none>
+
+kubectl describe Flow ingress -n kube-system
+..
+Name:         ingress
+Namespace:    kube-system
+Labels:       app.kubernetes.io/managed-by=Helm
+              objectset.rio.cattle.io/hash=eb144977a6e6a2bacddb574707e5ea19af81c705
+Annotations:  meta.helm.sh/release-name: logging-resources
+              meta.helm.sh/release-namespace: cattle-logging-system
+              objectset.rio.cattle.io/id: default-rancher-core-logging-logging-resources
+API Version:  logging.banzaicloud.io/v1beta1
+Kind:         Flow
+Metadata:
+  Creation Timestamp:  2023-12-27T20:58:16Z
+  Generation:          1
+  Resource Version:    1411151
+  UID:                 79fadb5c-666-47cb-9ab2-f2f3ae35c314
+Spec:
+  Global Output Refs:
+    kafka-broker-ingress
+  Match:
+    Select:
+      container_names:
+        rke2-ingress-nginx-controller
+      Labels:
+        app.kubernetes.io/name:  rke2-ingress-nginx
+Status:
+  Active:  true
+Events:    <none>
 ````
 ## Helm
 ````
