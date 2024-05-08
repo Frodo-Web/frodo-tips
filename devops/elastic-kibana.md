@@ -59,6 +59,19 @@ some-service-swarm-2024.03.28-000001                          1gb
 machine-learning-2023.11.18                                   354.4kb
 ...
 
+// Get index creation date
+GET /_cat/indices?v&h=index,creation.date.string
+..
+index                                             creation.date.string
+some-service-swarm-2024.03.28-000001              2024-03-28T06:29:40.175Z
+.monitoring-logstash-7-2024.05.06                 2024-05-06T00:00:04.859Z
+
+// Index usage statistics
+GET /_nodes/stats/indices
+
+// Manually delete an index
+DELETE /index_name
+
 GET /_cat/indices
 ..
 yellow open .monitoring-logstash-7-2024.05.07          FW3uc31bT3-5aSPYks8GCA 1 1    1415976      0 157.5mb 157.5mb
