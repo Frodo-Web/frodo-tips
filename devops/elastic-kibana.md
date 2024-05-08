@@ -50,4 +50,12 @@ GET /k8s-dev-cluster/_search
 
 // See the mappings
 GET /k8s-dev-cluster/_mapping
+
+// Space consumption per index
+GET /_cat/indices?v&h=index,store.size
+..
+index                                                      store.size
+some-service-swarm-2024.03.28-000001                          1gb
+machine-learning-2023.11.18                                   354.4kb
+...
 ```
