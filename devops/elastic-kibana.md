@@ -58,4 +58,11 @@ index                                                      store.size
 some-service-swarm-2024.03.28-000001                          1gb
 machine-learning-2023.11.18                                   354.4kb
 ...
+
+GET /_cat/indices
+..
+yellow open .monitoring-logstash-7-2024.05.07          FW3uc31bT3-5aSPYks8GCA 1 1    1415976      0 157.5mb 157.5mb
+green  open some-gateway-swarm-2023.11.28-000001       SWWKJzI7S5C8wBljIE5b2w 1 1          0      0    450b    225b
+green  open machine-learning-2023.11.20                z9mymsHsTJCLLwAjjmOtnw 1 1          9      0 215.7kb 110.4kb
+green  open k8s-cluster-2023.11.28-000001              S8Vnzq_gQ3eEhUlwIfj9xg 1 1          0      0    450b    225b
 ```
