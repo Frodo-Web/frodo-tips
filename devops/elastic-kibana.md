@@ -96,7 +96,7 @@ PUT /my-index*/_settings
 }
 
 ```
-### Case №1. I have an index which is consumes alot of disk space and it weren't rotating for years and doesn't have ILM policy
+### Case №1. I have an index which consumes alot of disk space and it weren't rotating for years and doesn't have ILM policy
 ```
 // Creat a policy
 PUT _ilm/policy/delete-after-14-days
