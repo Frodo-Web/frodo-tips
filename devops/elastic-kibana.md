@@ -81,4 +81,7 @@ green  open k8s-cluster-2023.11.28-000001              S8Vnzq_gQ3eEhUlwIfj9xg 1 
 
 // GET ILM Policy
 GET _ilm/policy/.monitoring-8-ilm-policy
+
+// GET datastream
+GET _data_stream/<data_stream_name>
 ```
