@@ -84,4 +84,14 @@ GET _ilm/policy/.monitoring-8-ilm-policy
 
 // GET datastream
 GET _data_stream/<data_stream_name>
+
+// Clean ILM policy from indicies using pattern (in case it was deleted from the associated template, but the old indicies still using previous settings)
+PUT /my-index*/_settings
+{
+  "index": {
+    "lifecycle": {
+      "name": null
+    }
+  }
+}
 ```
