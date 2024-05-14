@@ -94,4 +94,60 @@ PUT /my-index*/_settings
     }
   }
 }
+
+```
+### Case №1. I have an index which is consumes alot of disk space and it weren't rotating for years and doesn't have ILM policy
+```
+// Creat a policy
+PUT _ilm/policy/delete-after-14-days
+{
+  "policy": {
+    "phases": {
+      "hot": {
+        "min_age": "0ms",
+        "actions": {
+          "rollover": {
+            "max_age": "14d"
+          }
+        }
+      },
+      "delete": {
+        "min_age": "14d",
+        "actions": {
+          "delete": {}
+        }
+      }
+    }
+  }
+}
+
+// Create and associate template with policy, be careful, if it's already exists the configuration will be overwrited
+PUT _index_template/my_template
+{
+  "index_patterns": ["my-index*"],
+  "template": {
+    "settings": {
+      "index.lifecycle.name": "delete-after-14-days",
+      "index.lifecycle.rollover_alias": "my-index-alias"
+    }
+  }
+}
+
+// Do rollover
+POST /my-index-alias/_rollover
+```
+### Case №2. Index health is yellow, why?
+```
+GET /_cluster/health
+
+GET /_cluster/health/<index_name>
+
+GET /_cat/shards/<index_name>?v
+
+GET /_cluster/allocation/explain
+{
+  "index": "<index_name>",
+  "shard": <shard_number>,
+  "primary": false
+}
 ```
