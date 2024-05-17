@@ -109,6 +109,48 @@ Status:
   Active:  true
 Events:    <none>
 ````
+
+## Ceph
+````
+kubectl apply -f https://raw.githubusercontent.com/rook/rook/master/deploy/examples/toolbox.yaml
+kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- bash
+
+ceph status
+..
+  cluster:
+    id:     46a19703-4531-44fb-bc7a-77777777777
+    health: HEALTH_OK
+ 
+  services:
+    mon: 3 daemons, quorum a,b,c (age 3w)
+    mgr: a(active, since 7w), standbys: b
+    mds: 1/1 daemons up, 1 hot standby
+    osd: 3 osds: 3 up (since 7w), 3 in (since 7w)
+ 
+  data:
+    volumes: 1/1 healthy
+    pools:   3 pools, 49 pgs
+    objects: 14.89k objects, 58 GiB
+    usage:   175 GiB used, 425 GiB / 600 GiB avail
+    pgs:     49 active+clean
+ 
+  io:
+    client:   1.8 KiB/s rd, 682 B/s wr, 2 op/s rd, 0 op/s wr
+
+
+ceph df
+..
+--- RAW STORAGE ---
+CLASS     SIZE    AVAIL     USED  RAW USED  %RAW USED
+hdd    600 GiB  425 GiB  175 GiB   175 GiB      29.21
+TOTAL  600 GiB  425 GiB  175 GiB   175 GiB      29.21
+ 
+--- POOLS ---
+POOL             ID  PGS   STORED  OBJECTS     USED  %USED  MAX AVAIL
+myfs-metadata     1   16  497 MiB      197  1.5 GiB   0.37    132 GiB
+myfs-replicated   2   32   57 GiB   14.70k  171 GiB  30.23    132 GiB
+.mgr              3    1  449 KiB        2  1.3 MiB      0    132 GiB
+````
 ## Helm
 ````
 helm ls --all-namespaces
