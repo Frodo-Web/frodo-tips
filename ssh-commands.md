@@ -1,4 +1,9 @@
 # SSH commands and options
+## Common commands
+Generate ssh key
+````
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ~/.ssh/my_custom_key
+````
 ## Working with sshd
 ### Reload ssh-server configuration
 ````
