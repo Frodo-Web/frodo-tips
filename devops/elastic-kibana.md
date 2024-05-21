@@ -151,3 +151,29 @@ GET /_cluster/allocation/explain
   "primary": false
 }
 ```
+
+## Logstash tips
+Enable verbose output to files in case of debugging
+```
+output {
+  if ([type]=="patroni_logs"){
+    elasticsearch {
+      hosts => ["10.65.8.203:9200"]
+      user=> "elastic"
+      password => "gsgg"
+      index => "patroni_logs-%{+YYYY.MM.dd}"
+      manage_template => "true"
+        template_name => "patroni_logs"
+    }
+    file {
+      path => "/tmp/logstash_output_rubydebug.log"
+      codec => rubydebug { metadata => true }
+    }
+    file {
+      path => "/tmp/logstash_output_json.log"
+      codec => json_lines
+    }
+  }
+}
+
+```
