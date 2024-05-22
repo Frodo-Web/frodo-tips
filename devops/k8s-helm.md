@@ -16,6 +16,9 @@ kubectl -n kube-system logs daemonsets/rke2-ingress-nginx-controller
 
 // Watch all logs on the deployment
 kubectl logs -n development --follow deployments/application-admin
+
+// Copy file to a pod
+kubectl cp myfile.txt my-namespace/my-pod:/tmp/myfile.txt
 ````
 ## K8S Inspecting Flows and Outputs
 ````
