@@ -95,6 +95,35 @@ PUT /my-index*/_settings
   }
 }
 
+// PUT deprecated template :D With data types
+PUT _template/patroni_logs
+{
+  "index_patterns": ["patroni_logs*"],
+  "settings": {
+    "number_of_shards": 1
+  },
+  "mappings": {
+    "properties": {
+      "log_timestamp": { "type": "date" },
+      "timezone": { "type": "keyword" },
+      "db_user": { "type": "keyword" },
+      "db_name": { "type": "keyword" },
+      "process_id": { "type": "integer" },
+      "client_address": { "type": "ip" },
+      "session_id": { "type": "keyword" },
+      "transaction_id": { "type": "integer" },
+      "statement": { "type": "text" },
+      "session_start_time": { "type": "date" },
+      "session_start_timezone": { "type": "keyword" },
+      "virtual_transaction_id": { "type": "keyword" },
+      "backend_start": { "type": "integer" },
+      "log_level": { "type": "keyword" },
+      "error_code": { "type": "keyword" },
+      "query": { "type": "text" },
+      "client_type": { "type": "keyword" }
+    }
+  }
+}
 ```
 ### Case №1. I have an index which consumes alot of disk space and it weren't rotating for years and doesn't have ILM policy
 ```
