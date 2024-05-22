@@ -151,7 +151,16 @@ GET /_cluster/allocation/explain
   "primary": false
 }
 ```
-
+### Can't store an async search response larger than [10485760] bytes. This limit can be set by changing the [search.max_async_search_response_size] setting.
+You can increase that limitation, but it will put more memory usage on Elastic JVM.
+```
+PUT /_cluster/settings 
+{
+  "persistent": { 
+    "search.max_async_search_response_size":"50mb"
+  }
+}
+```
 ## Logstash tips
 Enable verbose output to files in case of debugging
 ```
