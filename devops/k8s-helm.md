@@ -167,3 +167,126 @@ helm get values sentry-kafka -n sentry
 helm get manifest sentry -n sentry
 helm template sentry -n sentry
 ````
+## Fleet
+How to deploy manually in fleet
+1. Create YAML
+```
+apiVersion: fleet.cattle.io/v1alpha1
+kind: GitRepo
+metadata:
+  name: #string
+  annotations:
+    {}
+    #  key: string
+  labels:
+    {}
+    #  key: string
+  namespace: fleet-default
+spec:
+  branch: master
+  insecureSkipTLSVerify: false
+  paths:
+#    - string
+  repo: ''
+  targets:
+    - clusterSelector:
+        matchExpressions:
+          - key: provider.cattle.io
+            operator: NotIn
+            values:
+              - harvester
+#    - clusterGroup: string
+#      clusterGroupSelector:
+#        matchExpressions:
+#          - key: string
+#            operator: string
+#            values:
+#              - string
+#        matchLabels:  key: string
+#      clusterName: string
+#      clusterSelector:
+#        matchExpressions:
+#          - key: string
+#            operator: string
+#            values:
+#              - string
+#        matchLabels:  key: string
+#      name: string
+#  caBundle: string
+#  clientSecretName: string
+#  forceSyncGeneration: int
+#  helmRepoURLRegex: string
+#  helmSecretName: string
+#  imageScanCommit:
+#    authorEmail: string
+#    authorName: string
+#    messageTemplate: string
+#  imageScanInterval: string
+#  keepResources: boolean
+#  paused: boolean
+#  pollingInterval: string
+#  revision: string
+#  serviceAccount: string
+#  targetNamespace: string
+__clone: true
+```
+Edit it to something like this
+```
+apiVersion: fleet.cattle.io/v1alpha1
+kind: GitRepo
+metadata:
+  name: #string
+  annotations:
+    {}
+    #  key: string
+  labels:
+    {}
+    #  key: string
+  name: milvus-testing
+  namespace: fleet-default
+spec:
+  branch: TASK-8338
+  clientSecretName: gitrepo-auth-hehehexbxbbs
+  helmSecretName: helm-secret
+  insecureSkipTLSVerify: false
+  paths:
+    - /milvus
+  paused: true
+  repo: https://gitlab.company.com/infrastructure/kubernetes/fleet-core.git
+  targets:
+    - clusterName: my-cluster-prod
+#    - clusterGroup: string
+#      clusterGroupSelector:
+#        matchExpressions:
+#          - key: string
+#            operator: string
+#            values:
+#              - string
+#        matchLabels:  key: string
+#      clusterName: string
+#      clusterSelector:
+#        matchExpressions:
+#          - key: string
+#            operator: string
+#            values:
+#              - string
+#        matchLabels:  key: string
+#      name: string
+#  caBundle: string
+#  clientSecretName: string
+#  forceSyncGeneration: int
+#  helmRepoURLRegex: string
+#  helmSecretName: string
+#  imageScanCommit:
+#    authorEmail: string
+#    authorName: string
+#    messageTemplate: string
+#  imageScanInterval: string
+#  keepResources: boolean
+#  paused: boolean
+#  pollingInterval: string
+#  revision: string
+#  serviceAccount: string
+#  targetNamespace: string
+__clone: true
+```
