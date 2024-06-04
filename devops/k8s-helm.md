@@ -19,6 +19,12 @@ kubectl logs -n development --follow deployments/application-admin
 
 // Copy file to a pod
 kubectl cp myfile.txt my-namespace/my-pod:/tmp/myfile.txt
+
+// Forcefully delete stucked in terminating state pods
+kubectl delete pod milvus-testing-kafka-0 --grace-period=0 --force -n milvus
+
+But pay attention to this warning:
+Warning: Immediate deletion does not wait for confirmation that the running resource has been terminated. The resource may continue to run on the cluster indefinitely.
 ````
 ## K8S Inspecting Flows and Outputs
 ````
