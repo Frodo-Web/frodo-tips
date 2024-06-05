@@ -3,7 +3,7 @@
 ## Prometheus
 List all possible lable values in PromQL
 ````
-count by (app) (rutube_http_external_request_total)
+count by (app) (company_http_external_request_total)
 ````
 ### Alert routing from prometheus to Grafana OnCall -> Telegram
 Example of prometheus alert
