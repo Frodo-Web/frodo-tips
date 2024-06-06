@@ -38,3 +38,22 @@ yamllint /tmp/public-ngix.yaml
   1:1       warning  missing document start "---"  (document-start)
   5:1       error    syntax error: found character '\t' that cannot start any token (syntax)
 ````
+# Bash script
+```
+set -euxo pipefail
+```
+-e (Exit on error):
+
+    This option causes the script to immediately exit if any command returns a non-zero exit status. This helps prevent the script from continuing execution after an error, which could lead to unintended consequences or harder-to-debug issues.
+
+-u (Treat unset variables as an error):
+
+    This option treats unset variables as an error and causes the script to exit immediately. This helps catch typos and ensures that all variables are properly initialized before they are used.
+
+-x (Print commands and their arguments as they are executed):
+
+    This option prints each command to the terminal before it is executed, which is useful for debugging purposes. It allows you to see the exact commands and their arguments, making it easier to track down where an error might be occurring.
+
+-o pipefail (Return the exit status of the last command in the pipe that failed):
+
+    This option changes the behavior of pipelines so that the pipeline's return status is the value of the last (rightmost) command to exit with a non-zero status, or zero if all commands exit successfully. This is useful for catching errors in pipelines, which can sometimes be masked by the default behavior of only considering the exit status of the last command.
