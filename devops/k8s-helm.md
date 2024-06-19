@@ -172,6 +172,9 @@ helm upgrade sentry-kafka bitnami/kafka --namespace sentry  -f kafka-values.yaml
 helm get values sentry-kafka -n sentry
 helm get manifest sentry -n sentry
 helm template sentry -n sentry
+
+// Render helm chart ignoring the yaml errors, so you can see what's parsed wrong
+helm --debug template . -f values.yaml
 ````
 ## Fleet
 How to deploy manually in fleet
