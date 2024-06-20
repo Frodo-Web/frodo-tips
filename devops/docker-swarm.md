@@ -18,4 +18,8 @@ docker service  ps <service_name>
 
 // Redeploy
 docker service rm <service_name> && docker stack deploy --prune --with-registry-auth --compose-file /opt/docker/<service_name>.yml <STACK_name>
+
+// Find container id and read its logs
+docker ps -a | grep <service>
+docker logs -n 1000 8893cf2efe8d 2>&1 | less +G -n
 ```
