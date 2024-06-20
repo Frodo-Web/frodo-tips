@@ -22,4 +22,6 @@ docker service rm <service_name> && docker stack deploy --prune --with-registry-
 // Find container id and read its logs
 docker ps -a | grep <service>
 docker logs -n 1000 8893cf2efe8d 2>&1 | less +G -n
+// Logs for service
+docker service logs -n 10000 <service_name> 2>&1 | less +G -n
 ```
