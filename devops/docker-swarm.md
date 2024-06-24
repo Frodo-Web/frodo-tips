@@ -24,4 +24,8 @@ docker ps -a | grep <service>
 docker logs -n 1000 8893cf2efe8d 2>&1 | less +G -n
 // Logs for service
 docker service logs -n 10000 <service_name> 2>&1 | less +G -n
+
+// Delete stack
+docker stack ls
+docker stack rm <stack_name>
 ```
