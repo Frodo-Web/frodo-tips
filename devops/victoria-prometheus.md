@@ -1,10 +1,27 @@
-# Victoria Metrics, Prometheus tips
+# Victoria Metrics, Prometheus, Alertmanager, Grafana OnCall tips
 ## Victoria Metrics
 ## Prometheus
 List all possible lable values in PromQL
 ````
 count by (app) (company_http_external_request_total)
 ````
+### Figuring out Prometheus current capacity
+It gives you an idea of how many unique time series are currently being tracked and stored in memory by Prometheus.
+```
+prometheus_tsdb_head_series
+```
+Use this metric to monitor the current load on Prometheus in terms of the number of active time series. A significant increase in this metric can indicate that your Prometheus instance is handling more unique time series, which can affect memory usage and performance.
+
+It shows the cumulative count of all samples (data points) that have been ingested by Prometheus.
+```
+prometheus_tsdb_head_samples_appended_total
+```
+Use this metric to understand the volume of data being ingested over time. It helps in monitoring the ingestion rate and identifying any sudden spikes in data input, which can affect both performance and resource usage.
+```
+prometheus_tsdb_head_series is a gauge metric, indicating the current number of active time series at a given point in time.
+prometheus_tsdb_head_samples_appended_total is a counter metric, representing a continuously increasing total number of samples ingested.
+```
+## Alerting
 ### Alert routing from prometheus to Grafana OnCall -> Telegram
 Example of prometheus alert
 ```
