@@ -66,3 +66,5 @@ Or you can filter by names using regexp
   alertname | regex_match("^MonitoringTeam_.*")
 }}
 ```
+### Variables
+![](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/images/variables-ds-regexp.png?raw=true)
