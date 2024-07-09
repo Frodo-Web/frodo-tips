@@ -194,12 +194,16 @@ PUT /_cluster/settings
 ```
 // Total count of nodes, count of data nodes
 GET /_cluster/health?pretty
+
 // Nodes, their state and roles
 GET /_cluster/state?pretty
+
 // List all nodes with ip and names
 GET /_cat/nodes?v
+
 // More clean request for roles of the nodes
 GET /_nodes?filter_path=nodes.*.roles,pretty
+
 // Get the leader node
 GET /_cat/master?v
 ```
