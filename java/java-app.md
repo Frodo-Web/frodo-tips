@@ -37,6 +37,69 @@ For example, this query will find all objects refer to files:
 ````
 select referrers(f) from java.io.File f
 ````
+#### JVM Heap capacity and utilization statistics
+Find out options being used for running jvm
+```
+-Xms<size>        set initial Java heap size
+-Xmx<size>        set maximum Java heap size
+-Xss<size>        set java thread stack size
+```
+Find out process ID
+```
+jps -l
+..
+36288 org.elasticsearch.bootstrap.Elasticsearch
+99508 org.logstash.Logstash
+101688 jdk.jcmd/sun.tools.jps.Jps
+```
+Show heap stats
+```
+jstat -gc 99508
+..
+ S0C    S1C    S0U    S1U      EC       EU        OC         OU       MC     MU    CCSC   CCSU   YGC     YGCT    FGC    FGCT    CGC    CGCT     GCT   
+195904.0 195904.0 134615.6  0.0   1567680.0 1013792.5 2236352.0  1343015.3  144364.0 122590.0 22508.0 16346.5    546    6.934   0      0.000  16      1.078    8.011
+```
+Here is brief explanation on those fields
+```
+S0C (Survivor space 0 capacity): The current capacity of the first survivor space in the young generation (in KB).
+S1C (Survivor space 1 capacity): The current capacity of the second survivor space in the young generation (in KB).
+S0U (Survivor space 0 utilization): The amount of memory currently used in the first survivor space (in KB).
+S1U (Survivor space 1 utilization): The amount of memory currently used in the second survivor space (in KB).
+EC (Eden space capacity): The current capacity of the Eden space in the young generation (in KB).
+EU (Eden space utilization): The amount of memory currently used in the Eden space (in KB).
+OC (Old generation capacity): The current capacity of the old generation (in KB).
+OU (Old generation utilization): The amount of memory currently used in the old generation (in KB).
+MC (Metaspace capacity): The current capacity of the metaspace (in KB).
+MU (Metaspace utilization): The amount of memory currently used in the metaspace (in KB).
+CCSC (Compressed class space capacity): The current capacity of the compressed class space (in KB).
+CCSU (Compressed class space utilization): The amount of memory currently used in the compressed class space (in KB).
+YGC (Number of young generation GC events): The number of garbage collection events that have occurred in the young generation.
+YGCT (Young generation garbage collection time): The total time (in seconds) spent on garbage collection in the young generation.
+FGC (Number of full GC events): The number of full garbage collection events that have occurred.
+FGCT (Full garbage collection time): The total time (in seconds) spent on full garbage collection.
+CGC (Number of concurrent GC events): The number of concurrent garbage collection events that have occurred.
+CGCT (Concurrent garbage collection time): The total time (in seconds) spent on concurrent garbage collection.
+GCT (Total garbage collection time): The total time (in seconds) spent on all types of garbage collection.
+```
+Convert it
+```
+S0C: 195904.0 KB -> 191.29 MB
+S1C: 195904.0 KB -> 191.29 MB
+S0U: 134615.6 KB -> 131.41 MB
+S1U: 0.0 KB -> 0.00 MB
+EC: 1567680.0 KB -> 1531.64 MB
+EU: 1013792.5 KB -> 990.80 MB
+OC: 2236352.0 KB -> 2183.94 MB
+OU: 1343015.3 KB -> 1311.94 MB
+```
+Calculate it
+```
+Total Heap Capacity (EC + S0C + S1C + OC):
+1531.64 MB (EC) + 191.29 MB (S0C) + 191.29 MB (S1C) + 2183.94 MB (OC) = 4098.16 MB
+
+Total Heap Utilization (EU + S0U + S1U + OU):
+990.80 MB (EU) + 131.41 MB (S0U) + 0.00 MB (S1U) + 1311.94 MB (OU) = 2434.15 MB
+```
 #### Working with threads and jstack
 Find out JVM $PID and list the threads after
 ````
