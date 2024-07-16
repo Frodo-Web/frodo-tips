@@ -232,3 +232,35 @@ output {
 }
 
 ```
+Grok pattern for postgres which was damn overload, high CPU usage, pipeline timouts
+```
+filter {
+  if ([type] == "postgres_logs") {
+    grok {
+       match => { "message" => "%{TIMESTAMP_ISO8601:log_timestamp} %{DATA:timezone},(\"%{DATA:db_user}\")?,(\"%{DATA:db_name}\")?,(%{DATA:process_id})?,(\"%{DATA:client_address}\")?,(%{DATA:session_id})?,(%{DATA:transaction_id})?,(\"%{DATA:statement}\")?,(%{DATA:session_start_time})? (%{DATA:session_start_timezone})?,(%{DATA:virtual_transaction_id})?,(%{DATA:backend_start})?,(%{DATA:log_level})?,(%{DATA:error_code})?,(\"%{DATA:info_message}\")?,(\"%{DATA}\")?,(\"%{DATA}\")?,(\"%{DATA}\")?,(\"%{DATA}\")?,(\"%{DATA}\")?,(\"%{GREEDYDATA:query}\")?,(%{DATA})?,(%{DATA})?,(\"%{DATA}\")?,(\"%{DATA:client_type}\")?$" }
+       remove_field => ["message"]
+    }
+    date {
+      match => [ "log_timestamp", "ISO8601" ]
+      target => "@timestamp"
+    }
+  }
+}
+```
+Dissect filter, which is lightweight. There were no problems at all, but less field data
+```
+filter {
+  if ([type] == "postgres_logs") {
+    dissect {
+      mapping => {
+        'message' => '%{+log_timestamp} %{+log_timestamp/2} %{timezone},%{db_user},%{db_name},%{process_id},%{client_address},%{session_id},%{transaction_id},%{statement},%{+session_start_time} %{+session_start_time/2} %{session_start_timezone},%{virtual_transaction_id},%{backend_start},%{log_level},%{error_code},%{}'
+      }
+    }
+    date {
+      match => [ "log_timestamp", "ISO8601" ]
+      target => "@timestamp"
+    }
+  }
+}
+
+```
