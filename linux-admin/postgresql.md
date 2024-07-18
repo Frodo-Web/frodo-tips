@@ -1,4 +1,8 @@
 # PostgreSQL
+### PSQL
+```
+psql -h 10.228.228.228 -p 5000 -U sentry sentry
+```
 ### Install PostgreSQL on CentOS 7
 Exclude postgresql* packages from Base and Update repos
 ```
