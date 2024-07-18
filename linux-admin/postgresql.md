@@ -3,6 +3,15 @@
 ```
 psql -h 10.228.228.228 -p 5000 -U sentry sentry
 ```
+If all tables in same schema, you can drop them without dropping the database
+```
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+
+// Default grants
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public;
+```
 ### Install PostgreSQL on CentOS 7
 Exclude postgresql* packages from Base and Update repos
 ```
@@ -128,6 +137,8 @@ pg_restore -c --if-exists -h 10.228.228.228 --port=5000 -U sentry -d sentry -W <
 \l -list databases
 \c - switch database
 \dt - list tables
+\dt *.* - list tables in all schemas
+\dt public.* - list tables in public schema
 \dn - list schemas
 \copy (select * from db) to '/home/user/file.csv' (format csv, delimiter ';'); - экспорт запроса в csv
 \copy table(id,name,value) FROM '/home/user/file.csv' DELIMITER ',' CSV - импорт
