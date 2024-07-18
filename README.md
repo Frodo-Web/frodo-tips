@@ -32,6 +32,7 @@ Useful commands, combinations, advices, etc...
 # DBA
 [PostgreSQL](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/postgresql.md) <br>
 [Clickhouse](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/clickhouse.md) <br>
+[Redis](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/redis.md) <br>
 [Manticore](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/manticore.md) <br>
 [RabbitMQ](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/rabbitmq.md) <br>
 [Apache Kafka](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/apache-kafka.md) <br>
