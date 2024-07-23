@@ -180,6 +180,19 @@ GET /_cluster/allocation/explain
   "primary": false
 }
 ```
+### Case №3 Yellow Cluster Health - Missing Replica Shards
+If there is a hude amount of replicas and not enough disk space, you can set replica count to 1
+```
+GET /your_index_name/_settings?pretty
+
+PUT /my_index/_settings
+{
+  "index": {
+    "number_of_replicas": 1
+  }
+}
+
+```
 ### Can't store an async search response larger than [10485760] bytes. This limit can be set by changing the [search.max_async_search_response_size] setting.
 You can increase that limitation, but it will put more memory usage on Elastic JVM.
 ```
