@@ -183,6 +183,7 @@ GET /_cluster/allocation/explain
 ### Case №3 Yellow Cluster Health - Missing Replica Shards
 If there is a huge amount of replicas and not enough disk space, you can set replica count to 1
 ```
+GET /_cluster/allocation/explain
 GET /your_index_name/_settings?pretty
 
 PUT /my_index/_settings
