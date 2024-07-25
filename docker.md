@@ -1,5 +1,24 @@
 # Docker tips
 - Guide to install Docker on Raspbian - https://docs.docker.com/engine/install/debian/
+
+### Release space
+```
+To delete all containers including its volumes use,
+docker rm -vf $(docker ps -aq)
+
+To delete all the images,
+docker rmi -f $(docker images -aq)
+
+Use this to delete everything:
+docker system prune -a --volumes
+..
+WARNING! This will remove:
+    - all stopped containers
+    - all networks not used by at least one container
+    - all volumes not used by at least one container
+    - all images without at least one container associated to them
+    - all build cache
+```
 ### DNS resolve problem && Connections hang on multi-thread
 Edit /etc/docker/daemon.json:
 ````
