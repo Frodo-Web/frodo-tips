@@ -12,6 +12,11 @@ CREATE SCHEMA public;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO public;
 ```
+Clean tables with old data 
+```
+sentry=> DELETE FROM public.nodestore_node WHERE "timestamp" < NOW() - INTERVAL '15 days';
+sentry=> VACUUM FULL public.nodestore_node;
+```
 ### Install PostgreSQL on CentOS 7
 Exclude postgresql* packages from Base and Update repos
 ```
