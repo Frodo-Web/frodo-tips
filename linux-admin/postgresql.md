@@ -12,6 +12,13 @@ CREATE SCHEMA public;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO public;
 ```
+Show the size of a table
+```
+sentry=> SELECT pg_size_pretty(pg_total_relation_size('nodestore_node'));
+ pg_size_pretty 
+----------------
+ 2440 GB
+```
 Clean tables with old data 
 ```
 sentry=> DELETE FROM public.nodestore_node WHERE "timestamp" < NOW() - INTERVAL '15 days';
