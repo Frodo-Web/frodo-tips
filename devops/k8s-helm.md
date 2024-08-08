@@ -175,6 +175,9 @@ helm template sentry -n sentry
 
 // Render helm chart ignoring the yaml errors, so you can see what's parsed wrong
 helm --debug template . -f values.yaml
+
+// if you use this annotation on the PVC, it will skip deleting the resource on uninstall.
+helm.sh/resource-policy: "keep"
 ````
 ## Fleet
 How to deploy manually in fleet
