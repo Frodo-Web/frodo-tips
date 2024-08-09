@@ -2479,4 +2479,10 @@ Error: Assignments can only be reset if the group 'logstash-apps' is inactive, b
 ./kafka-consumer-groups.sh --bootstrap-server kafka-broker-100:9092 --group logstash-apps --reset-offsets --to-latest --topic app_logs
 // Now with --execute parameter, we will actually execute this command and apply the changes
 ./kafka-consumer-groups.sh --bootstrap-server kafka-broker-100:9092 --group logstash-apps --reset-offsets --to-latest --topic app_logs --execute
+
+// Reset offset on all topics for consumer group
+./kafka-consumer-groups.sh --bootstrap-server 10.66.14.101:9092 --group logstash-apps --reset-offsets --to-latest --all-topics --execute
+
+// Delete all info about consuming group
+./kafka-consumer-groups.sh --bootstrap-server 10.65.8.59:9092 --group logstash-dev --delete
 ```
