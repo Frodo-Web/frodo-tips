@@ -25,6 +25,9 @@ kubectl delete pod milvus-testing-kafka-0 --grace-period=0 --force -n milvus
 
 But pay attention to this warning:
 Warning: Immediate deletion does not wait for confirmation that the running resource has been terminated. The resource may continue to run on the cluster indefinitely.
+
+// Rollback to the same revision to restore resources which were deleted after release
+helm rollback <name> <revision_number> -n namespace
 ````
 ## K8S Inspecting Flows and Outputs
 ````
