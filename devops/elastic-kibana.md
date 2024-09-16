@@ -186,6 +186,7 @@ The reasons can be:
 2. If a node goes down and the replica shards cannot be reallocated
 3. Not enough nodes in the cluster to allocate the replica shards
 4. Replica shards might not be allocated due to shard allocation settings
+5. 
 ```
 // Check health
 GET /_cluster/health
@@ -205,6 +206,9 @@ reached the limit of incoming shard recoveries [2], cluster setting [cluster.rou
 // Check disk space
 GET /_cat/allocation?v
 
+// To see allocation tasks, if they are currently running
+GET /_tasks?detailed=true&actions=*recovery
+
 // Check the problem index settings
 GET /index_name/_settings
 
@@ -217,6 +221,9 @@ index.unassigned.node_left.delayed_timeout
 GET /_cluster/settings?include_defaults=true
 
 cluster.routing.allocation.enable, cluster.routing.allocation.disk.threshold_enabled
+
+// If a snapshot operation is ongoing or interrupted, it can block shard allocation
+GET /_snapshot/_status
 
 // You can try to force allocation of shards
 POST /_cluster/reroute?retry_failed
@@ -253,7 +260,13 @@ POST /_cluster/reroute
   ]
 }
 
-
+// You can increase count of concurent allocations
+PUT /_cluster/settings
+{
+  "persistent": {
+    "cluster.routing.allocation.node_concurrent_incoming_recoveries": 4
+  }
+}
 ```
 ### Can't store an async search response larger than [10485760] bytes. This limit can be set by changing the [search.max_async_search_response_size] setting.
 You can increase that limitation, but it will put more memory usage on Elastic JVM.
