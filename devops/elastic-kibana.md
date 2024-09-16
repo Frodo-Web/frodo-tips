@@ -208,6 +208,8 @@ GET /_cat/allocation?v
 
 // To see allocation tasks, if they are currently running
 GET /_tasks?detailed=true&actions=*recovery
+GET /_cat/recovery?v
+GET /_cat/recovery?v&h=index,shard,time,type,stage,source_node,target_node,files_percent,bytes_percent
 
 // Check the problem index settings
 GET /index_name/_settings
