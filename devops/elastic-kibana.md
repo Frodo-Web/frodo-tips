@@ -200,6 +200,8 @@ GET /_cat/shards?v&h=index,shard,prirep,state,unassigned.reason
 // Find the reasons and explanation
 GET /_cluster/allocation/explain
 
+reached the limit of incoming shard recoveries [2], cluster setting [cluster.routing.allocation.node_concurrent_incoming_recoveries=2] (can also be set via [cluster.routing.allocation.node_concurrent_recoveries])
+
 // Check disk space
 GET /_cat/allocation?v
 
@@ -235,6 +237,23 @@ PUT /my_index/_settings
     "number_of_replicas": 1
   }
 }
+
+// You can forcefully reallocate to different node
+POST /_cluster/reroute
+{
+  "commands": [
+    {
+      "allocate_replica": {
+        "index": "index_name",
+        "shard": shard_number,
+        "node": "elk-d324",
+        "allow_primary": false
+      }
+    }
+  ]
+}
+
+
 ```
 ### Can't store an async search response larger than [10485760] bytes. This limit can be set by changing the [search.max_async_search_response_size] setting.
 You can increase that limitation, but it will put more memory usage on Elastic JVM.
