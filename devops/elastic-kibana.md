@@ -181,18 +181,60 @@ GET /_cluster/allocation/explain
 }
 ```
 ### Case №3 Yellow Cluster Health - Missing Replica Shards
-If there is a huge amount of replicas and not enough disk space, you can set replica count to 1
+The reasons can be:
+1. Not enough disk space
+2. If a node goes down and the replica shards cannot be reallocated
+3. Not enough nodes in the cluster to allocate the replica shards
+4. Replica shards might not be allocated due to shard allocation settings
 ```
-GET /_cluster/allocation/explain
-GET /your_index_name/_settings?pretty
+// Check health
+GET /_cluster/health
+GET /_cluster/health/index_name?pretty
 
+// Check node availability
+GET /_cat/nodes?v
+
+// Find unasigned shards and the reason
+GET /_cat/shards?v&h=index,shard,prirep,state,unassigned.reason
+
+// Find the reasons and explanation
+GET /_cluster/allocation/explain
+
+// Check disk space
+GET /_cat/allocation?v
+
+// Check the problem index settings
+GET /index_name/_settings
+
+The options can be: (OLD!!!)
+index.routing.allocation.include
+index.routing.allocation.exclude
+index.unassigned.node_left.delayed_timeout
+
+// Check cluster settings
+GET /_cluster/settings?include_defaults=true
+
+cluster.routing.allocation.enable, cluster.routing.allocation.disk.threshold_enabled
+
+// You can try to force allocation of shards
+POST /_cluster/reroute?retry_failed
+
+
+// You can increase timeout
+PUT _all/_settings
+{
+  "settings": {
+    "index.unassigned.node_left.delayed_timeout": "5m"
+  }
+}
+
+// You can play with replica shards
 PUT /my_index/_settings
 {
   "index": {
     "number_of_replicas": 1
   }
 }
-
 ```
 ### Can't store an async search response larger than [10485760] bytes. This limit can be set by changing the [search.max_async_search_response_size] setting.
 You can increase that limitation, but it will put more memory usage on Elastic JVM.
