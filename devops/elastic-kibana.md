@@ -269,6 +269,14 @@ PUT /_cluster/settings
     "cluster.routing.allocation.node_concurrent_incoming_recoveries": 4
   }
 }
+
+// Temporaly disable allocations (rebalancing, recoveries) to shutdown 1 node temporally (to migrate for example)
+PUT /_cluster/settings
+{
+  "transient": {
+    "cluster.routing.allocation.enable": "none"
+  }
+}
 ```
 ### Can't store an async search response larger than [10485760] bytes. This limit can be set by changing the [search.max_async_search_response_size] setting.
 You can increase that limitation, but it will put more memory usage on Elastic JVM.
