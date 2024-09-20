@@ -9,6 +9,11 @@ curl -u elastic:password_here -X GET "http://10.10.10.10:9200/index-name-or-alia
   "size": 10
 }'
 ````
+## Tunning Elastic Search
+```
+// Get the most CPU intensive threads
+GET /_nodes/hot_threads
+```
 ## Kibana DEV tools queries
 ```
 // Search through index
