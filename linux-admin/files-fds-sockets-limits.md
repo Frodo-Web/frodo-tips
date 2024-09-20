@@ -1,4 +1,10 @@
 # Working with files, file descriptors, sockets, processes, limits in Linux
+Find logstash worker thread and strace it, find out that elastic responds slowly
+````
+ps aux | grep jvm
+ps -T -p 342690 -o pid,spid,stat,lwp,comm | less
+strace -T -tt -o /tmp/logstash-worker.txt -p 343188
+````
 Finding Grafana OnCall sockets creating problem
 ````
 Kernel configuration
