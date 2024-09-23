@@ -296,6 +296,14 @@ PUT /_cluster/settings
     "cluster.routing.allocation.exclude._name": "elastic-node-1,elastic-node-2"
   }
 }
+
+// Adjust index refresh interval on all indeces to reduce disk util, but it will be delayed Search Visibility
+PUT /_all/_settings
+{
+  "index": {
+    "refresh_interval": "10s"
+  }
+}
 ```
 ### Can't store an async search response larger than [10485760] bytes. This limit can be set by changing the [search.max_async_search_response_size] setting.
 You can increase that limitation, but it will put more memory usage on Elastic JVM.
