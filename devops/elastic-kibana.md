@@ -293,7 +293,7 @@ PUT /_cluster/settings
 PUT /_cluster/settings
 {
   "transient": {
-    "cluster.routing.allocation.exclude._ip": "elastic-node-1,elastic-node-2"
+    "cluster.routing.allocation.exclude._name": "elastic-node-1,elastic-node-2"
   }
 }
 ```
