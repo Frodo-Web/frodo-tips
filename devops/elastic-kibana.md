@@ -282,6 +282,20 @@ PUT /_cluster/settings
     "cluster.routing.allocation.enable": "none"
   }
 }
+
+// Move all shards from specific nodes and distribute across the cluster
+PUT /_cluster/settings
+{
+  "transient": {
+    "cluster.routing.allocation.exclude._ip": "10.20.66.1,10.20.66.2"
+  }
+}
+PUT /_cluster/settings
+{
+  "transient": {
+    "cluster.routing.allocation.exclude._ip": "elastic-node-1,elastic-node-2"
+  }
+}
 ```
 ### Can't store an async search response larger than [10485760] bytes. This limit can be set by changing the [search.max_async_search_response_size] setting.
 You can increase that limitation, but it will put more memory usage on Elastic JVM.
