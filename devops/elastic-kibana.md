@@ -13,6 +13,14 @@ curl -u elastic:password_here -X GET "http://10.10.10.10:9200/index-name-or-alia
 ```
 // Get the most CPU intensive threads
 GET /_nodes/hot_threads
+
+// Allow more concurrent rebalance tasks in the cluster
+PUT /_cluster/settings
+{
+  "transient": {
+    "cluster.routing.allocation.cluster_concurrent_rebalance": 4
+  }
+}
 ```
 ## Kibana DEV tools queries
 ```
