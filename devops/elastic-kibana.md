@@ -296,6 +296,20 @@ PUT /_cluster/settings
     "cluster.routing.allocation.exclude._name": "elastic-node-1,elastic-node-2"
   }
 }
+// Remove those nodes from exclude list
+PUT /_cluster/settings
+{
+  "transient": {
+    "cluster.routing.allocation.exclude._name": ""
+  }
+}
+PUT /_cluster/settings
+{
+  "transient": {
+    "cluster.routing.allocation.exclude._ip": ""
+  }
+}
+
 
 // Adjust index refresh interval on all indeces to reduce disk util, but it will be delayed Search Visibility
 PUT /_all/_settings
