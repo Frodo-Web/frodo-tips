@@ -282,7 +282,12 @@ PUT /_cluster/settings
     "cluster.routing.allocation.node_concurrent_incoming_recoveries": 4
   }
 }
-
+PUT /_cluster/settings
+{
+  "transient": {
+    "cluster.routing.allocation.cluster_concurrent_rebalance": 8
+  }
+}
 // Temporaly disable allocations (rebalancing, recoveries) to shutdown 1 node temporally (to migrate for example)
 PUT /_cluster/settings
 {
