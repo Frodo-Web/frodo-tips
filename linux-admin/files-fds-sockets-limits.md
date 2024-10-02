@@ -109,6 +109,45 @@ Elastic:
       2 unix
       1 TYPE
 ````
+Networks
+````
+The net.core.somaxconn parameter controls the maximum number of connections that can be queued for acceptance by a service (e.g., web server).
+Check the current backlog size:
+
+sysctl net.core.somaxconn
+..
+net.core.somaxconn = 4096
+
+You can use the ss or netstat command to show the state of each connection (e.g., ESTABLISHED, SYN_SENT, CLOSE_WAIT).
+
+ss -s
+..
+Total: 922
+TCP:   776 (estab 772, closed 0, orphaned 0, timewait 0)
+
+Transport Total     IP        IPv6
+RAW	  0         0         0        
+UDP	  1         1         0        
+TCP	  776       776       0        
+INET	  777       777       0        
+FRAG	  0         0         0
+
+ifconfig -a
+ip -s link
+..
+txqueuelen 1000
+RX errors 0  dropped 2591
+
+The send and receive buffer sizes can be important for network performance. To check and adjust these:
+
+View the default socket buffer sizes:
+sysctl net.core.rmem_default
+sysctl net.core.wmem_default
+
+View the maximum buffer sizes:
+sysctl net.core.rmem_max
+sysctl net.core.wmem_max
+````
 View opened files by pid using /proc
 ````
 ls -l /proc/8039/fd/
