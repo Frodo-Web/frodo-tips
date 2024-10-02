@@ -150,6 +150,12 @@ sysctl net.ipv4.tcp_fin_timeout
 ..
 net.ipv4.tcp_fin_timeout = 60
 
+Параметр tcp_tw_reuse полезно включить в борьбе за ресурсы, занимаемые TIME_WAIT. TCP-соединение идентифицируется по набору параметров IP1_Port1_IP2_Port2. Когда сокет переходит в состояние TIME_WAIT, при отключенном tcp_tw_reuse установка нового исходящего соединения будет происходить с выбором нового локального IP1_Port1. Старые значения могут быть использованы только тогда, когда TCP-соединение окажется в состоянии CLOSED. Если ваш сервер создает множество исходящих соединений, установите tcp_tw_reuse = 1 и ваша система сможет использовать порты TIME_WAIT в случае исчерпания свободных.
+
+sysctl net.ipv4.tcp_tw_reuse
+..
+net.ipv4.tcp_tw_reuse = 2
+
 You can use the ss or netstat command to show the state of each connection (e.g., ESTABLISHED, SYN_SENT, CLOSE_WAIT).
 
 ss -s
