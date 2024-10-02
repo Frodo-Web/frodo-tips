@@ -98,6 +98,16 @@ lsof -p 23155 | awk '{print $5}' | sort | uniq -c | sort -r -n -k 1,1
       2 unix
       2 DIR
       1 CHR
+
+Elastic:
+  21698 REG
+    767 IPv4
+     18 a_inode
+      4 FIFO
+      4 DIR
+      3 CHR
+      2 unix
+      1 TYPE
 ````
 View opened files by pid using /proc
 ````
