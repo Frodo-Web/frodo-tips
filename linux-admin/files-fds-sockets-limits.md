@@ -147,6 +147,26 @@ sysctl net.core.wmem_default
 View the maximum buffer sizes:
 sysctl net.core.rmem_max
 sysctl net.core.wmem_max
+
+ss -ltn
+..
+State              Recv-Q             Send-Q                          Local Address:Port                            Peer Address:Port             Process             
+LISTEN             0                  4096                                  0.0.0.0:9300                                 0.0.0.0:*                                    
+LISTEN             0                  128                                   0.0.0.0:22                                   0.0.0.0:*                                    
+LISTEN             0                  4096                                  0.0.0.0:10050                                0.0.0.0:*                                    
+LISTEN             0                  4096                                  0.0.0.0:9200                                 0.0.0.0:*
+
+Если смотреть исходники ss, то как я понял, при нормальной работе (получение данных от ядра через netlink-сокет, а не через /proc/net/tcp), в столбцы Recv-Q / Send-Q выводятся значения idiag_rqueue и idiag_wqueue структуры ядра inet_diag_msg. Они формируются в файле /usr/src/linux/net/ipv4/tcp_diag.c:
+
+        if (sk->sk_state == TCP_LISTEN) {
+                r->idiag_rqueue = sk->sk_ack_backlog;
+                r->idiag_wqueue = sk->sk_max_ack_backlog;
+        } else {
+                r->idiag_rqueue = max_t(int, tp->rcv_nxt - tp->copied_seq, 0);
+                r->idiag_wqueue = tp->write_seq - tp->snd_una;
+        }
+
+То есть для слушающего сокета это sk_ack_backlog и sk_max_ack_backlog. Насколько я понимаю, первое это количество tcp-соединений, которые приняты ядром, но ещё не accept()-нуты приложеним, а второе — это максимальное количество таких соединений, по достижению которого ядро не будет ставить их в очередь, а будет просто сбрасывать.
 ````
 View opened files by pid using /proc
 ````
