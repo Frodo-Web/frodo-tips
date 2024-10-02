@@ -73,6 +73,11 @@ lsof -p 24193 | wc -l
 
 Number of open files by process name
 lsof -u grafana | awk '{print $1}' | sort | uniq -c | sort -r | head
+lsof -u elasticsearch | awk '{print $1}' | sort | uniq -c | sort -r | head
+..
+     30 controlle
+  22524 java
+      1 COMMAND
 
 Number of open files by PID
 lsof -u grafana | awk '{print $2}' | sort | less | uniq -c | sort -r -k 1,1
