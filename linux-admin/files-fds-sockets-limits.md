@@ -24,6 +24,23 @@ But changes to this file need to re-login - sudo vi /etc/security/limits.conf  (
 Find all soft and hard ulimit for user
 sudo -u grafana sh -c "ulimit -Sa"
 sudo -u grafana sh -c "ulimit -Ha"
+..
+core file size          (blocks, -c) 0
+data seg size           (kbytes, -d) unlimited
+scheduling priority             (-e) 0
+file size               (blocks, -f) unlimited
+pending signals                 (-i) 63047
+max locked memory       (kbytes, -l) 64
+max memory size         (kbytes, -m) unlimited
+open files                      (-n) 65536
+pipe size            (512 bytes, -p) 8
+POSIX message queues     (bytes, -q) 819200
+real-time priority              (-r) 0
+stack size              (kbytes, -s) 8192
+cpu time               (seconds, -t) unlimited
+max user processes              (-u) 63047
+virtual memory          (kbytes, -v) unlimited
+file locks                      (-x) unlimited
 
 Number of open files for a user
 lsof -u grafana | wc -l
