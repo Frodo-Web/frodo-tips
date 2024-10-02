@@ -233,6 +233,127 @@ ss -tnmi
 State                Recv-Q                Send-Q                               Local Address:Port                                  Peer Address:Port                 Process                                                                                                                                                               
 ESTAB                0                     0                                      10.20.164.5:9300                                  10.20.164.31:47320                
 	 skmem:(r0,rb4210224,t0,tb87040,f4096,w0,o0,bl0,d74640) cubic wscale:7,7 rto:211 rtt:10.736/16.635 ato:40 mss:1448 pmtu:1500 rcvmss:1448 advmss:1448 cwnd:9 ssthresh:6 bytes_sent:3621930137 bytes_retrans:78614 bytes_acked:3621851523 bytes_received:37163642708 segs_out:11259958 segs_in:32225296 data_segs_out:5600793 data_segs_in:28333652 send 9710879bps lastsnd:128 lastrcv:216 lastack:127 pacing_rate 11652776bps delivery_rate 221350312bps delivered:5600746 app_limited busy:47608662ms retrans:0/134 dsack_dups:88 rcv_rtt:50.04 rcv_space:528520 rcv_ssthresh:2105112 minrtt:0.119 rcv_ooopack:983 snd_wnd:182272
+
+You can also use netstat to view errors and dropped packets that might indicate congestion or hardware issues:
+netstat -s
+..
+Ip:
+    Forwarding: 2
+    1179983517 total packets received
+    0 forwarded
+    0 incoming packets discarded
+    1179983517 incoming packets delivered
+    856472124 requests sent out
+    40 dropped because of missing route
+Icmp:
+    36428 ICMP messages received
+    0 input ICMP message failed
+    ICMP input histogram:
+        timeout in transit: 26
+        echo requests: 36402
+    36403 ICMP messages sent
+    0 ICMP messages failed
+    ICMP output histogram:
+        destination unreachable: 1
+        echo replies: 36402
+IcmpMsg:
+        InType8: 36402
+        InType11: 26
+        OutType0: 36402
+        OutType3: 1
+Tcp:
+    8949 active connection openings
+    46095 passive connection openings
+    2 failed connection attempts
+    1185 connection resets received
+    772 connections established
+    1179876081 segments received
+    2494392476 segments sent out
+    1648169 segments retransmitted
+    0 bad segments received
+    1541 resets sent
+Udp:
+    66614 packets received
+    1 packets to unknown port received
+    0 packet receive errors
+    67858 packets sent
+    0 receive buffer errors
+    0 send buffer errors
+UdpLite:
+TcpExt:
+    873 TCP sockets finished time wait in fast timer
+    5 packets rejected in established connections because of timestamp
+    19367653 delayed acks sent
+    23981 delayed acks further delayed because of locked socket
+    Quick ack mode was activated 2973684 times
+    540726324 packet headers predicted
+    45954953 acknowledgments not containing data payload received
+    343062605 predicted acknowledgments
+    TCPSackRecovery: 20350
+    Detected reordering 634 times using SACK
+    Detected reordering 24 times using time stamp
+    29 congestion windows fully recovered without slow start
+    24 congestion windows partially recovered using Hoe heuristic
+    TCPDSACKUndo: 7742
+    275 congestion windows recovered without slow start after partial ack
+    TCPLostRetransmit: 5153
+    TCPSackFailures: 6
+    402588 fast retransmits
+    6069 retransmits in slow start
+    TCPTimeouts: 523
+    TCPLossProbes: 1327396
+    TCPLossProbeRecovery: 3041
+    TCPSackRecoveryFail: 237
+    TCPBacklogCoalesce: 36883647
+    TCPDSACKOldSent: 2974938
+    TCPDSACKOfoSent: 213
+    TCPDSACKRecv: 1233687
+    TCPDSACKOfoRecv: 26
+    141 connections reset due to unexpected data
+    1187 connections reset due to early user close
+    1 connections aborted due to timeout
+    TCPDSACKIgnoredOld: 554
+    TCPDSACKIgnoredNoUndo: 1046417
+    TCPSpuriousRTOs: 4
+    TCPSackShifted: 30667
+    TCPSackMerged: 52322
+    TCPSackShiftFallback: 148192
+    TCPRcvCoalesce: 333630563
+    TCPOFOQueue: 849579
+    TCPOFOMerge: 187
+    TCPSpuriousRtxHostQueues: 2652
+    TCPAutoCorking: 12803975
+    TCPSynRetrans: 18
+    TCPOrigDataSent: 2086784034
+    TCPHystartTrainDetect: 572
+    TCPHystartTrainCwnd: 32458
+    TCPHystartDelayDetect: 2
+    TCPHystartDelayCwnd: 136
+    TCPACKSkippedSeq: 3
+    TCPKeepAlive: 605084
+    TCPDelivered: 2088026278
+    TCPAckCompressed: 651082
+    TcpTimeoutRehash: 1514
+IpExt:
+    InMcastPkts: 4394
+    InOctets: 5676934618356
+    OutOctets: 2715149355562
+    InMcastOctets: 158184
+    InNoECTPkts: 4438887591
+MPTcpExt:
+
+
+
+To ensure that long-standing idle connections do not consume resources unnecessarily, you can adjust TCP keepalive settings:
+Check the keepalive time (idle time before a probe is sent):
+
+sysctl net.ipv4.tcp_keepalive_time
+..
+net.ipv4.tcp_keepalive_time = 7200
+
+sudo sysctl -w net.ipv4.tcp_keepalive_time=600
+sudo sysctl -w net.ipv4.tcp_keepalive_intvl=60
+sudo sysctl -w net.ipv4.tcp_keepalive_probes=5
 ````
 View opened files by pid using /proc
 ````
