@@ -44,6 +44,10 @@ file locks                      (-x) unlimited
 
 Number of open files for a user
 lsof -u grafana | wc -l
+
+Find ulimit for a process
+cat /proc/PID/limits
+cat /proc/24193/limits | grep -i 'Open files'
 ..
 Limit                     Soft Limit           Hard Limit           Units     
 Max cpu time              unlimited            unlimited            seconds   
@@ -62,10 +66,6 @@ Max msgqueue size         819200               819200               bytes
 Max nice priority         0                    0                    
 Max realtime priority     0                    0                    
 Max realtime timeout      unlimited            unlimited            us
-
-Find ulimit for a process
-cat /proc/PID/limits
-cat /proc/24193/limits | grep -i 'Open files'
 
 Number of open files for a process
 ls -l /proc/24193/fd/ | wc -l
