@@ -118,6 +118,38 @@ sysctl net.core.somaxconn
 ..
 net.core.somaxconn = 4096
 
+Maximum Syn Backlog (for incomplete connection requests):
+This value is important because if the SYN backlog (incomplete connections waiting for acknowledgment) is full, new connection attempts will be dropped.
+
+sysctl net.ipv4.tcp_max_syn_backlog
+..
+net.ipv4.tcp_max_syn_backlog = 512
+
+TCP Retransmission Timeouts: Controls how long to wait for a TCP packet before considering it lost.
+
+sysctl net.ipv4.tcp_retries2
+..
+net.ipv4.tcp_retries2 = 15
+
+TCP SYN Retries: Determines how many times TCP retransmits a SYN packet (used during connection establishment).
+
+sysctl net.ipv4.tcp_syn_retries
+..
+net.ipv4.tcp_syn_retries = 6
+
+A high volume of short-lived connections can result in a large number of sockets in the TIME_WAIT state. If the system runs out of resources to track these, new connections may be delayed or droppe
+Check the maximum number of time-wait connections:
+
+sysctl net.ipv4.tcp_max_tw_buckets
+..
+net.ipv4.tcp_max_tw_buckets = 65536
+
+Reduce the TIME_WAIT duration (optional, but be cautious):
+
+sysctl net.ipv4.tcp_fin_timeout
+..
+net.ipv4.tcp_fin_timeout = 60
+
 You can use the ss or netstat command to show the state of each connection (e.g., ESTABLISHED, SYN_SENT, CLOSE_WAIT).
 
 ss -s
@@ -167,6 +199,34 @@ LISTEN             0                  4096                                  0.0.
         }
 
 То есть для слушающего сокета это sk_ack_backlog и sk_max_ack_backlog. Насколько я понимаю, первое это количество tcp-соединений, которые приняты ядром, но ещё не accept()-нуты приложеним, а второе — это максимальное количество таких соединений, по достижению которого ядро не будет ставить их в очередь, а будет просто сбрасывать.
+
+Recv-Q
+Established: The count of bytes not copied by the user program connected to this socket.
+Listening: Since Kernel 2.6.18 this column contains the current listen backlog.
+
+Send-Q
+Established: The count of bytes not acknowledged by the remote host.
+Listening: Since Kernel 2.6.18 this column contains the maximum size of the listen backlog.
+
+Recv-Q:
+High Recv-Q means the data is put on TCP/IP receive buffer, but the application does not call recv() to copy it from TCP/IP buffer to the application buffer. Customer can check the application listening the port, and see if it is working as expected. For example, if you saw Recv-Q in the following connection:
+Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)
+tcp4    3223      0  11.10.32.24.8002       11.10.32.12.64672      ESTABLISHED
+Customer should check the application listening the port 8002.
+
+Send-Q:
+High Send-Q means the data is put on TCP/IP send buffer, but it is not sent or it is sent but not ACKed. So, high value in Send-Q can be related to server network congest, server performance issue or data packet flow control, and so on. 
+Please note: The send and receive queue sizes are shown in bytes.
+
+
+
+Per-socket buffer usage: To see the current buffer usage per socket (for example, TCP sockets), use ss
+
+ss -tnmi
+..
+State                Recv-Q                Send-Q                               Local Address:Port                                  Peer Address:Port                 Process                                                                                                                                                               
+ESTAB                0                     0                                      10.20.164.5:9300                                  10.20.164.31:47320                
+	 skmem:(r0,rb4210224,t0,tb87040,f4096,w0,o0,bl0,d74640) cubic wscale:7,7 rto:211 rtt:10.736/16.635 ato:40 mss:1448 pmtu:1500 rcvmss:1448 advmss:1448 cwnd:9 ssthresh:6 bytes_sent:3621930137 bytes_retrans:78614 bytes_acked:3621851523 bytes_received:37163642708 segs_out:11259958 segs_in:32225296 data_segs_out:5600793 data_segs_in:28333652 send 9710879bps lastsnd:128 lastrcv:216 lastack:127 pacing_rate 11652776bps delivery_rate 221350312bps delivered:5600746 app_limited busy:47608662ms retrans:0/134 dsack_dups:88 rcv_rtt:50.04 rcv_space:528520 rcv_ssthresh:2105112 minrtt:0.119 rcv_ooopack:983 snd_wnd:182272
 ````
 View opened files by pid using /proc
 ````
