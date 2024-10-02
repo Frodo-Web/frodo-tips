@@ -313,13 +313,13 @@ PUT /_cluster/settings
 PUT /_cluster/settings
 {
   "transient": {
-    "cluster.routing.allocation.exclude._name": ""
+    "cluster.routing.allocation.exclude._name": null
   }
 }
 PUT /_cluster/settings
 {
   "transient": {
-    "cluster.routing.allocation.exclude._ip": ""
+    "cluster.routing.allocation.exclude._ip": null
   }
 }
 
