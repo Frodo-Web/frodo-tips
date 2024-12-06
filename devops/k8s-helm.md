@@ -29,7 +29,7 @@ Warning: Immediate deletion does not wait for confirmation that the running reso
 // Rollback to the same revision to restore resources which were deleted after release
 helm rollback <name> <revision_number> -n namespace
 
-// Redeploy statefull set with new metadata, without deleteing everything else (For example, in case of PV expansion)
+// Redeploy statefull set with new metadata, without deleteing anything else (For example, in case of PV expansion)
 kubectl delete statefulset victoria-metrics-storage -n victoria-metrics --cascade=orphan
 ````
 ## K8S Inspecting Flows and Outputs
