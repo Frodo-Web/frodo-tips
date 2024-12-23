@@ -1,3 +1,15 @@
+# CTR tips
+```
+ctr namespaces list
+ctr --namespace k8s.io images list | grep 3rdparty
+ctr --namespace k8s.io containers ls | grep operator
+ctr --namespace k8s.io containers info 3cf755faf9588c597079bc2f49160002dc76f8b8999876833c0dd6a8cb1b339d
+ctr --namespace k8s.io task ls 
+ctr --namespace k8s.io task ls | grep cf5f276a57f7
+ctr --namespace k8s.io task exec -t --exec-id operator-check cf5f276a57f7335f58291d1400e652d007093d4a9f10aeb46b65fa6fc3fff8bc sh
+ctr images export my-image.tar docker.io/library/nginx:latest
+ctr images push my-registry.example.com/my-image:latest
+```
 # Docker tips
 - Guide to install Docker on Raspbian - https://docs.docker.com/engine/install/debian/
 
