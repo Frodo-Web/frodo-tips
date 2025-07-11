@@ -1,5 +1,9 @@
 # Victoria Metrics, Prometheus, Alertmanager, Grafana OnCall tips
 ## Victoria Metrics
+### Streaming aggregation
+The aggregations are calculated during the interval specified in the config and then sent to the storage once per interval. The aggregated samples are named according to output metric naming . <br>
+If by and without lists are specified in the config , then the aggregation by labels is performed additionally to aggregation by interval. <br>
+By default, stream aggregation and deduplication stores a single state per each aggregation output result. 
 ## Prometheus
 List all possible lable values in PromQL
 ````
