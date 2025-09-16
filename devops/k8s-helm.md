@@ -1,5 +1,44 @@
 # Kubernetes & Helm
 Here are some usefull commands
+## Выгрузка статы по неймспейсам, подам и томам в кластере
+```
+kubectl get pods --all-namespaces -o json > pods.json
+
+cat pods.json | jq -r '
+.items[] |
+"Pod Name: \(.metadata.name)",
+"Namespace: \(.metadata.namespace)",
+"Volume Mounts:",
+( .spec.containers[] | .volumeMounts[] | "  Mount Path: \(.mountPath) -> Volume Name: \(.name)" ),
+"Host Paths (for volumes):",
+( .spec.volumes[] | select(.hostPath) | "  Volume Name: \(.name) -> Host Path: \(.hostPath.path) (Type: " + (.hostPath.type // "<unset>") + ")" ),
+""
+' 
+```
+Получаем такой выхлоп примерно по каждой поде
+```
+Pod Name: my-pod-name
+Namespace: my-namespace-name
+Volume Mounts:
+  Mount Path: /var/logs -> Volume Name: logs
+  Mount Path: /dev/log -> Volume Name: my-logs
+  Mount Path: /var/my -> Volume Name: ceph-my-domain
+  Mount Path: /var/run/secrets/kubernetes.io/serviceaccount -> Volume Name: kube-api-access-cdpqz
+  Mount Path: /var/run/secrets/kubernetes.io/serviceaccount -> Volume Name: kube-api-access-cdpqz
+Host Paths (for volumes):
+  Volume Name: logs -> Host Path: /var/logs/my-domain (Type: DirectoryOrCreate)
+  Volume Name: mylog -> Host Path: /tmp/mylog/log (Type: )
+  Volume Name: ceph-my-domain -> Host Path: /mnt/ceph (Type: DirectoryOrCreate)
+```
+Мы можем дальше собрать статистику в таком виде
+```
+awk '/Host Paths \(for volumes\):/{inHP=1;next}/^$/{inHP=0}/^Namespace:/{ns=$2}inHP&&/Volume Name:.*-> Host Path: \/mnt\/ceph/{match($0,/Volume Name: ([^ ]+) -> Host Path: ([^ ]+)/,a);k=ns" - "a[1]" - "a[2];c[k]++;tc++}END{for(i in c)print i" - "c[i];print"=== Total: "tc}' pod-volumes.txt
+
+my-fo - ceph-my-domain - /mnt/ceph - 1
+my-ru - ceph-my-team - /mnt/ceph - 5
+=== Total: 6
+
+```
 ## K8S
 ````
 kubectl get secret sentry-creds -n sentry -o json | jq '.data'
