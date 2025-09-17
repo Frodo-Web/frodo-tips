@@ -81,7 +81,7 @@ PID текущих работающих контейнеров
 ```
 crictl ps -q | xargs -r crictl inspect | jq -r '.info.pid'
 ```
-Открытые сокеты, файлы процессов внутри контейнера
+Открытые сокеты, файлы процессов внутри контейнера. Ошибки при этом в stderr, можно перенаправить
 ```
 crictl ps -q | xargs -r -I {} sh -c 'pid=$(sudo crictl inspect {} | jq -r ".info.pid"); ls -l /proc/$pid/root/proc/[0-9]*/fd' > opened_sockets.txt
 ```
