@@ -39,6 +39,43 @@ my-ru - ceph-my-team - /mnt/ceph - 5
 === Total: 6
 
 ```
+Или с точкой монтирования внутрь контейнера
+```
+awk '
+/^Pod Name:/ { pod = $3 }
+/^Namespace:/ { ns = $2 }
+/^Volume Mounts:$/ { inVM = 1; next }
+/^Host Paths \(for volumes\):$/ { inHP = 1; inVM = 0; next }
+/^$/ { inVM = 0; inHP = 0 }
+
+# Capture Volume Name -> Mount Path mapping
+inVM && /Mount Path:.*-> Volume Name:/ {
+    match($0, /Mount Path: ([^ ]+) -> Volume Name: ([^ ]+)/, a)
+    vol_to_mount[a[2]] = a[1]   # vol_to_mount["ceph-my-domain"] = "/var/my"
+}
+
+# Process Host Paths and use the mapping
+inHP && /Volume Name:.*-> Host Path: \/mnt\/ceph/ {
+    match($0, /Volume Name: ([^ ]+) -> Host Path: ([^ ]+)/, a)
+    vol_name = a[1]
+    host_path = a[2]
+    mount_path = vol_to_mount[vol_name]  # Look up the mount path for this volume
+    if (mount_path == "") mount_path = "N/A"  # Fallback if not found
+    key = ns " - " vol_name " - " host_path " - " mount_path
+    c[key]++
+    tc++
+}
+
+END {
+    for (i in c) print i " - " c[i]
+    print "=== Total: " tc
+}' pod-volumes.txt
+
+myru - ceph-my-transfer - /mnt/ceph - /var/my - 3
+mywiki - cache-config - /mnt/ceph/wiki/cache - /var/www/html/cache - 1
+myru - my-bufer- /mnt/ceph/my_bufer - /var/spool/my_bufer - 2
+=== Total: 6
+```
 ## K8S
 ````
 kubectl get secret sentry-creds -n sentry -o json | jq '.data'
