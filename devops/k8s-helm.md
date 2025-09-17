@@ -76,6 +76,15 @@ mywiki - cache-config - /mnt/ceph/wiki/cache - /var/www/html/cache - 1
 myru - my-bufer- /mnt/ceph/my_bufer - /var/spool/my_bufer - 2
 === Total: 6
 ```
+## Выгрузка открытых сокетов, файлов процессов внутри контейнера
+PID текущих работающих контейнеров
+```
+crictl ps -q | xargs -r crictl inspect | jq -r '.info.pid'
+```
+Открытые сокеты, файлы процессов внутри контейнера
+```
+crictl ps -q | xargs -r -I {} sh -c 'pid=$(sudo crictl inspect {} | jq -r ".info.pid"); ls -l /proc/$pid/root/proc/[0-9]*/fd' > opened_sockets.txt
+```
 ## K8S
 ````
 kubectl get secret sentry-creds -n sentry -o json | jq '.data'
