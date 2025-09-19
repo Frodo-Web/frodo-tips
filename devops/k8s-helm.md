@@ -85,6 +85,97 @@ crictl ps -q | xargs -r crictl inspect | jq -r '.info.pid'
 ```
 crictl ps -q | xargs -r -I {} sh -c 'pid=$(sudo crictl inspect {} | jq -r ".info.pid"); ls -l /proc/$pid/root/proc/[0-9]*/fd' > opened_sockets.txt
 ```
+А так мы можем средствами ansible раскатить команду по всем нодам кубера
+```
+#!/bin/bash
+crictl ps -q | xargs -r -I {} sh -c 'pid=$(sudo crictl inspect {} | jq -r ".info.pid"); ls -l /proc/$pid/root/proc/[0-9]*/fd' > /tmp/nigga_opened_sockets.txt
+
+ANSIBLE_HOST_KEY_CHECKING=False ansible all_k8s -l список_узлов_из_группы_если_нужно -i production.ini -u username --become -m script -a "./bash_ebash.sh"
+```
+А потом так выкачиваем и склеиваем файлы. Остатки будут удалены с узлов
+```
+#!/bin/bash
+
+# Configuration
+REMOTE_FILE_PATH="/tmp/rburdin_opened_sockets.txt"
+LOCAL_DOWNLOAD_DIR="./downloaded_sockets"
+FINAL_CONCATENATED_FILE="all_sockets_combined.txt"
+HOSTS_FILE="hosts.txt"
+
+# Create local directory for downloads
+mkdir -p "$LOCAL_DOWNLOAD_DIR"
+
+# Check if hosts file exists
+if [ ! -f "$HOSTS_FILE" ]; then
+    echo "Error: $HOSTS_FILE not found!"
+    echo "Please create a $HOSTS_FILE with one hostname/IP per line"
+    exit 1
+fi
+
+# Counters
+downloaded_count=0
+failed_count=0
+
+echo "Starting download from remote hosts..."
+
+# Use file descriptor 3 to avoid stdin being consumed by ssh/scp
+while IFS= read -r host <&3; do
+    # Skip empty lines and comments
+    [[ -z "$host" || "$host" =~ ^[[:space:]]*# ]] && continue
+    
+    echo "Processing host: $host"
+    
+    # Download the file
+    if scp "$host:$REMOTE_FILE_PATH" "$LOCAL_DOWNLOAD_DIR/${host//[^a-zA-Z0-9._-]/_}.txt" 2>/dev/null; then
+        echo "✓ Successfully downloaded from $host"
+        
+        # Delete the remote file after successful download
+        if ssh "$host" "rm -f $REMOTE_FILE_PATH" 2>/dev/null; then
+            echo "✓ Successfully deleted remote file from $host"
+        else
+            echo "⚠️ Warning: Could not delete remote file from $host"
+        fi
+        
+        ((downloaded_count++))
+    else
+        echo "✗ File not found or failed to download from $host"
+        ((failed_count++))
+    fi
+    echo "---"
+    
+done 3< "$HOSTS_FILE"  # Read from file descriptor 3
+
+echo "Download complete!"
+echo "Successfully downloaded: $downloaded_count files"
+echo "Failed downloads: $failed_count files"
+
+# Check if we have any files to concatenate
+if [ $downloaded_count -eq 0 ]; then
+    echo "No files were downloaded. Nothing to concatenate."
+    exit 0
+fi
+
+echo "Concatenating all downloaded files..."
+
+# Concatenate all downloaded files into a single file
+if cat "$LOCAL_DOWNLOAD_DIR"/*.txt > "$FINAL_CONCATENATED_FILE" 2>/dev/null; then
+    echo "✓ Successfully created $FINAL_CONCATENATED_FILE"
+    
+    # Delete the individual downloaded files
+    rm -f "$LOCAL_DOWNLOAD_DIR"/*.txt
+    echo "✓ Deleted individual downloaded files"
+    
+    echo "Process completed successfully!"
+    echo "Final concatenated file: $FINAL_CONCATENATED_FILE"
+    if [ -f "$FINAL_CONCATENATED_FILE" ]; then
+        echo "Total lines in final file: $(wc -l < "$FINAL_CONCATENATED_FILE")"
+    fi
+else
+    echo "✗ Failed to concatenate files"
+    exit 1
+fi
+
+```
 ## K8S
 ````
 kubectl get secret sentry-creds -n sentry -o json | jq '.data'
