@@ -176,6 +176,129 @@ else
 fi
 
 ```
+## Выгрузка соединений внутри контейнера
+Вот такой баш скрипт
+```
+crictl ps -q | xargs -r -I {} sh -c 'pid=$(sudo crictl inspect {} | jq -r ".info.pid"); hostname=$(hostname); echo "host: $hostname pid: $pid"; sudo nsenter -t $pid -n netstat -an' > /tmp/rburdin_opened_connections.txt
+```
+Запускаем ансиблом на всём кластере
+```
+ANSIBLE_HOST_KEY_CHECKING=False ansible all_k8s -l all_k8s -i production.ini -u rburdin --become -m script -a "./collect_connections_opened.sh"
+```
+И можем выкачать с узлом и склеить этим скриптом
+```
+#!/bin/bash
+
+# Configuration
+REMOTE_FILE_PATH="/tmp/rburdin_opened_connections.txt"
+LOCAL_DOWNLOAD_DIR="./downloaded_connections"
+FINAL_CONCATENATED_FILE="all_connections_combined.txt"
+HOSTS_FILE="production_hosts_connections.txt"
+
+# Create local directory for downloads
+mkdir -p "$LOCAL_DOWNLOAD_DIR"
+
+# Check if hosts file exists
+if [ ! -f "$HOSTS_FILE" ]; then
+    echo "Error: $HOSTS_FILE not found!"
+    echo "Please create a $HOSTS_FILE with one hostname/IP per line"
+    exit 1
+fi
+
+# Counters
+downloaded_count=0
+failed_count=0
+
+echo "Starting download from remote hosts..."
+
+# Use file descriptor 3 to avoid stdin being consumed by ssh/scp
+while IFS= read -r host <&3; do
+    # Skip empty lines and comments
+    [[ -z "$host" || "$host" =~ ^[[:space:]]*# ]] && continue
+
+    echo "Processing host: $host"
+
+    # Download the file
+    if scp "$host:$REMOTE_FILE_PATH" "$LOCAL_DOWNLOAD_DIR/${host//[^a-zA-Z0-9._-]/_}.txt" 2>/dev/null; then
+        echo "✓ Successfully downloaded from $host"
+
+        # Delete the remote file after successful download
+        if ssh "$host" "sudo rm -f $REMOTE_FILE_PATH" 2>/dev/null; then
+            echo "✓ Successfully deleted remote file from $host"
+        else
+            echo "⚠️ Warning: Could not delete remote file from $host"
+        fi
+
+        ((downloaded_count++))
+    else
+        echo "✗ File not found or failed to download from $host"
+        ((failed_count++))
+    fi
+    echo "---"
+
+done 3< "$HOSTS_FILE"  # Read from file descriptor 3
+
+echo "Download complete!"
+echo "Successfully downloaded: $downloaded_count files"
+echo "Failed downloads: $failed_count files"
+
+# Check if we have any files to concatenate
+if [ $downloaded_count -eq 0 ]; then
+    echo "No files were downloaded. Nothing to concatenate."
+    exit 0
+fi
+
+echo "Concatenating all downloaded files..."
+
+# Concatenate all downloaded files into a single file
+if cat "$LOCAL_DOWNLOAD_DIR"/*.txt > "$FINAL_CONCATENATED_FILE" 2>/dev/null; then
+    echo "✓ Successfully created $FINAL_CONCATENATED_FILE"
+
+    # Delete the individual downloaded files
+    rm -f "$LOCAL_DOWNLOAD_DIR"/*.txt
+    echo "✓ Deleted individual downloaded files"
+
+    echo "Process completed successfully!"
+    echo "Final concatenated file: $FINAL_CONCATENATED_FILE"
+    if [ -f "$FINAL_CONCATENATED_FILE" ]; then
+        echo "Total lines in final file: $(wc -l < "$FINAL_CONCATENATED_FILE")"
+    fi
+else
+    echo "✗ Failed to concatenate files"
+    exit 1
+fi
+```
+Например, видим такую картину. Нужно пробить что за контейнер по pid
+```
+host: worker1.example.com pid: 1843899
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State      
+tcp        0      0 10.233.93.43:58848      10.233.15.216:5672      TIME_WAIT  
+tcp        0      0 10.233.93.43:51544      10.233.15.216:5672      TIME_WAIT  
+tcp        0      0 10.233.93.43:45870      10.233.15.216:5672      ESTABLISHED
+tcp        0      0 10.233.93.43:49242      10.233.15.216:5672      ESTABLISHED
+tcp        0      0 10.233.93.43:48048      10.233.15.216:5672      TIME_WAIT  
+tcp        0      0 10.233.93.43:58870      10.233.15.216:5672      TIME_WAIT  
+tcp        0      0 10.233.93.43:55360      10.233.15.216:5672      TIME_WAIT  
+tcp        0      0 10.233.93.43:51506      10.233.15.216:5672      TIME_WAIT  
+tcp        0      0 10.233.93.43:49946      10.233.4.98:3306        ESTABLISHED
+tcp        0      0 10.233.93.43:34672      10.233.15.216:5672      ESTABLISHED
+tcp        0      0 10.233.93.43:55340      10.233.15.216:5672      TIME_WAIT  
+tcp        0      0 10.233.93.43:48114      10.233.15.216:5672      TIME_WAIT  
+tcp        0      0 10.233.93.43:34628      10.233.15.216:5672      ESTABLISHED
+tcp        0      0 10.233.93.43:47494      10.233.15.216:5672      ESTABLISHED
+tcp        0      0 10.233.93.43:45708      10.233.15.216:5672      ESTABLISHED
+```
+Заходим на этот узел делаем так и вот в конце после containerd идёт id контейнера
+```
+cat /proc/1843899/cgroup 
+12:freezer:/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pode66c6adc_a301_4c21_8828_a3b9ba47e9c9.slice/cri-containerd-d78cc36ef9160f2299c0b882a377ebfa9bf2f4fab93afa5c28bca8f45d5f812f.scope
+11:memory:/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pode66c6adc_a301_4c21_8828_a3b9ba47e9c9.slice/cri-containerd-d78cc36ef9160f2299c0b882a377ebfa9bf2f4fab93afa5c28bca8f45d5f812f.scope
+```
+Делаем так и всё узнаём по нему
+```
+crictl inspect d78cc36ef9160f2299c0b882a377ebfa9bf2f4fab93afa5c28bca8f45d5f812f | less
+```
 ## K8S
 ````
 kubectl get secret sentry-creds -n sentry -o json | jq '.data'
