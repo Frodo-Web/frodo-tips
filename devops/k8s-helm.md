@@ -176,7 +176,7 @@ else
 fi
 
 ```
-## Выгрузка соединений внутри контейнера
+## Выгрузка соединений внутри контейнеров по всему кластеру
 Вот такой баш скрипт
 ```
 crictl ps -q | xargs -r -I {} sh -c 'pid=$(sudo crictl inspect {} | jq -r ".info.pid"); hostname=$(hostname); echo "host: $hostname pid: $pid"; sudo nsenter -t $pid -n netstat -an' > /tmp/rburdin_opened_connections.txt
