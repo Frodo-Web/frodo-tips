@@ -305,7 +305,7 @@ crictl inspect d78cc36ef9160f2299c0b882a377ebfa9bf2f4fab93afa5c28bca8f45d5f812f 
 cat check_directories.sh
 ..
 hostname 
-ls -alth /var/logs/daemond /data/pprof /data/defines /tmp/superlog/ /tmp/superlog/log 2>/dev/null
+ls -althR /var/logs/daemond /data/pprof /data/defines /tmp/superlog/ 2>/dev/null
 ```
 Однострочная команда
 ```
