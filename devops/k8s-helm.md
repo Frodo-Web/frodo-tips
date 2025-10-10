@@ -299,6 +299,18 @@ cat /proc/1843899/cgroup
 ```
 crictl inspect d78cc36ef9160f2299c0b882a377ebfa9bf2f4fab93afa5c28bca8f45d5f812f | less
 ```
+## Однострочник, запуск скрипта с перехватом stdout с полным игнорированием ошибок
+Любой скрипт
+```
+cat check_directories.sh
+..
+hostname 
+ls -alth /var/logs/daemond /data/pprof /data/defines /tmp/superlog/ /tmp/superlog/log 2>/dev/null
+```
+Однострочная команда
+```
+ANSIBLE_LOAD_CALLBACK_PLUGINS=1 ANSIBLE_STDOUT_CALLBACK=json ANSIBLE_HOST_KEY_CHECKING=False ansible all_k8s -l group_one -i production.ini -u rburdin --become -m script -a "./check_directories.sh || true" | jq -r ".plays[].tasks[].hosts[].stdout" | less
+```
 ## K8S
 ````
 kubectl get secret sentry-creds -n sentry -o json | jq '.data'
