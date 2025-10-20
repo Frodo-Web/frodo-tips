@@ -299,6 +299,72 @@ cat /proc/1843899/cgroup
 ```
 crictl inspect d78cc36ef9160f2299c0b882a377ebfa9bf2f4fab93afa5c28bca8f45d5f812f | less
 ```
+## Выгрузка имён контейнеров и их образов с соединениями к определенному порту
+```
+cat collect_listen_containers_91.sh
+..
+
+
+#!/bin/bash
+
+# Output file
+OUTFILE="/tmp/rburdin_opened_connections.txt"
+> "$OUTFILE"  # Clear file
+
+# Iterate over all running containers
+crictl ps -q | while read -r cid; do
+    if [ -z "$cid" ]; then
+        continue
+    fi
+
+    # Get PID from crictl inspect
+    pid=$(sudo crictl inspect "$cid" 2>/dev/null | jq -r '.info.pid // empty')
+    if [ -z "$pid" ] || [ "$pid" = "null" ]; then
+        continue
+    fi
+
+    # Check if netstat in container namespace shows port :91
+    if sudo nsenter -t "$pid" -n -- netstat -atnp 2>/dev/null | grep -q ':91\>'; then
+        hostname=$(hostname)
+        echo "host: $hostname pid: $pid" >> "$OUTFILE"
+
+        # Parse container ID from /proc/$pid/cgroup
+        # Look for line like: .../cri-containerd-<UUID>.scope
+        cgroup_line=$(sudo cat "/proc/$pid/cgroup" 2>/dev/null | grep -o 'cri-containerd-[0-9a-f]\{64\}\.scope' | head -n1)
+        if [ -n "$cgroup_line" ]; then
+            # Extract the 64-char hex UUID
+            container_id=$(echo "$cgroup_line" | sed 's/^cri-containerd-\([0-9a-f]\{64\}\)\.scope/\1/')
+            if [ ${#container_id} -eq 64 ]; then
+                # Now inspect this container to get name and imageRef
+                inspect_out=$(sudo crictl inspect "$container_id" 2>/dev/null)
+                if [ -n "$inspect_out" ]; then
+                    name=$(echo "$inspect_out" | jq -r '.status.metadata.name // "unknown"')
+                    imageRef=$(echo "$inspect_out" | jq -r '.status.imageRef // "unknown"')
+                    echo "  container_id: $container_id" >> "$OUTFILE"
+                    echo "  name: $name" >> "$OUTFILE"
+                    echo "  imageRef: $imageRef" >> "$OUTFILE"
+                fi
+            fi
+        else
+            echo "  WARNING: Could not parse container ID from /proc/$pid/cgroup" >> "$OUTFILE"
+        fi
+    fi
+done
+```
+Получаем формат в виде
+```
+host: node1.example.com pid: 7807
+  container_id: d9ee1a2cf9eff8abda4a837e4fbb4ee45edf8ad2d422b8e52ff710dd2e38d3ab
+  name: someproxy
+  imageRef: harbor.example.com/devops/someproxy/production@sha256:817db2240dd660798cfd6ddfba4846e765faec8eb9c78f6f93550406cbc44906
+host: node2.example.com pid: 2308814
+  container_id: 3a62f9d66fbb4dbce01ea3590e292340af25b454438527b7dc71bcc95591f58c
+  name: node-exporter
+  imageRef: quay.io/prometheus/node-exporter@sha256:f2269e73124dd0f60a7d19a2ce1264d33d08a985aed0ee6b0b89d0be470592cd
+host: node3.example.com pid: 2308700
+  container_id: 2c48232ec7ab7c25bceb29644ff4939078b05be61b83f34f13f6d633722a286d
+  name: node-exporter
+```
 ## Однострочник, запуск скрипта с перехватом stdout с полным игнорированием ошибок
 Любой скрипт
 ```
