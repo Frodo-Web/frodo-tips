@@ -1,5 +1,24 @@
 # Kubernetes & Helm
 Here are some usefull commands
+## Выгрузка примеров логов по всем деплойментам в кластере
+Скрипт
+```
+kubectl get deployments --all-namespaces -o custom-columns=NAMESPACE:.metadata.namespace,NAME:.metadata.name --no-headers | while read namespace deployment; do
+  echo "$deployment"
+  echo "Namespace: $namespace"
+  kubectl logs -n "$namespace" deployment/"$deployment" --tail=3 2>/dev/null || echo "No logs available"
+  echo
+done
+```
+Пример выхода
+```
+aggregator-api-misc
+Namespace: beehive
+2026-01-21 06:52:55,430 - INFO - Start collecting configs in production mode.
+2026-01-21 06:52:55,986 - WARNING - Does not found any mode, role or dc spaces. May be local config has a bad format. Check path: src/configs
+2026-01-21 06:52:56,206 - INFO - Config saved.
+
+```
 ## Выгрузка статы по неймспейсам, подам и томам в кластере
 ```
 kubectl get pods --all-namespaces -o json > pods.json
