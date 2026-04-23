@@ -17,6 +17,8 @@ Useful commands, combinations, advices, etc...
 [Ventoy](https://github.com/Frodo-Web/frodo-tips/blob/main/All/Ventoy.md) <br>
 [OpenSUSE TumbleWeed + i3wm](https://github.com/Frodo-Web/frodo-tips/blob/main/All/i3wm-opensuse.md) <br>
 [Hardware](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/hardware.md) <br>
+## AI
+[Setup Qwen Code with Ollama](https://github.com/Frodo-Web/frodo-tips/blob/main/AI/Setup_Qwen_Code_with_Ollama.md) <br>
 ## Networking
 [Cisco IOS commands](https://github.com/Frodo-Web/frodo-tips/blob/main/Networking/Cisco%20IOS.md) <br>
 ## Linux Admin
