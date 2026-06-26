@@ -6,7 +6,8 @@ kubectl get crd
 ..
 alertmanagerconfigs.monitoring.coreos.com             2021-07-27T12:09:48Z
 alertmanagers.monitoring.coreos.com                   2021-07-27T12:09:48Z
-
+```
+```
 kubectl api-resources
 ..
 NAME                               SHORTNAMES                          APIVERSION                             NAMESPACED   KIND
@@ -16,7 +17,8 @@ configmaps                         cm                                  v1       
 endpoints                          ep                                  v1                                     true         Endpoints
 events                             ev                                  v1                                     true         Event
 limitranges                        limits                              v1                                     true         LimitRange
-
+```
+```
 kubectl get all -A | less
 ..
 NAMESPACE       NAME                                                                  READY   STATUS             RESTARTS   AGE
@@ -32,6 +34,7 @@ kube-system   daemonset.apps/cilium                        12        12        1
 kube-system   daemonset.apps/logging-rsyslog               12        12        12      12           12          <none>                   3y277d
 
 ....
+
 ```
 ## Выгрузка примеров логов по всем деплойментам в кластере
 Скрипт
