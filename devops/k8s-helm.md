@@ -1,5 +1,38 @@
 # Kubernetes & Helm
 Here are some usefull commands
+## Анализ установленных CRD, доступных API ресурсов а также листинг всех ресурсов по всех неймспейсам
+```
+kubectl get crd
+..
+alertmanagerconfigs.monitoring.coreos.com             2021-07-27T12:09:48Z
+alertmanagers.monitoring.coreos.com                   2021-07-27T12:09:48Z
+
+kubectl api-resources
+..
+NAME                               SHORTNAMES                          APIVERSION                             NAMESPACED   KIND
+bindings                                                               v1                                     true         Binding
+componentstatuses                  cs                                  v1                                     false        ComponentStatus
+configmaps                         cm                                  v1                                     true         ConfigMap
+endpoints                          ep                                  v1                                     true         Endpoints
+events                             ev                                  v1                                     true         Event
+limitranges                        limits                              v1                                     true         LimitRange
+
+kubectl get all -A | less
+..
+NAMESPACE       NAME                                                                  READY   STATUS             RESTARTS   AGE
+argocd          pod/argocd-rc-ctv-dev-application-controller-0                        1/1     Running            0          147d
+argocd          pod/argocd-rc-ctv-dev-application-controller-1                        1/1     Running            0          273d
+
+NAMESPACE       NAME                                                                      TYPE           CLUSTER-IP      EXTERNAL-IP                              PORT(S)                                                                               AGE
+argocd          service/argocd-rc-ctv-dev-application-controller                          ClusterIP      10.99.216.198   <none>                                   8082/TCP                                                                              273d
+argocd          service/argocd-rc-ctv-dev-applicationset-controller                       ClusterIP      10.99.223.234   <none>                                   7000/TCP
+
+NAMESPACE     NAME                                         DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+kube-system   daemonset.apps/cilium                        12        12        12      12           12          kubernetes.io/os=linux   667d
+kube-system   daemonset.apps/logging-rsyslog               12        12        12      12           12          <none>                   3y277d
+
+....
+```
 ## Выгрузка примеров логов по всем деплойментам в кластере
 Скрипт
 ```
