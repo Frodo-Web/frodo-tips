@@ -80,3 +80,44 @@ local:
         - prometheus
         - ocsinventory
 ```
+
+Отображать в yaml формате
+```
+salt-call state.show_highstate --out=yaml | less
+```
+
+Показать специфический sls файл примененённый (информация берётся из кеша)
+```
+salt-call state.show_sls ssl.install
+```
+
+Вооо вот эта команда показывает применённые sls (state файлы), похоже тоже из кеша
+```
+salt-call state.show_states
+..
+local:
+    - selinux
+    - logrotate.install
+    - logrotate.config
+    - updatedb
+    - journald.config
+    - journald.service
+    - rsyslog.install
+    - rsyslog.config
+    - rsyslog.service
+    - network.CentOS
+    - chrony.selinux.selinux
+    - chrony.package.install
+    - chrony.config.file
+    - chrony.service.running
+    - aliases
+    - openldap.client.package
+    - openldap.client.config
+    - sudo.package
+    - sudo.config
+```
+
+А сюда пишется лог, от запуска самого salta, или при вводе команд при работе с салт
+```
+tail -100 /var/log/salt/minion
+```
