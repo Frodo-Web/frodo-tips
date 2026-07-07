@@ -42,6 +42,7 @@ Useful commands, combinations, advices, etc...
 [Apache Kafka](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/apache-kafka.md) <br>
 [Message brokers General](https://github.com/Frodo-Web/frodo-tips/blob/main/linux-admin/message-brokers.md) <br>
 # DevOps
+[Salt](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/Salt.md) <br>
 [Ansible](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/ansible.md) <br>
 [Jenkins](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/jenkins.md) <br>
 [Maven](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/maven.md) <br>
