@@ -3,6 +3,10 @@ Run script as another user
 ````
 sudo -u zabbix bash -c "export external_logging=console;/etc/zabbix/externalscripts/database_query.py database_host.ru db_name table_name"
 ````
+Офигенный способ перекинуть директории и поддиректории с большим количеством файлов. Дело в том, что scp перекидывает по одному файлику. Этот способ перекидывал гит репозиторий размером 100 МБ за секунды.
+```
+tar -cf - . | ssh rburdin@master1.dc.dev.k8s.int.company.com "cd /home/rburdin && tar -xf -"
+```
 CPU and I/O statistics for devices and partitions
 ````
 sudo iostat -m -Nd -x | grep 'vgRIAK-lv_u01\|Device'
