@@ -2,6 +2,8 @@
 Here are some usefull commands
 ## Анализ установленных CRD, доступных API ресурсов а также листинг всех ресурсов по всех неймспейсам
 ```
+kubectl explain ingress --api-version=extensions/v1beta1
+
 kubectl get crd
 ..
 alertmanagerconfigs.monitoring.coreos.com             2021-07-27T12:09:48Z
