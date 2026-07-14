@@ -613,6 +613,19 @@ helm get values sentry-kafka -n sentry
 helm get manifest sentry -n sentry
 helm template sentry -n sentry
 
+// Пуллим и распаковываем чарт без добавления репозитория
+helm pull dex --repo https://charts.dexidp.io --untar
+
+// Сохранить переменные
+helm get values dex -n dex > dex-devctv-values.yaml
+
+// Смотрим ревизии и откатываемся на них
+helm history dex -n dex
+helm rollback dex 18 -n dex
+
+// Именно так рекомендуется обновлять, если релизов не было, он просто будет установлен
+helm upgrade --install dex . -n dex -f dex-values.yaml
+
 // Render helm chart ignoring the yaml errors, so you can see what's parsed wrong
 helm --debug template . -f values.yaml
 
