@@ -52,6 +52,7 @@ Useful commands, combinations, advices, etc...
 [Logstash, Elastic Stack, Kibana](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/elastic-kibana.md) <br>
 [Victoria Metrics, Prometheus, Alertmanager, Grafana OnCall](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/victoria-prometheus.md) <br>
 [Docker Swarm](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/docker-swarm.md) <br>
+[Velero](https://github.com/Frodo-Web/frodo-tips/blob/main/devops/Velero.md) <br>
 ## Roadmap
 [Roadmap](https://github.com/Frodo-Web/frodo-tips/blob/main/All/Roadmap.md) <br>
 ## SSH
